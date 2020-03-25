@@ -9,7 +9,7 @@ Páginas de recursos útiles varios:
 Generate random words, remove line breaks, convert a word doc, or convert text to basic HTML with these free tools. Generate HTML and fix word capitalization.                         
 
                 
-* Utilidades para fuentes: [dafont.com](http://dafont.com), [Google Fonts])(https://fonts.google.com/)
+* Utilidades para fuentes: [dafont.com](http://dafont.com), [Google Fonts](https://fonts.google.com/)
 
 * Powerpoint:  
   * [Prezi](http://prezi.com)
