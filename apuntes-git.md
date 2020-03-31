@@ -367,4 +367,18 @@ Si es para usarlo con github-pages, hemos de cambiar en `Gemfile` la parte que p
 Si algo no funciona: `bundle update`
 
 
+# Otras apps Github
 
+## Github classroom
+
+https://classroom.github.com/
+
+Sirve para hacer clase y enseñanza
+
+## Github packages
+
+Sirve para hacer paquetes que se instalan con `npm`
+
+## Github projects
+
+Sirve para crear proyectos y hacer listas de tareas dentro del repositorio.
