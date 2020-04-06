@@ -26,3 +26,22 @@ Si un método es privado (__cazar) no puede ser accedido por las claes hijas
 El orden de la herencia múltiple es de izquierda a dercha (para override de métodos)
 
 ## Magic Methods
+Se empiezan con `__`
+
+`__repr__`: unambiguous representation  (solo para que la vean otros desarrollaodres).
+`__str__`: readable representation  (para el usuario final).
+> Por defecto se usa str>repr cuando hacemos un print
+
+Otros:
+`__add, sub, mul, matmul, __` = para hacer cálculos con clases
+Para el cálculo se hace usando other para el otro argumento:
+```
+def __add__(self, other):
+	return (self.pay + other.pay)
+```
+
+
+
+`__len__` = calcular la longitud
+
+
