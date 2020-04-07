@@ -74,25 +74,11 @@ Es interesante usar una variable de clase para valores inmutables por los objeto
 
 
 
-### Atributos PRIVADOS
+### Private atributes (Atributos PRIVADOS)
 Los atributos privados solo pueden ser modificados por la clase y no por fuera (ni siquiera por la instancia de clase).
 Esto se hace haciendo __ delante del atributo al crearlo.
 Ej `self.__password = password
 
-
-### Properties
-
-Sirven para trabajar con los atributos privados de una clase (ej self.__password) para no manipularla directamente:
-
-```
-@property
-def password(self):
-	return self.__password
-	
-@password.setter
-def password(self, valor):
-	self.__password = self.__generar_password(valor)
-```
 
 
 ### Limitar atributos de una clase
@@ -108,6 +94,30 @@ Esto además provoca que no podamos usar `__dict__`.
 El atributo `__slots__` no se hereda (las subclases podrán establecer atributos que quieran).
 
 
+### Property decorators (decoradores)
+
+Los property decorators permiten definir metodos y acceder como si fueran atributos.
+`@property`.
+
+Al definir como property ya no podemos cambiar el valor de los atributos desde fuera como si fueran normales, es necesario modificarlos con otros decoradores (setters y getters).
+
+
+Por ello principalmente sirven para trabajar con los atributos privados de una clase (ej self.__password) para no manipularla directamente:
+
+```
+@property
+def password(self):
+	return self.__password
+	
+@password.setter
+def password(self, valor):
+	self.__password = self.__generar_password(valor)
+	
+@password.deleter
+def delete_password(self):
+	self.__password = None
+	print("Password deleted")
+```
 
 ---------
 
@@ -185,7 +195,7 @@ La `cls`del final se refiere a la clase, y es lo mismo que si pusieramos `Employ
 `employee1 = Employee.from_string('Santi-Bacat')`
 
 
-### Métodos ESTÁTICOS
+### Static methods (métodos estáticos)
 
 > @staticmethod
 
@@ -235,15 +245,15 @@ El orden de la herencia múltiple es de izquierda a dercha (para override de mé
 
 
 ## Magic Methods
-Se empiezan con `__`
+Son `__methods__` y sirven para establecer acciones por defecto.
 
 `__repr__`: unambiguous representation  (solo para que la vean otros desarrollaodres).
 `__str__`: readable representation  (para el usuario final).
 > Por defecto se usa str>repr cuando hacemos un print
 
-Otros:
 `__add, sub, mul, matmul, __` = para hacer cálculos con clases
 Para el cálculo se hace usando other para el otro argumento:
+
 ```
 def __add__(self, other):
 	return (self.pay + other.pay)
@@ -270,4 +280,24 @@ class myError(Exception):
 	def __init__(self, *args, **kwargs):
 		Exception.__init__(self, *args, **kwargs)
 ```
+
+
+---------
+## if name == main
+
+```
+if __name__ == `__main__`:
+	main()
+```
+
+Sirve para verificar si un archivo está siendo ejecutado directamente (llamando a ese archivo) o es importado.
+
+* Si se llama directamente, lo que hay dentro de `main()`se ejecuta gracias a esta línea. Además tambien se ejecuta todo lo que esté fuera.
+* Si se importa ese archivo a otro (`import primerpaquete`) se ejecutaría todo lo que está fuera de `main()`. Por ello, si hay algo que no queremos que se ejecute al importarlo, lo ponemos dentro de `main()`.
+	* Ej: si solo queremos importar paquetes o algo para reutilizar código.
+* Si queremos ejecutar este código en el otro archivo lo podremos llamar usando `primerpaquete.main()`.
+
+
+
+
 
