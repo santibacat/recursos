@@ -66,3 +66,25 @@ mayus+cmd+V
 
 para hacerlo en directo: cmd+k V
 
+### python
+
+marcamos punto rojo y F5 para debug
+(se para ahí)
+en debug console podemos meter código
+
+para ejcutar código le damos al play
+
+para ejecutar líneas sueltas las seleccionamos y alt+enter
+
+code cells tipo jupyter 
+`# %%` al inicio
+
+
+
+format document = pep8  
+linting = mejor aun
+
+## git
+cmd+k cmd+D ver diff
+
+

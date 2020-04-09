@@ -90,10 +90,31 @@ Más recursos:
 * []MLconf Conferencias machine learning https://mlconf.com/
 * [x]Repositorios de machine learning http://archive.ics.uci.edu/ml/datasets.html
 
+
+## tf2
+
+* [ ] Hands-on ML by Aurelien Geron
+* [x] DL with python by F.Chollet (2ed tba)
+* [ ] DL for computer vision by Adrien Rosebock (3ed for tf2 tba)
+* ML tokyo https://github.com/Machine-Learning-Tokyo/CNN-Architectures/tree/master/Implementations
+* [ ] Practical DL for cloud, mobile and edge
+* [x] [Especialización Tensorflow deeplearning.ai](https://www.coursera.org/specializations/tensorflow-in-practice)
+* Otros:
+* [ ] [Hands-on oenural networks with tf2](https://pgaleone.eu/tensorflow/neural-networks/book/2019/09/21/hands-on-neural-networks/)
+* [ ] [Curso tf2 imperial college london](https://www.coursera.org/learn/getting-started-with-tensor-flow2)
+* [ ] [Tf2 hacks](https://github.com/sayakpaul/TF-2.0-Hacks/blob/master/README.md)
+* [ ] [dl tf2-keras antonio gulli](https://www.amazon.com/Deep-Learning-TensorFlow-Keras-Regression/dp/1838823417)
+
+
+
+
+
+
+
 MEDIUM
-[]https://medium.com/@SeoJaeDuk/medical-image-segmentation-part-1-unet-convolutional-networks-with-interactive-code-d07231eb29bf
-[]https://medium.com/@verma.chandan/building-neural-network-for-medical-imaging-using-deep-learning-in-tensorflow-part-1-ab993b7fb04f
-[]https://medium.com/stanford-ai-for-healthcare/its-chest-day-uses-of-deep-learning-in-chest-abnormality-detection-d55636914edd
+[ ]https://medium.com/@SeoJaeDuk/medical-image-segmentation-part-1-unet-convolutional-networks-with-interactive-code-d07231eb29bf
+[ ]https://medium.com/@verma.chandan/building-neural-network-for-medical-imaging-using-deep-learning-in-tensorflow-part-1-ab993b7fb04f
+[ ]https://medium.com/stanford-ai-for-healthcare/its-chest-day-uses-of-deep-learning-in-chest-abnormality-detection-d55636914edd
 
 
 RADIOLOGIA
