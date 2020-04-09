@@ -298,6 +298,15 @@ Sirve para verificar si un archivo está siendo ejecutado directamente (llamando
 * Si queremos ejecutar este código en el otro archivo lo podremos llamar usando `primerpaquete.main()`.
 
 
+-----
 
+## == + is
+
+== checkea igualdad
+dos latas de cocacola son iguales
+
+is checkea identidad
+dos latas de cocacola no son la misma lata (no son el mismo objeto que ocupa espacio en memoria
+)
 
 
