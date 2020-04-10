@@ -371,6 +371,90 @@ import builtins
 print(dir(builtins))
 ```
 
+FUNCIONES
+
+Para dejarlas vacías
+
+```
+def hola():
+	pass
+```
+
+cuando le pasamos *args y **kwargs a una función tiene que ser en ese orden.
+Además si se las pasamos empaquetadas no funcionará bien. Ej.
+courses = ['math', 'science']
+info = {'name': 'John'; 'age': 28}
+
+Si al pasarlo a la funcion student_info(courses, info) lo pasamos sin nada, no desempaquetará bien y lo tomará todo como args.
+
+hay que desempaquetarlo como args y kwargs
+`student_info(*courses,**info)`
 
 
+
+
+---
+os module
+
+* os.chdir = cambiar directorio
+* os.getcwd() = ver directorio activo
+* os.listdir() = ls
+* os.mkdir() y os.makedirs() = crea directorios (sin y con subdirectorios)
+* os.rmdir() y os.removedirs() = elimina "
+* os.rename(old, new) = renombrar
+* os.stat(file) = estadisticas de un archivo
+* os.walk = recorre directorios 
+* os.path.join() = para juntar directorios (mejor que hacerlo sumando porque aqui se encarga solo de las barras \)
+* os.path.split() = separa los subdirs y archivos
+* os. path.exists() = checkea si existe
+* os.path.isfile/isdir () = comprueba si es dir o archivo
+
+
+
+TRABAJAR CON FECHAS
+
+### Datetime
+`import datetime`
+
+_DATE (fecha)_: AAAA-MM-DD
+
+:    Obtiene solo la fecha
+
+_TIME (tiempo)_: HH:MM:SS.mmss
+
+:    Se usa poco porque no tiene fecha
+
+_DATETIME (fecha y hora)_: AAAA-MM-DD HH:MM:SS.mmss
+
+:    Obtiene ambos atributos, es el que usaremos
+
+Uso:
+
+`datetime.date(y,m,d)`= para crear una fecha  
+`datetime.date.today` = fecha de hoy
+
+Si queremos solo un dato en concreto:
+
+`*.today.year()` = solo el año  
+`*.today.weekday()` = dia de la semana si Lunes es 0. Con `isoweekday()` Lunes es 1.
+
+Los **timedeltas** son intervalos de tiempo en relación a una fecha.  
+Con ello podemos:
+
+* Restar o sumar un intervalo creado (Ej.: `tdelta = datetime.timedelta(days=7)`) a una fecha
+* Calcular el intervalo entre dos fechas (si restamos o sumamos dos fechas, obtenemos un timedelta)
+
+Ahora esto se lo podemos sumar por ejemplo a la fecha de hoy y ver de dentro de una semana.
+
+Para la fecha actual hemos de tener en cuenta las zonas horarias.
+`datetime.datetime.today()` o `datetime.datetime.now()` no tienen bien implementadas las zonas horarias.
+
+Lo mejor es usar el paquete `pytz`: `datetime.datetime.now(tz=pytz.UTC)`
+
+Si queremos convertirla: `hora.astimezone(pytz.timezone('Spain'))`
+
+Para formatear horas en otro formato (ej: 23 de Julio de 2020)
+
+`hora.strftime('formato')` pueder ver los distintos formatos en la documentación.
+al reves (de string a hora) con `strptime()`
 
