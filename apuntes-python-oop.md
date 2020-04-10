@@ -458,3 +458,99 @@ Para formatear horas en otro formato (ej: 23 de Julio de 2020)
 `hora.strftime('formato')` pueder ver los distintos formatos en la documentación.
 al reves (de string a hora) con `strptime()`
 
+---
+
+### BE PYTHONIC
+
+**Duck typing**
+
+Se refiere a no tener en cuenta el tipo de objeto si puede hacer lo que se le permite.
+
+> Si anda como un pato y vuela como un pato, se le trata como a un pato.
+
+
+
+**EAFP (*easier to ask forgiveness than permission*)**
+
+Se refiere a que en otros lenguajes vamos anidando condicionales para hacer comprobaciones antes de ejecutar (*LBYL = look before you leak*), y en python es mejor dejar ejecutar y usar try/except para ver los errores.
+
+
+---
+
+### f-strings
+
+A partir de python 3.6 
+
+Old: `'My name is {} {}'.format(name, surname)`
+New: `f'My name is {name} {surname}`
+
+Es preferible usar double_quotes para que no afecte a las variables que haya dentro:  
+`f"My name is {person['name']}"`
+
+Para formatear números se usan _dos puntos_: `{n:02.3f}`
+
+Para formatear fechas igual: `{birthday:%B %d %Y}`
+
+
+### Generators
+
+Es como hacer una lista pero usando `yield`. Mejor porque usa menos memoria (solo genera uno a la vez).
+Para obtener el siguiente resultado `next`.
+Cuando termina todos ya no se puede iterar más (da `StopIteration`).
+
+Cuando hacemos un for con una list comprehension en el fondo estamos haciendo un generador; para ello debemos usar `()` paréntesis.
+`(x*x for x in [1,2,3,4,5])`
+
+### Decorators
+
+Primero habla de los **closures** que yo no habia oido hablar; creo que son funciones anidadas en la que se guarda la ejecución pero no se ejecuta:
+
+```
+def outer_function(msg):
+	def inner_function():
+		print(msg)
+	return inner_function
+
+hi_func = outer_function('Hi')
+```
+
+De esta forma se crea la función con los parametros pero aun no se ejecuta.
+
+Esta es la base de funcionamiento de los decoradores, que modifican la ejecución de una función (wrapped):
+
+```py
+def decorator_function(original_function):
+	def wrapper_function(*args, **kwargs):
+		-loquequeramosquehagaeldecorador-
+		return original_function(*args, **kwargs)
+	return wrapper_function
+
+def decorator_class(object):
+	def __init__(self, original_function):
+		self.original_function = original_function
+
+	def __call__(self, *args, **kwargs):
+	-loquequeramosquehaga-
+	return self.original_function(*args,**kwargs)
+```
+La forma tipica de los decoradores es `@`. Estas dos cosas son lo mismo:
+`@decorator_function de display == decorator_function(display)`
+
+Para preservar la información de las variables, cuando vamos a usar varios decoradores lo mejor es usar:
+
+```py
+from functools import wraps
+
+def decorador(orig_func):
+	...
+	@wraps(orig_func)
+	def wrapper(...):
+		...
+	return wrapper
+
+@decorador
+orig_func()
+```
+
+
+ 
