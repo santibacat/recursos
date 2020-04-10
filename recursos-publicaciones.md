@@ -14,6 +14,7 @@ Generate random words, remove line breaks, convert a word doc, or convert text t
 * Powerpoint:  
   * [Prezi](http://prezi.com)
   * [Plantillas powerpoint](http://www.templateswise.com/)
+  * [Font Awesome](https://fontawesome.com/cheatsheet) para introducir iconos chulos
   
 * [Office gratis para estudiantes]()
                                      

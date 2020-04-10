@@ -1,6 +1,6 @@
 # GIT
-## Comandos básicos
-Crear un repositorio nuevo:  
+## Comandos basicos  
+__Crear un repositorio nuevo:__
 
 ```
 # Crear carpeta e ir a ella
@@ -16,7 +16,7 @@ git push -u origin master
 
 ```
 
-Clonar un repositorio:  
+__Clonar un repositorio:__
 `git clone /path/repo.git`
 
 
@@ -29,7 +29,7 @@ __Información básica:__
 
 
 
-## Explicación básica de Git
+## Explicacion basica de Git
 
 Tenemos tres zonas locales y una remota:
 
@@ -54,16 +54,14 @@ Para editar un commit (pero que se guarden los cambios dentro del mismo): `git c
 ### REPOSITORIO REMOTO
 
 Configurar repositorio remoto (si no está ya configurado):  
-`git remote add origin <server>`
+`git remote add origin <server>`  
 `git remote remove origin <server>`
 
 Ver repositorios remotos:
 `git remote -v`
 
-Para enviar los cambios:  
-`git push origin <rama>`
-
-Generalmente usaremos `git push origin master`
+Para enviar los cambios:  `git push origin <rama>`  
+(Generalmente usaremos `git push origin master`)
 
 
 ## Ramas
@@ -72,10 +70,10 @@ Generalmente usaremos `git push origin master`
 
 _Master_ es la rama estable por defecto.
 
-Para ver las ramas: `git branch`
+* Para ver las ramas: `git branch`
 	* Para ver las ramas ocultas `git branch -a`
 
-Para cambiar de rama: `git checkout <rama>`
+* Para cambiar de rama: `git checkout <rama>`
 
 Modificar ramas:
 
@@ -101,13 +99,13 @@ Hay dos tipos de fusión:
 * __Manual-merge__: cuando hay conflictos, somos nosotros los que debemos resolverlos a mano, editando los archivos. Ocurre al trabajar con mismos archivos o líneas de código.
 
 
-## Sincronización
+## Sincronizacion
 
 Podemos hacerlo de dos formas:
 
-* Si queremos integrar los archivos: `git pull` (hace a la vez remote > HEAD > integra en WD). Típico: `git pull origin master`
+* Si queremos integrar los archivos: `git pull` (hace a la vez remote > HEAD > integra en WD). >> Típico: `git pull origin master`
 * Si queremos tener más control: `git fetch` + `git merge`.
-	* `git fetch` sirve para traer archivos del repositorio remoto al local HEAD (pero no al WD). Tipico: `git fetch origin`
+	* `git fetch` sirve para traer archivos del repositorio remoto al local HEAD (pero no al WD). >> Tipico: `git fetch origin`
 	* `git merge <rama>`mezcla el contenido del repo local con el del WD. Típico: `git merge origin/master`
 
 `git pull` solo funciona si no hay confictos ('auto-merge'). Sino, habrá que hacer manual-merge (ver [punto anterior](#fusionar-ramas)).
@@ -168,8 +166,7 @@ Solo se pueden subir a github tags ANOTADAS. Se suben explicitamente con `git pu
 
 Tambien se pueden subir todas con `git push --follow-tags`. Ver [aqui](https://stackoverflow.com/questions/5195859/how-do-you-push-a-tag-to-a-remote-repository-using-git) la discusión.
 
-Para poner este comportamiento por defecto: `git config --global push.followTags true
-`.
+Para poner este comportamiento por defecto: `git config --global push.followTags true`.
 
 NOTA: antes se subían todas con `git push --tags`pero se desaconseja hacerlo.
 
@@ -227,7 +224,7 @@ Otros usos:
 	* o `git revert HEAD` (mejor)
 
 	
-Por todo lo anterior, `git reset`se considera INSEGURO y se recomienda no usarlo por el riesgo de pérdida de información.
+Por todo lo anterior, `git reset` se considera INSEGURO y se recomienda no usarlo por el riesgo de pérdida de información.
 
 `git clean`es otra forma de limpiar. No se usarla y no se si me hace falta.
 
@@ -248,7 +245,7 @@ NOTA: _NO guardar commits ni nada en ese estado ya que se eliminará._
 
 
 
-## Configuración avanzadda
+## Configuracion avanzadda
 
 ### Comandos avanzados
 * Ver versión instalada: `git --version`
@@ -294,14 +291,14 @@ Para ello, entrar en `.git/hooks` y crear un archivo (ej: `touch post-commit`), 
 
 ## Github
 
-* Pull requests: en repositorios publicos o compartidos, para establecer 
+* Pull requests: en repositorios publicos o compartidos, para pedir agregar errores o funcionalidades nuevas si no tenemos permiso de edición.
 * Issues: para establecer problemas y cosas que hay que arreglar. Podemos establecer etiquetas.
 * Milestones: son colecciones de issues que hay que arreglar. Generalmente son para establecer limites temporales (para hacer versiones etc).
 * Stats: podemos ver estadísticas y gráficos del proyecto.
 
 
 
-## Bibliografía
+## Bibliografia
 
 * [Git, the simple guide](https://rogerdudler.github.io/git-guide/) by Roger Dudler
 * [Learn Git basics under 10 minutes](https://www.freecodecamp.org/news/learn-the-basics-of-git-in-under-10-minutes-da548267cc91/) de FreeCodeCamp
@@ -312,7 +309,7 @@ Para ello, entrar en `.git/hooks` y crear un archivo (ej: `touch post-commit`), 
 
 # Github Pages
 
-## Conceptos básicos
+## Conceptos basicos
 Sirve para alojar web directamente en github.
 
 Lo primero es crear un repo que será `<nombreusuario>.github.io`. Ese será el principal.

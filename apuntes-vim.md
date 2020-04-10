@@ -28,7 +28,7 @@ Al editar:
 `A` poner texto al final de la línea  
 `o` crea una línea vacia  
 `dd` borra la línea actual  
-`D`borra desde la posición actual al fin de la línea
+`D` borra desde la posición actual al fin de la línea
 
 **Repetidores**:  
 Consisten en repetir la tarea actual tantas veces como le pongas.  

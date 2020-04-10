@@ -5,47 +5,61 @@
 Aqui pondré la formación básica de Markdown. Procede del tutorial de **MacDown**.
 
 ### Titulos 
-**Negrita** con dos *
+**Negrita** con dos *  
+*Cursiva* con un *  
+_subrayado_ con un _
 
-*Cursiva* con un *
-
-Salto de línea: doble retorno.
+Salto de línea: doble retorno o dejar dos espacios al final del texto  
 Sino aparece en la misma línea.
 
-**Enlaces**:
-`![texto](enlace "Titulo")`
-
-[Enlaces sin imagen](http://www.google.com)
-![Enlaces con imagen](http://macdown.uranusjr.com/static/images/logo-160.png)
-
-**Listas**:
+### Listas
 
 * Lista 1 (con asterisco al principio)
 * Lista 2
-- Lista 3 (usar - vale pero hace lo mismo)
+- Lista 3 (usar - hace lo mismo)
 	- Lista indentada
 
 1. Lista num1
-	7. Lista indentada num (da igual el numero, el la ordena sola)
+	1. Lista indentada num (da igual el numero, el la ordena sola)
 2. Lista num2
 
 ### Enlaces
-**Emails**, urls entre <>:
+
+`![texto](enlace "Titulo")`
+
+[Enlaces sin imagen](http://www.google.com)  
+![Enlaces con imagen](http://macdown.uranusjr.com/static/images/logo-160.png)
+
+
+**Emails**: urls entre <>
 
 <santibacat@gmail.com>
 
 <http://www.google.com>
 
+
+$~$
+
+
 Puedes darle título al poner encima:
 [Google](http://www.google.com "Google España")
 
-Podemos poner **enlaces** separados (para agruparlos en MD):
+`[Google](http://www.google.com "Google España")`
+
+Podemos poner **enlaces** separados (para agruparlos en otro sitio):
 [Hotmail][hotmail_web] (fijate doble corchete)
 
 [hotmail_web]: http://www.hotmail.com "Outlook"
 
+```
+[Hotmail][hotmail_web] (fijate doble corchete)
 
-### Citas y código
+[hotmail_web]: http://www.hotmail.com "Outlook"
+```
+
+
+
+### Citas
 
 **Citas** con >, se pueden anidar a multiples niveles:
 
@@ -54,10 +68,10 @@ Podemos poner **enlaces** separados (para agruparlos en MD):
 > > > Anidamos otro nivel
 > Ahora volvemos al primero
 
-**Código** con `` `(backticks)` ``:
+### Código 
+**Código** con `python code`
 
-`python code`
-Si lo usamos doble es porque queremos usar corchetes en medio.
+Si lo usamos doble es porque queremos usar corchetes en medio `` `(backticks)` ``
 
 Si queremos hacer un bloque, solo debemos dar cuatro espacios o un tab:
 
@@ -65,23 +79,32 @@ Si queremos hacer un bloque, solo debemos dar cuatro espacios o un tab:
     print("hola")
 
 Tambien podemos hacer bloques con tres ' o ~ :
-(especificar el lenguaje despues de las tres, como por ejemplo `` `python ``
+(especificar el lenguaje despues de las tres, como por ejemplo `` `python `` (y así pone colores del lenguaje).
 
 ```python
 python code
 import numpy as np
 ```
 
+### Separación
+
+Línea en blanco: `$~$`
 
 **Linea divisoria:** tres * o -
 
 ***
 
+---
+
+$~$
+
 ## <a name="part2"></a>Parte 2: avanzada
 
 Para darle un titulo a un apartado (para que vaya directamente un enlace) usamos:
 
-`<a name="nombreparte"></a>Titulo`
+`<a name="nombre-parte"></a>Titulo`
+
+Tambien podemos usar headings ids de otra forma: `### Titulo {#custom-id}`
 
 Y ahora para un enlace de ejemplo para ir arriba: [aqui](#part1) `[enlace](#parte)`
 
@@ -89,11 +112,11 @@ Y ahora para un enlace de ejemplo para ir arriba: [aqui](#part1) `[enlace](#part
 ### Tablas
 
 
-`| Left Aligned  | Center Aligned  | Right Aligned |`
-`|:------------- |:---------------:| -------------:|`
-`| col 3 is      | some wordy text |         $1600 |`
-`| col 2 is      | centered        |           $12 |`
-`| zebra stripes | are neat        |            $1 |`
+`| Left Aligned  | Center Aligned  | Right Aligned |`  
+`|:------------- |:---------------:| -------------:|`  
+`| col 3 is      | some wordy text |         $1600 |`  
+`| col 2 is      | centered        |           $12 |`  
+`| zebra stripes | are neat        |            $1 |`  
 
 | Left Aligned  | Center Aligned  | Right Aligned |
 |:------------- |:---------------:| -------------:|
@@ -107,12 +130,16 @@ The following is a list of optional inline markups supported:
 
 Option name         | Markup           | Result if enabled     |
 --------------------|------------------|-----------------------|
-Intra-word emphasis | So A\*maz\*ing   | So A<em>maz</em>ing   |
+Intra-word italic | So A\*maz\*ing   | So A<em>maz</em>ing
+|
+Intra-word bold     | So A\**maz\**ing   | So A**maz**ing
+|
 Strikethrough       | \~~Much wow\~~   | <del>Much wow</del>   |
 Underline [^under]  | \_So doge\_      | <u>So doge</u>        |
 Quote [^quote]      | \"Such editor\"  | <q>Such editor</q>    |
 Highlight           | \==So good\==    | <mark>So good</mark>  |
-Superscript         | hoge\^(fuga)     | hoge<sup>fuga</sup>   |
+Superscript         | hoge\^fuga\^    | hoge<sup>fuga</sup>   
+|
 Autolink            | http://t.co      | <http://t.co>         |
 Footnotes           | [\^4] and [\^4]: | [^4] and footnote 4   |
 
@@ -137,6 +164,20 @@ $$P_\omega={n_\omega\over 2}\hbar\omega\,{1+R\over 1-v^2}\int\limits_{-1}^{1}dx\
 * [x] Tarea completada  
 * [ ] Tarea no completada
 
+
+### Diccionarios
+
+Palabra
+
+:   Esta es la descripción
+
+
+### Emojis
+
+Se insertan entre dos : poniendo el nombre del emoji.
+
+`:joy:` :joy:
+
 ### Portada (Jekyll front-matter)
 Hay que ponerla al inicio del archivo y usar tres ---:
 
@@ -146,3 +187,8 @@ title: "Macdown is my friend"
 date: 2014-06-06 20:00:00
 ---
 ```
+
+## <a name="part3"></a>Bibliografia
+
+1. [Markdownguide](https://www.markdownguide.org/basic-syntax/)
+2. [Macdown tutorial](https://github.com/MacDownApp/macdown/blob/master/MacDown/Resources/help.md)

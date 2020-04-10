@@ -126,3 +126,7 @@ RADIOLOGIA
 COMUNIDADES
 [x]Comunidad Reddit Machine Learning https://www.reddit.com/r/MachineLearning/
 [x]ArXiV vision computer https://arxiv.org/list/cs.CV/recent
+
+
+
+font awesome para presentacines chulas

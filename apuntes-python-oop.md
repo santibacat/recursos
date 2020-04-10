@@ -307,6 +307,70 @@ dos latas de cocacola son iguales
 
 is checkea identidad
 dos latas de cocacola no son la misma lata (no son el mismo objeto que ocupa espacio en memoria
-)
+
+-----
+### Subprocess
+
+```
+import subprocess
+p1 = subprocess.run()
+	# p1.args = te dice los argumentos que has dado
+	# p1.stdout = te da la salida si la has guardado
+		# con capture_output = True
+	# p1.stderr = te da los errores (tambien .errorcode)
+	
+
+```
+
+
+---
+### Variable scope
+
+Es el alcance de cada variable en python
+
+*LEGB* es en orden en que python busca:
+
+* Local
+* Enclosing
+* Global
+* Built-in
+
+_Enclosing-scope_ se refiere a que todo lo interior incluye a lo exterior, pero no al revés.
+
+
+Podemos especificar que dentro de una funcion se use un valor global y no un valor local de dentro de la funcion:
+
+```
+x = 'outside x'
+
+def test():
+	global x
+	x = 'inside x'
+
+print(x) # = 'inside x'
+```
+
+Lo mismo podemos hacer en funciones anidadas, cambiar un valor más externo pero sin afectar al valor local
+
+```
+def outer():
+	x = 'outer x'
+	def inner():
+		nonlocal x
+		x = 'inner x'
+	inner()
+outer() # dará 'inner x'
+```
+
+
+_Built-in_ se refiere a nombres globales de python.
+Tenemos que tener cuidado porque podemos sobreescribirlas con nuestras propias funciones y no da error.
+
+```
+import builtins
+print(dir(builtins))
+```
+
+
 
 
