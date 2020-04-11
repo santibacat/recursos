@@ -477,11 +477,19 @@ Se refiere a que en otros lenguajes vamos anidando condicionales para hacer comp
 
 ---
 
+## FORMATTING STRINGS
+
+La forma antigua es con `.format()`.
+
+`'My name is {} {}'.format(name, surname)`
+
+Se pueden poner números en los corchetes por si hay valores repetidos:
+`I'm {0}. {0} {1}'.format(name, surname)`
+
 ### f-strings
 
 A partir de python 3.6 
 
-Old: `'My name is {} {}'.format(name, surname)`
 New: `f'My name is {name} {surname}`
 
 Es preferible usar double_quotes para que no afecte a las variables que haya dentro:  
@@ -551,6 +559,92 @@ def decorador(orig_func):
 @decorador
 orig_func()
 ```
+
+#### DECORADORES CON ARGUMENTOS
+
+Se hace añadiendole otra función anidada "prefijo" que irá por encima del decorador:
+
+```python
+def prefix_decorator(prefix):
+	def decorator_function(original_function):
+			def wrapper_function(*args, **kwargs):
+					...
+		return wrapper_function
+	return decorator_function
+
+@prefix_decorator('LOG: )
+def function():
+	pass
+```
+
+Pocas veces se usará pero es interesante saberlo.
+
+
+### namedTuples
+
+Son como tuplas pero más entendibles. Y tienen las ventajas de las tuplas (inmutables y mas rápidas que los diccionarios).
+
+Ej: una tupla con colores RGB, para identificar correctamente cual es cada color.
+
+```python
+from collections import namedtuple
+# namedtuple('nombre', ['args'])
+
+Color = namedtuple('Color', ['red','green', 'blue'])
+new_color = Color(55,155,255)
+new_color.blue # podemos acceder individualmente
+```
+
+
+
+## COMPREHENSIONS
+
+```python
+[n^2 for n in nums if n%2 == 0]
+[(letter,num) for letter in 'abcd' for num in range(4)]
+```
+
+Tambien se pueden hacer con diccionarios y sets:
+
+```python
+{name:hero for name, hero in zip(names, heros)if name != 'Peter}
+```
+
+Los sets son como listas pero con valores unicos
+
+```python
+{n for n in nums}
+```
+
+Los generadores son muy similares a las comprehensions.
+
+Recuerda que `zip` crea tuplas con el primer indice de cada lista, luego el segundo, y así hasta el final.
+
+## SORT OBJECTS
+
+Podemos usar `sorted()` que crea nueva variable o el método `list.sort()` para una ya creada.
+
+`reverse=True` la ordena al revés
+`key=` es una función que diga *cómo* ordenar. Puede ser un lambda tipo `key = lambda e: e.salary` o un getter `key = attrgetter('age')`.
+
+
+## RANDOM
+
+`import random`
+
+`random.random()`= valor entre 0 y 1
+`random.uniform(inicio, final)` = devuelve float
+`random.randint(inicio, final)` = devuelve enteros
+`random.choice(list)` = devuelve un valor aleatorio de entre una lista
+`random.choices(list, k=veces)` = devuelve una lista de `k` valores aleatorios de entre una lista.
+* `weights = [50, 25, 25]` para ponderar el peso de cada elemento original de la lista 
+
+Valores unicos (evitar repeticion), no se usa choices sino `random.sample(list, k=)`.
+
+
+## REGULAR EXPRESSIONS
+
+
 
 
  
