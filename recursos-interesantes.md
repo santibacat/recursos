@@ -1,7 +1,3 @@
-==== RECURSOS INTERESANTES ====
-
----
-
 
 # RECURSOS
  
@@ -115,7 +111,7 @@ Repos:
 * [ ] [ML tokyo](https://github.com/Machine-Learning-Tokyo/CNN-Architectures/tree/master/Implementations)
 * [ ] [Practical DL for cloud, mobile and edge](https://github.com/PracticalDL/Practical-Deep-Learning-Book)
 
-* Otros:
+Otros:
 
 * [ ] [Tf2 hacks](https://github.com/sayakpaul/TF-2.0-Hacks/blob/master/README.md)
 * [ ] [Hands-on enural networks with tf2](https://pgaleone.eu/tensorflow/neural-networks/book/2019/09/21/hands-on-neural-networks/)
