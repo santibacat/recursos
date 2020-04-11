@@ -305,6 +305,7 @@ Para ello, entrar en `.git/hooks` y crear un archivo (ej: `touch post-commit`), 
 * [Tutorial git](http://flowsta.github.io/github/) de Flowsta
 * [Curso Youtube Introducción a GIT]https://www.youtube.com/watch?v=zH3I1DZNovk&list=PL9xYXqvLX2kMUrXTvDY6GI2hgacfy0rId) de CodigoFacilito
 * [Tutorial Git de Atlassian](https://www.atlassian.com/git/tutorials)
+* [Git explorer](http://gitexplorer.com) página interactiva para saber que comando de git usar
 
 
 # Github Pages
@@ -379,3 +380,7 @@ Sirve para hacer paquetes que se instalan con `npm`
 ## Github projects
 
 Sirve para crear proyectos y hacer listas de tareas dentro del repositorio.
+
+## Bibliografía
+
+* [Github pages](https://help.github.com/en/github/working-with-github-pages)
