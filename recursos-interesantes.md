@@ -3,51 +3,7 @@
 ---
 
 
-# TO-DO 
-
-* [ ] [Fastpages fastai](http://fastpages.fastai.com) para convertir de una pagina jupyter a blog-html
-* [ ] [Dtale](https://github.com/man-group/dtale) visor html con flask-react para visualizar pandas
-
----
-
 # RECURSOS
-
-## PYTHON
-
-* [Real Python](https://realpython.com/search?q=classes) recursos Python leidos
-
-## DEEP LEARNING
-
-* [Kaggle](https://www.kaggle.com/)
-* [State of the Art in ML](https://paperswithcode.com/sota)
-* [Plantilla proyectos tensorflow](https://github.com/Mrgemy95/Tensorflow-Project-Template)
-* [NVIDIA Education](https://www.nvidia.com/en-us/deep-learning-ai/education/) de pago
-* [pyimagesearch](https://www.pyimagesearch.com/) recursos de imagen para DL
-* [Glosario IA](https://ml-cheatsheet.readthedocs.io/en/latest/index.html)
-
-Repos:
-* [Deep Learning Wizard repo](https://github.com/ritchieng/deep-learning-wizard)
-* [Gran repo open-source](https://github.com/academic/awesome-datascience)
-* [Machine Learning Tutorials repo](https://github.com/ujjwalkarn/Machine-Learning-Tutorials)
-
-
-### JUPYTER NOTEBOOKS
-
-* [nbviewer](https://nbviewer.jupyter.org/) visor ipynb online
-* [nbconvert](https://nbconvert.readthedocs.io/en/latest/) convertir ipynb a html-pdf-etc
-
-### DATASETS
-
-* [Repositorios ML Univ](https://archive.ics.uci.edu/ml/index.php)
-* [Google Dataset Seach](https://datasetsearch.research.google.com/)
-
-## LINUX
-
-* [Binder](https://mybinder.org/) turn Github repo into Jupyter Notebooks
-
----
-
-# APRENDIZAJE
  
 * [Buscador mejores cursos](https://www.class-central.com/collection/top-free-online-courses)
 * [50 mejores cursos 2018](https://medium.freecodecamp.org/top-50-free-online-courses-2018-e67d0da38e95)
@@ -57,11 +13,19 @@ Repos:
 
 ## PYTHON
 
+* [Real Python](https://realpython.com/search?q=classes) recursos Python leidos
+* [pyimagesearch](https://www.pyimagesearch.com/) recursos python en imagen
+
+Aprendizaje:
+
 * [Recommended fastai python resources](https://forums.fast.ai/t/recommended-python-learning-resources/26888)
 * [Python Docs Learning Resources](https://docs.python-guide.org/intro/learning/)
 * [X] [Sololearn](https://www.sololearn.com/Course/Python/)
 * [ ] [Coursera Rice Univ - Interactive Prg with Python](https://www.coursera.org/learn/interactive-python-1)
 * [ ] [Coursera Michigan Univ - Programming for Everybody](https://www.coursera.org/lecture/python-data-analysis)
+* [ ] [Corey Shafer Youtube]()
+* [ ] [Derek Banas Youtube]()
+* [ ] [Jesus Conde VT Youtube]()
 
 
 Libros:
@@ -84,20 +48,41 @@ GUI:
 
 
 
+
 ## DATA SCIENCE
 
+* [Dataschool recursos data science](https://www.dataschool.io/)
+
+Aprendizaje:
 * [ ] [Data project checklist](https://www.fast.ai/2020/01/07/data-questionnaire/) by Jeremy Howard
 * [x] book [Data Science Jaak Vanderplas](https://github.com/jakevdp/PythonDataScienceHandbook) creador de Altair
 * [x] book [Data Science Joel Grus](https://github.com/joelgrus/data-science-from-scratch)
 * [ ] book [Data Science Wes McKinney](https://github.com/wesm/pydata-book) creador de Pandas
 * [x] book [Scientific Python Lectures](https://github.com/jrjohansson/scientific-python-lectures)
 * [ ] [Curso Kaggle Data Science](https://www.kaggle.com/learn/overview)
-* [Dataschool recursos data science](https://www.dataschool.io/)
+
+
+Otros:
 * [Estadistica en español](http://wwwae.ciemat.es/~cardenas/docs/lessons/)
 * [Machine Learning con R](https://bradleyboehmke.github.io/HOML/intro.html)
 
 
 ## DEEP LEARNING
+
+* [Kaggle](https://www.kaggle.com/) competiciones
+* [Papers with code](https://paperswithcode.com/sota) articulos ML con código
+* [Glosario IA](https://ml-cheatsheet.readthedocs.io/en/latest/index.html)
+* [NVIDIA Education](https://www.nvidia.com/en-us/deep-learning-ai/education/) de pago
+* * [Deep Learning Wizard](https://www.deeplearningwizard.com/)
+
+
+Repos:
+* [Gran repo open-source](https://github.com/academic/awesome-datascience)
+* [Machine Learning Tutorials repo](https://github.com/ujjwalkarn/Machine-Learning-Tutorials)
+* Apuntes [ML](https://github.com/javiabellan/machine-learning) y [DL](https://github.com/javiabellan/deep-learning) by JaviAbellan
+
+
+### CURSOS A++
 
 * [x] [Coursera Machine Learning AndrewNg](https://www.coursera.org/learn/machine-learning)
 * [x] [Coursera Deep Learning Specialization deeplearning.ai](https://www.coursera.org/specializations/deep-learning)
@@ -123,12 +108,7 @@ GUI:
 * [ ] [Curso aprendizaje automatico de Google](https://developers.google.com/machine-learning/crash-course/prereqs-and-prework?hl=es-419)
 * [ ] [Masters Degree](https://www.mrdbourke.com/aimastersdegree/) Recopilación self-learning ML
 
-
-
-
-
-## tf2
-
+## tensorflow
 * [ ] [Hands-on ML with keras and tensorflow by Aurelien Geron](https://github.com/ageron/handson-ml2)
 * [x] [DL with Python by F.Chollet](https://github.com/fchollet/deep-learning-with-python-notebooks) (2ed TBA)
 * [ ] [DL for computer vision by Adrien Rosebock](https://www.pyimagesearch.com/deep-learning-computer-vision-python-book/) 3ed for tf2 TBA. pyimagesearch
@@ -146,13 +126,27 @@ GUI:
 
 ## LINUX
 
-* [ ] [Curso MIT de informatica anormal: git, vim, terminal](https://missing.csail.mit.edu/)
+* [ ] [Curso MIT de informatica general: git, vim, terminal](https://missing.csail.mit.edu/)
 * [ ] [Recursos Git](apuntes-git.md)
 * [ ] [Curso Linux Corey Shafer](https://www.youtube.com/watch?v=j6vKLJxAKfw&list=PL-osiE80TeTvGhHkpvfmKWOiIPF8UVy6c)
 
+### JUPYTER NOTEBOOKS
+
+* [nbviewer](https://nbviewer.jupyter.org/) visor ipynb online
+* [nbconvert](https://nbconvert.readthedocs.io/en/latest/) convertir ipynb a html-pdf-etc
+* [nbdev](https://nbdev.fast.ai/) para desarrollar en ipynb
+* [Binder](https://mybinder.org/) turn Github repo into Jupyter Notebooks
+  
 
 ---
 
+## DATASETS
+
+* [Repositorios ML Univ](https://archive.ics.uci.edu/ml/index.php)
+* [Google Dataset Seach](https://datasetsearch.research.google.com/)
+
+
+---
 
 
 
@@ -167,16 +161,16 @@ GUI:
 
 # PROYECTOS INTERESANTES MACHINE LEARNING
 
-* Spleeter = separa musica (FB)
-* Demucs = separa  musica (Deezer)
-* Deepnude = desnuda gente
-* Faceswap = para hacer deepfakes
+* [Spleeter](https://github.com/deezer/spleeter) = separa musica (FB)
+* [Demucs](https://github.com/facebookresearch/demucs) = separa  musica (Deezer)
+* [Deepnude](https://github.com/stacklikemind/deepnude_official) = desnuda gente
+* [Faceswap](https://github.com/deepfakes/faceswap) = para hacer deepfakes
 
 # COMUNIDADES
 
-* [Comunidad Reddit Machine Learning](https://www.reddit.com/r/MachineLearning)
+* [/reddit Machine Learning](https://www.reddit.com/r/MachineLearning)
 * [ArXiV vision computer](https://arxiv.org/list/cs.CV/recent)
-* [Machine Learning Hispano](https://machinelearninghispano.com/), [SpainML](https://spainml.com/), [SaturdaysAI Global](https://github.com/SaturdaysAI/Itinerario_MachineLearning) y [SaturdaysAI Murcia](https://github.com/SaturdaysAI-Murcia/machine-learning)
+* Comunidades [Machine Learning Hispano](https://machinelearninghispano.com/), [SpainML](https://spainml.com/), [SaturdaysAI Global](https://github.com/SaturdaysAI/Itinerario_MachineLearning) y [SaturdaysAI Murcia](https://github.com/SaturdaysAI-Murcia/machine-learning)
 
 
 # CIENCIA Y DIVULGACIÓN
@@ -186,9 +180,14 @@ GUI:
 * [ArxiV Insights](https://www.youtube.com/channel/UCNIkB2IeJ-6AmZv7bQ1oBYg)
 * [Two Minute Paper](https://www.youtube.com/user/keeroyz)
 * [3Blue1Brown](https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw) ciencia en español
-* [Paperswithcode](https://paperswithcode.com/) articulos ML con codigo
 
+---
 
+# UTILIDADES
+
+## DEEP LEARNING
+
+* [Plantilla proyectos tensorflow](https://github.com/Mrgemy95/Tensorflow-Project-Template)
 
 
 
