@@ -29,4 +29,3 @@ Por unificar:
 
 * Python apuntes
 * Apuntes saturdays +notas jj
-* Crear repo de deeplearning y alojar ahi cursos de deeplearning.ai
