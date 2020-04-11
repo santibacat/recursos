@@ -1,7 +1,7 @@
-<header>
-RECURSOS INTERESANTES
-============
-</header>
+==== RECURSOS INTERESANTES ====
+
+---
+
 
 # TO-DO 
 
@@ -13,8 +13,6 @@ RECURSOS INTERESANTES
 # RECURSOS
 
 ## PYTHON
-
-
 
 * [Real Python](https://realpython.com/search?q=classes) recursos Python leidos
 
@@ -30,6 +28,7 @@ RECURSOS INTERESANTES
 Repos:
 * [Deep Learning Wizard repo](https://github.com/ritchieng/deep-learning-wizard)
 * [Gran repo open-source](https://github.com/academic/awesome-datascience)
+* [Machine Learning Tutorials repo](https://github.com/ujjwalkarn/Machine-Learning-Tutorials)
 
 
 ### JUPYTER NOTEBOOKS
@@ -53,6 +52,7 @@ Repos:
 * [Buscador mejores cursos](https://www.class-central.com/collection/top-free-online-courses)
 * [50 mejores cursos 2018](https://medium.freecodecamp.org/top-50-free-online-courses-2018-e67d0da38e95)
 * [Recomendacione xataka](https://www.xataka.com/robotica-e-ia/aprende-sobre-inteligencia-artificial-por-internet-cursos-publicaciones-y-las-recomendaciones-de-expertos)
+* [Free-programming-books](https://github.com/EbookFoundation/free-programming-books/blob/master/free-programming-books.md)
 
 
 ## PYTHON
@@ -113,12 +113,14 @@ GUI:
 
 ### OTROS RECURSOS DL
 
-* [ ] [DL with Python by Sebastian Rashka](https://github.com/rasbt/python-machine-learning-book-3rd-edition) 3ed nueva
+
 * [ ] [Deep Learning Ian Goodfellow](https://www.deeplearningbook.org/)
 * [ ] [The Hundred Page ML Book](http://themlbook.com/) y su [review](https://towardsdatascience.com/the-hundred-page-machine-learning-book-book-review-72b51c5ad083)
-* [ ] [Curso aprendizaje automatico de Google](https://developers.google.com/machine-learning/crash-course/prereqs-and-prework?hl=es-419)
+* [ ] [MLCourse.ai ruso](https://mlcourse.ai/) y articulos en [Medium](https://medium.com/open-machine-learning-course)
 * [ ] [Cursos Stanford Univ. de IA](https://threadreaderapp.com/thread/1228432865878253572.html) hilo twitter
 	* [Cheatsheets](https://stanford.edu/~shervine/teaching/)
+* [ ] [DL with Python by Sebastian Rashka](https://github.com/rasbt/python-machine-learning-book-3rd-edition) 3ed nueva
+* [ ] [Curso aprendizaje automatico de Google](https://developers.google.com/machine-learning/crash-course/prereqs-and-prework?hl=es-419)
 * [ ] [Masters Degree](https://www.mrdbourke.com/aimastersdegree/) Recopilación self-learning ML
 
 
@@ -146,7 +148,7 @@ GUI:
 
 * [ ] [Curso MIT de informatica anormal: git, vim, terminal](https://missing.csail.mit.edu/)
 * [ ] [Recursos Git](apuntes-git.md)
-
+* [ ] [Curso Linux Corey Shafer](https://www.youtube.com/watch?v=j6vKLJxAKfw&list=PL-osiE80TeTvGhHkpvfmKWOiIPF8UVy6c)
 
 
 ---

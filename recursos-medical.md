@@ -6,6 +6,7 @@
 * [MD.ai](https://www.md.ai) Plataforma etiquetado AI entre radiologos
 * [ACR AI Lab](https://ailab.acr.org/)
 * [Luke Oakden-Rayner Blog](https://lukeoakdenrayner.wordpress.com/)
+* [Glass Box]() Blog de ML en Medicina
 
 ## Learning
 
