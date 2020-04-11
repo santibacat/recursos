@@ -175,11 +175,12 @@ GUI:
 * [Comunidad Reddit Machine Learning](https://www.reddit.com/r/MachineLearning)
 * [ArXiV vision computer](https://arxiv.org/list/cs.CV/recent)
 * [Machine Learning Hispano](https://machinelearninghispano.com/), [SpainML](https://spainml.com/), [SaturdaysAI Global](https://github.com/SaturdaysAI/Itinerario_MachineLearning) y [SaturdaysAI Murcia](https://github.com/SaturdaysAI-Murcia/machine-learning)
-* [DotCSV](https://www.youtube.com/channel/UCy5znSnfMsDwaLlROnZ7Qbg) y [NotCSV](https://www.youtube.com/channel/UCOTko-zmnQTcOxSRdg5_uOQ)
+
 
 # CIENCIA Y DIVULGACIÓN
 
-* [Recursos IA DotCSV](https://docs.google.com/document/d/1TSxb0JrjaN4I4vRI7r-XpYuw5DxPdE2EQsCWu5irTYs/edit)
+* [DotCSV](https://www.youtube.com/channel/UCy5znSnfMsDwaLlROnZ7Qbg) y [NotCSV](https://www.youtube.com/channel/UCOTko-zmnQTcOxSRdg5_uOQ)
+  * [Recursos IA DotCSV](https://docs.google.com/document/d/1TSxb0JrjaN4I4vRI7r-XpYuw5DxPdE2EQsCWu5irTYs/edit)
 * [ArxiV Insights](https://www.youtube.com/channel/UCNIkB2IeJ-6AmZv7bQ1oBYg)
 * [Two Minute Paper](https://www.youtube.com/user/keeroyz)
 * [3Blue1Brown](https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw) ciencia en español
