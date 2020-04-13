@@ -1,6 +1,6 @@
-# PYTHON BÁSICO
+# BASIC PYTHON
 
-## Operaciones
+## OPERATIONS
 
 Basic operations: +-*/
 
@@ -44,7 +44,7 @@ complex_var = 2+3j
 print("Complex: ", complex_var, "Real: ", complex_var.real, "Imag: ", complex_var.imag)
 ```
 
-## Strings
+## STRINGS
 
 * Create them with `""` or `''`
 * Behave like list of characters (can use `str[7]`)
@@ -83,7 +83,12 @@ print(s[1:7:1])
 
 ### STRING METHODS
 
-ASDFAJ
+* `title()` Title mode
+* `upper()` UPPERCASE
+* `lower()` lowercase
+* `strip()` no spaces (`lstrip()` left and `rstrip()` right)
+* `string.printable` to see all printable chars
+* `len(string.split())` counts chars
 
 ### USER INPUT
 
@@ -118,23 +123,28 @@ print('price = {0}'.format(3.14)) # string format2
     price = 3.14
 
 
+Old way for string formatting: `{}.format()`.
 
 ```python
-# Old way using string.format:
 nums = [4,5,6]
+print("Numbers: %i, %i, %i" % (nums[0], nums[1], nums[2])) # old, don't use
 print("Numbers: {0}, {1}, {2}".format(nums[0], nums[1], nums[2]))
-print("Numbers: %i, %i, %i" % (nums[0], nums[1], nums[2]))
-
-# New way using f before string (string format 3)
-print(f"Numbers: {nums[0]}, {nums[1]}, {nums[2]}")
+# acceptable, numbers needed only if repeated; otherwise in order
 ```
 
-    Numbers: 4, 5, 6
-    Numbers: 4, 5, 6
-    Numbers: 4, 5, 6
+New way **f-strings** using `f` before string (after python 3.6):
 
+`print(f"Numbers: {nums[0]}, {nums[1]}, {nums[2]}")`
+`f'My name is {name} {surname}`
 
-# VARIABLES
+Es preferible usar double_quotes para que no afecte a las variables que haya dentro:  
+`f"My name is {person['name']}"`
+
+Para formatear números se usan _dos puntos_: `{n:02.3f}`
+
+Para formatear fechas igual: `{birthday:%B %d %Y}`
+
+## VARIABLES
 
 * Python variables are muteable and don't need to be declared (don't have defined type, can dinamically change <-> int, float, string...
 * Delete a variable `del. Eg: `del foo`
@@ -150,168 +160,31 @@ print("Hello, %s! You've got %3.1f new dollars" % (name, money))
     Hello, santi! You've got 13.8 new dollars
 
 
-## STORAGE
-
-* List []
-* Dictionary {}
-* Tuple ()
-    * namedTuple
-
-
-* Set ()
-* 
-
-
-### LISTS [ ]
-
-
-```python
-l = [] # crea una lista
-l.append("a") # añade un elemento
-l[1] = 'p' # modifica el segundo elemento
-l.insert(0,'i') # inserta un elemento en un indice determinado (aqui, el primero)
-l.remove("a") # elimina un elemento por su CONTENIDO
-del l[7] # elimina un elemento por su INDICE
-sorted(l) # ordena la lista alfabeticamente
-l.extend(l2) # añade los valores de la lista l2 a la lista l
-len(l) # longitud de la lista
-```
-
-
-```python
-l[-2] coge el PENULTIMO valor
-len(hola.split()) # contar palabras de una fase
-```
-
-
-```python
-#Para UNIR una lista
-print "".join(unir) # une con espacio
-print ".".join(unir) # los une con punto
-```
-
-
-* Can mix different types
-* Can be nested within other lists (multidimensional), better use numpy
-* Useful functions: max/min(list), list.count/remove/reverse()
-* REMEMBER: First item is list[0] (!= list[1])
-
-
-```python
-words = ["spam", "eggs"]
-
-# Check pertenence: word in words
-print(not "spam" in words)
-
-# Add new iem at the end
-words.append("last")
-# Can't iterate on an empty list, ilke in a for loop --> list[i]. 
-# You must fill it first (not [], but [0]*100 p.e.)
-words.insert(2, "middle") # Adds item in position #2
-print(words)
-
-
-```
-
-    False
-    ['spam', 'eggs', 'middle', 'last']
-
-
-
-```python
-# For range creation, need to convert to list. Otherwise returns range object.
-# range(first, last, interval), REMEMBER STARTS ON 0
-print(list(range(10)))
-print(range(10))
-```
-
-    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-    range(0, 10)
-
-
-__List Slices__
-
-* list[start:stop:step]
-* list[::-1] reverses a list
-
-__List comprehensions__
+More advanced topics: see [variable scope](#variable-scope)
 
 
 
 
-```python
-evens = [i**2 for i in range(10) if i**2 % 2 = 0]
-print(evens)
-```
+## CONDITIONALS
 
-### TUPLES ( )
+**BOOLEAN OPERATORS**
 
-son como listas pero inmutables
-
-* Immutable lists. Created with or without ()
-* Useful for switching: a, b = b, a
-
-
-
-```python
-point = (10, 20) # con parentesis
-point[0] = 40 # dará error
-```
-
-
-    ---------------------------------------------------------------------------
-
-    TypeError                                 Traceback (most recent call last)
-
-    <ipython-input-2-83e607a374fc> in <module>
-          1 point = (10, 20) # con parentesis
-    ----> 2 point[0] = 40 # dará error
-    
-
-    TypeError: 'tuple' object does not support item assignment
-
-
-### DICTIONARY { }
-
-Diccionarios: son listas que guardan los elementos como pares indice-valor (key-value)
-
-
-```python
-params = {'nombre': 'Will', 'apellido':'Smith'} # se crea con corchetes
-params['direccion'] = 'Calle Mayor' # añade un nuevo elemento
-```
-
-* Used as key:value mappings
-* Can use dict.keys(), dict.values(), dict.
-* As in lists, can use __in__ and __not in__.
-* __dict.get()__ to see if key is in dict; otherwise returns specified value.
+* and (only true if all true) `&&`
+* or (true if any true) `||`
+* not (true if false) `!=`
+* operator precedence
+  * ** > complement > */%// > +- > boolean
+  
+![](https://api.sololearn.com/DownloadFile?id=3515)
 
 
 
-```python
-ages = {"Dave": 24, "John": 13}
-```
 
 ## ITERATION
 
-### if-else-elif
+### IF-ELSE-ELIF
 
-Require indentation (!= C++)
-
-```python
-statement1 = False
-statement2 = False
-
-if statement1:
-    print("statement1 is True")
-    
-elif statement2: #aamw as else if
-    print("statement2 is True")
-    
-else:
-    print("statement1 and statement2 are False")
-```
-
+Requires indentation (!= C++)
 
 ```python
 n = 3
@@ -335,12 +208,13 @@ print("small") if n<4 else print("big")
     small
 
 
-### While
+### WHILE
 
-* To end a while loop prematurely, use a __break__ statement.
-* To go to the beginning of the loop, __continue__ (in a next iteration)
-* To stop manually, ctrl-c
 * Infinite loop: `while True:`
+* To end a while loop prematurely, use a `break` statement.
+* To go to the beginning of the loop, `continue` (in a next iteration)
+* To stop manually, `ctrl-c`
+
 
 
 ```python
@@ -363,53 +237,213 @@ while True:
     Breaking
 
 
-### For loops: 
+### FOR
 
-recuerda que al iterar, el rango no contiene el ultimo valor
-
-range(from, to, by) con el to NO incluido
+Iterates in a `range(from, to, step)`. From = 0; to = n-1
 
 
 ```python
-range(4) # dara 0, 1, 2, 3
-range(-3,3) # dara -3, -2 ... 1, 2
-
-l1 = [x**2 for x in range(0,5)]
-# forma compacta de un for loop, igual a:
+# long
 for x in range(0,5):
     x**2
+# compact 
+l1 = [x**2 for x in range(0,5)]
 ```
 
-Para iterar en key-value de un diccionario (dos formas)
+
+
+## STORAGE
+
+* List []
+* Dictionary {}
+* Tuple ()
+    * namedTuple
+
+
+* Set ()
+* 
+
+
+### LISTS [ ]
+
+
+* Can mix different datatypes
+* Can be nested within other lists (multidimensional), but better use numpy
+* REMEMBER: First item is list[0] (!= list[1]) --> _Zero-index_
+
+New list: `l = []`.
+
+**List Indexing:**
+
+* `list[start:stop:step]`.
+* `list[::-1]` reverses a list --TOP
+* `list[-2]` takes the penultimate value
+* `list[:]` takes all list WITH COPY
+
+```python
+# Behaviour of copying or not copying
+# Copying a list
+l1 = ["We", "should", "use", "[:]", "to", "copy", "the", "whole", "list"]
+l2 = l1[:]
+l2.append(". Using [:] ensures the two lists are different")
+print(l2)
+print(l1)
+# RESULT = both are diferent
+l2 = l1
+l2.append(". Using [:] ensures the two lists are different")
+print(l2)
+print(l1)
+# RESULT = both point to the same list
+```
+
+
+**Useful functions:**
+* `list.append(item)` appends at the end --TOP
+* `list.insert(index, item)` appends at given position
+* `list.remove(item)` removes by content ONLY THE FIRST OCURRENCE.
+* `del list[8]` deletes element by index --TOP
+* `sorted(list)` sorts alphabetically TEMPORARY. `list.sort()` sorts PERMANENTLY.
+  * May use `sort(reverse=True)`
+* `list.reverse()` reverses PERMANENTLY.
+* `list.extend(list2)` appends list2 contents to existing list
+* `len(list)` get number of list elements
+* `list.pop()` removes last element and returns it
+* `union.join(list)` joins all elements with <union>. Eg. `"-".join(list)`.
+* `sum/max/min(list)` si lista numérica solo.
+* `list.count(value)` cuenta las veces que se repite un valor en una lista --TOP
+
+Exception: `list.insert(-1, item)` inserts in the PENULTIMATE position, not the last. Use `append` instead.
+    
+    my_list = ['A', 'B', 'C', 'D']
+    my_list.insert (-1, 'E')
+    print (my_list)
+    # result = ['A', 'B', 'C', 'E', 'D']
+
+    # pop(n) -> Removes the element at index 'n' and returns it
+    l1 = ['A', 'B', 'C', 'D', 'E']
+
+    # Removes the element at 0 position and returns it
+    c = l1.pop(0)
+    print (l1)
+    print (c)
+    # Works as expected with negetive indexes
+    c = l1.pop(-1)
+    print (l1)
+    print (c)
+
+    # sort() vs sorted
+    l1 = ['E', 'D', 'C', 'B', 'A']
+    print(sorted(l1))
+    print(l1)
+    l1.sort()
+    print (l1)
+
+#### Sort objects
+
+Podemos usar `sorted()` que crea nueva variable o el método `list.sort()` para una ya creada.
+
+`reverse=True` la ordena al revés
+`key=` es una función que diga *cómo* ordenar. Puede ser un lambda tipo `key = lambda e: e.salary` o un getter `key = attrgetter('age')`.
+
+**Check pertenence**
+
+```python
+words = ["spam", "eggs"]
+print(not "spam" in words)
+```
+
+
+For **range creation**, need to convert to list. Otherwise returns range object.
+`range(first, last, interval)`. Remember: starts from 0 to n-1
+
+```python
+# range(first, last, interval), REMEMBER STARTS ON 0
+print(list(range(10)))
+print(range(10))
+```
+
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    range(0, 10)
+
+
+
+
+
+### TUPLES ( )
+
+* Immutable lists. Created with or without ()
+* Useful for switching: a, b = b, a
 
 
 ```python
-for key, value in params.items():
-    print(key + " = " + str(value))
-
-for idx, x in enumerate(range(-3,3)):
-    print(idx, x) 
-    # con ello usamos el indice de iteración (idx = 0, 1, 2...)
+point = (10, 20) # same as 10,20 without parenthesis
+point[0] = 40 # give error, ca't change
 ```
 
 
     ---------------------------------------------------------------------------
 
-    NameError                                 Traceback (most recent call last)
+    TypeError                                 Traceback (most recent call last)
 
-    <ipython-input-46-24c71bc069e7> in <module>
-    ----> 1 for key, value in params.items():
-          2     print(key + " = " + str(value))
-          3 
-          4 for idx, x in enumerate(range(-3,3)):
-          5     print(idx, x)
+    <ipython-input-2-83e607a374fc> in <module>
+          1 point = (10, 20) # con parentesis
+    ----> 2 point[0] = 40 # dará error
+    
 
-
-    NameError: name 'params' is not defined
+    TypeError: 'tuple' object does not support item assignment
 
 
-Enumerate es la forma más sencilla de iterar en listas, con dos valores: el índice de iteración y el valor en sí:
+### namedTuples
 
+Son como tuplas pero más entendibles. Y tienen las ventajas de las tuplas (inmutables y mas rápidas que los diccionarios).
+
+Ej: una tupla con colores RGB, para identificar correctamente cual es cada color.
+
+```python
+from collections import namedtuple
+# namedtuple('nombre', ['args'])
+
+Color = namedtuple('Color', ['red','green', 'blue'])
+new_color = Color(55,155,255)
+new_color.blue # podemos acceder individualmente
+```
+
+
+### DICTIONARY { }
+
+* Used as key:value mappings
+* Can use `dict`, `dict.keys()`, `dict.values()`
+* As in lists, can check pertenence with `in and `not in`.
+* `dict.get()` to see if key is in dict; otherwise returns specified value.
+* `sorted(dict.keys())` useful for iterating over sorted dictionary keys
+
+Create with `dict = {}`. Access one key with `dict["keyname"]`.
+
+```python
+params = {'name': 'Will', 'surname':'Smith'} # creation
+params['address'] = 'Major st.' # adds one element
+```
+
+Iteration over dictionaries:
+
+1) Iterating over `key-value` pair:
+
+```python
+for key, value in dict.items():
+    print(key + " = " + str(value))
+
+# same as
+for key in dict.keys():
+    print(key = dict[key])
+```
+
+2) Iterating with temporary ID with `enumerate` (uses iteration index and value):
+
+```python
+for idx, x in enumerate(dict):
+    print(idx, x) 
+    # we get iteration index (0,1,2,3,...) and the value of iteration.
+```
 
 ```python
 monsters = ['Kraken', 'Leviathan', 'Uroborus', 'Hydra']
@@ -424,63 +458,73 @@ for i, monster in enumerate(monsters):
     3 Hydra
 
 
-## CONDITIONALS
 
-**BOOLEAN OPERATORS**
+### COMPREHENSIONS
 
-* and (only true if all true) `&&`
-* or (true if any true) `||`
-* not (true if false) `!=`
-* operator precedence
-  * ** > complement > */%// > +- > boolean
-  
-![](https://api.sololearn.com/DownloadFile?id=3515)
-
-
-
-
+Generalmente se usan listas: **list comprehensions**
 
 ```python
-Si comparamos dos strings con > o < se comparan por diccionario
-
-
-s1 = "Jennifer"
-s2 = "Python"
-
-print (s1 > s2) # True -> since 'Jennifer' comes lexographically before 'Python'
-
-# Checking if list is empty
-l1 = []
-l2 = ["Jennifer"]
-
-if l1:
-    print (1)
-elif l2:
-    print (2)
+[n^2 for n in nums if n%2 == 0]
+[(letter,num) for letter in 'abcd' for num in range(4)]
 ```
 
+Tambien se pueden hacer con diccionarios y sets:
 
-      File "<ipython-input-45-29548059d031>", line 1
-        Si comparamos dos strings con > o < se comparan por diccionario
-                    ^
-    SyntaxError: invalid syntax
+```python
+{name:hero for name, hero in zip(names, heros)if name != 'Peter}
+```
+
+Los sets son como listas pero con valores unicos
+
+```python
+{n for n in nums}
+```
+
+Los generadores son muy similares a las comprehensions.
+
+Recuerda que `zip` crea tuplas con el primer indice de cada lista, luego el segundo, y así hasta el final.
 
 
 
-## Funciones
 
-: aconsejable definir 'docstring' (descripción)
+
+
+
+## FUNCTIONS
+
+Recommended to write 'docstring' with `"""` at the beginning. To call functions you need () at the end `function()`.
 
 
 ```python
 def square(x, debug=False):
     """
-    Devuelve el cuadrado de un numero
+    Returns de square of a number
     """
-    # aqui debug sería una variable con un valor por defecto
+    # debug has a default value
     return x**2
-    pass # no hace nada
+    pass # don't do anything
 ```
+
+Blank function = use `pass`.
+
+
+`*` in args means to make a tuple with arguments.
+* Has to be places last
+* Can't have more than one (eg `def ...(..., *arg1, *arg2)` --> gives error)
+* Can have many keyword arguments after = `(..., *args, **kwargs)`
+* Kwargs return a *dictionary* with key_value pairs.
+
+BE CAREFUL: you **can't** pack args/kwargs because will handle them as args. You need to SPECIFY 
+
+```python
+courses = ['math', 'science']
+info = {'name': 'John'; 'age': 28}
+student_info(courses, info) # INCORRENT, will both as ARGS
+student_info(*courses,**info) # THIS IS CORRECT
+```
+
+
+
 
 ### Lambda functions:
 
@@ -502,46 +546,16 @@ map(lambda x: x**2, range(-3,4))
 # Devuelve [9, 4, 1, 0, 1, 4, 9]
 ```
 
-## EXCEPTIONS
+## ERRORS AND EXCEPTIONS
 
-Crear errores:
-
-
-```python
-raise Exception("Descripción del error")
-```
-
-
-    ---------------------------------------------------------------------------
-
-    Exception                                 Traceback (most recent call last)
-
-    <ipython-input-4-de58dac3e45d> in <module>
-    ----> 1 raise Exception("Descripción del error")
-    
-
-    Exception: Descripción del error
-
-
-Tambien puede, al crearse el codigo, crearlo con dos vias (buena y mala):
-
-
-```python
-try:
-    print('Va bien')
-except:
-    print('No va bien')
-    # lo de except se ejecuta si hay algun error
-```
-
-* Use __try__ blocks to contain the code
-* Use __except__ block for the code if exception occurs
-+ Use __finally__ for code that will run anyway at the end of the try block
-* Exceptions: ZeroDivisionError, ValueError,
-* You can raise your own exceptions with __raise__ Eg.: raise valueError
-* __assert__ checks if a statement is True; otherwise gives AssertionError.
-* Is useful for checking functions do what you want to do
-
+* Use `try` blocks to contain the code to test for exception
+* Use `except` block for the code if some exception occurs
+* Use `else` block for code if no exception occurs in try block
++ Use `finally` for code that will run anyway at the end of the try block
+* Exceptions: `ZeroDivisionError`, `ValueError`, `TypeError`, `FileNotFoundError`...
+* Use `raise(ExceptionType)` to raise an exception manually
+* `assert` checks if a statement is True; otherwise gives AssertionError.
+  * Is useful for checking functions do what you want to do
 
 ```python
 try:
@@ -555,123 +569,380 @@ finally:
   raise ValueError
 ```
 
-    Hello
-    Divided by zero
-    Final code
-
-
-
-    ---------------------------------------------------------------------------
-
-    ValueError                                Traceback (most recent call last)
-
-    <ipython-input-22-6fdd4ab86db1> in <module>()
-          7   print("Final code")
-          8   assert 2+2==4
-    ----> 9   raise ValueError
-    
-
-    ValueError: 
-
-
-## Clases (OOP)
-
-hay que crear primero la clase
-
+Raise exception:
 
 ```python
-class Point:
-    """
-    Simple class for representing a point in a Cartesian coordinate system.
-    """
-    
-    def __init__(self, x, y):
-        """
-        Create a new Point at x, y.
-        """
-        self.x = x
-        self.y = y
-        
-    def translate(self, dx, dy):
-        """
-        Translate the point by dx and dy in the x and y direction.
-        """
-        self.x += dx
-        self.y += dy
-        
-    def __str__(self):
-        return("Point at [%f, %f]" % (self.x, self.y))
+raise Exception("Error Description")
 ```
 
-Y luego la instancia de clase:
-
+Create custom ErrorType:
 
 ```python
-p1 = Point(0, 0) # this will invoke the __init__ method in the Point class
-print(p1)         # this will invoke the __str__ method
-p1.translate(0.25, 1.5)
+class myError(Exception):
+	def __init__(self, *args, **kwargs):
+		Exception.__init__(self, *args, **kwargs)
 ```
 
-### FILE PROCESSING
 
+## FILE PROCESSING
+
+First `open(file)` and then `file.read()` / `file.write()`.
 
 ```python
 file = open("filename.txt", "w") #w = write mode, r = read , "wb" = binary mode
 file.read(20) # reads 20 lines
 file.close() # always need to close the file
+```
+Good practise when working with files, to close always at the end to free mem.
+Even better, read in the `else` block.
 
-# Good practise when working with files, to close always at the end to free mem
+```python
 try:
   f = open("filename.txt")
+except:
+    pass
+else:
   print(f.read())
 finally:
   f.close()
+```
 
-# Even better (when with block finishes, file is closed
-)
+Better way: `with` keeps file open as long as needed (closes automatically):
+
+```python
 with open("filename.txt") as f:
   print(f.read())
 ```
 
+# CLASSES - OOP
 
-```python
+> Utilidad: nos permite reutilizar más eficientemente el código.
+
+* _CLASES_ = defición de algo
+	* _OBJETOS_ (= instancias de clase)
+	* Poseen *atributos* (= variables) y *métodos* (= funciones)
+
+```{python}
+class Employee:
+	pass
 
 ```
-
-# DATA SCIENCE
-
-## NUMPY
-
-Libreria de cálculo matricial. Organiza información en arrays
-
-ndarray.ndim = rango (dimensiones)
-
-.shape = longitud de las dimensiones
-
-.size = nº total de elementos de la matriz
+**RESUMEN**
 
 
-```python
-import numpy as np
-np.array([1, 2, 3], dtype='float')
-# es lo mismo que np.ndarray
+* Tipos de variables:
+	* Instance variables
+	* Class variables
+* Tipos de métodos:
+	* Métodos de instancia
+	* Métodos estáticos
+	* Metodos de clase
+
+
+A la hora de acceder:
+
+* no usaremos paréntesis si es un atributo: `employee1.fullname`
+* usaremos paréntesis si es un método: `employee1.fullname()`
+
+
+## VARIABLES (ATRIBUTES)
+
+Tipos de variables:
+
+* Instance variables
+	* Contienen datos únicos de cada instancia
+* Class variables
+	* Variables conjuntas para todos los objetos (con el mismo valor)
+	* Se ponen al principio de la clase
+	* Se puede acceder desde la clase y desde las instancias
+
+`object.__dict__` = te da un diccionario con todos los atributos de un objeto.
+
+### Instance variables
+
+Contienen datos únicos de cada instancia.  
+Ej: `employee1.name, employee1.email`
+
+Se pueden modificar.
+
+
+### Class variables (variables de clase)
+
+Son variables que pertenecen a la clase y no a los objetos (son conjuntas y tienen el mismo valor para todos los objetos).  
+Se ponen antes del init de la clase (al principio).
+Ej: `pi` en la clase circulo. Se podrá acceder con `Circulo.pi` y con `circulo_uno.pi`.
+
+No necesitan instanciar el objeto antes.
+
+En python las variables de clase **NO SON INMUTABLES**; por ello se le suele poner un guion bajo delante. `_pi` (por convencion).
+
+#### (Avanzado) Acceso a variables de clase
+No se pueden acceder directamente desde un método, sino que habría que acceder a través de la clase o a través del objeto (`Employee.company o self.company`, nunca solo con `company`).
+
+La forma de acceder es importante porque:
+
+* Si cambiamos el valor para la clase, afecta a todos los objetos. `Employee.raise_amount = 1.05`
+* En cambio si cambiamos el valor para un objeto no afecta a toda la clase. `employee1.raise_amount != Employee.raise_amount`.
+
+Esto es importante al programar un método o una subclase, ya que si accedemos con `self.raise_amount` nos referiremos a un valor que se asigna automáticamente sólo al objeto (sobreescribe al de la clase para ese objeto) y si accedemos con `Employee.raise_amount`nos referimos a la clase.  
+Es interesante usar una variable de clase para valores inmutables por los objetos como `Employee.num_of_employes`).
+
+
+
+
+### Private atributes (Atributos PRIVADOS)
+Los atributos privados solo pueden ser modificados por la clase y no por fuera (ni siquiera por la instancia de clase).
+Esto se hace haciendo __ delante del atributo al crearlo.
+Ej `self.__password = password
+
+
+
+### Limitar atributos de una clase
+`object.__dict__` = te da un diccionario con todos los atributos de un objeto.
+
+En una clase o en una instancia de clase podemos añadir los atributos que queramos (aunque no estén definidos).
+Pero a veces estos atributos provocan errores; para ello podemos definir que una clase tenga permitido usar unos atributos definidos.
+
+Para ello pondremos esto al principio de la clase:
+`__slots__ = ['atributo1', 'atributo2']`
+
+Esto además provoca que no podamos usar `__dict__`.
+El atributo `__slots__` no se hereda (las subclases podrán establecer atributos que quieran).
+
+
+### Property decorators (decoradores)
+
+Los property decorators permiten definir metodos y acceder como si fueran atributos.
+`@property`.
+
+Al definir como property ya no podemos cambiar el valor de los atributos desde fuera como si fueran normales, es necesario modificarlos con otros decoradores (setters y getters).
+
+
+Por ello principalmente sirven para trabajar con los atributos privados de una clase (ej self.__password) para no manipularla directamente:
+
+```
+@property
+def password(self):
+	return self.__password
+	
+@password.setter
+def password(self, valor):
+	self.__password = self.__generar_password(valor)
+	
+@password.deleter
+def delete_password(self):
+	self.__password = None
+	print("Password deleted")
 ```
 
-Para subseleccionar (slicing)
 
-a[desde:hasta:salto]
+### VARIABLE SCOPE
 
-# iPython shell
+Es el alcance de cada variable en python
+
+*LEGB* es en orden en que python busca:
+
+* Local
+* Enclosing
+* Global
+* Built-in
+
+_Enclosing-scope_ se refiere a que todo lo interior incluye a lo exterior, pero no al revés.
+
+
+Podemos especificar que dentro de una funcion se use un valor global y no un valor local de dentro de la funcion:
+
+```python
+x = 'outside x'
+
+def test():
+	global x
+	x = 'inside x'
+
+print(x) # = 'inside x'
+```
+
+Lo mismo podemos hacer en funciones anidadas, cambiar un valor más externo pero sin afectar al valor local
+
+```python
+def outer():
+	x = 'outer x'
+	def inner():
+		nonlocal x
+		x = 'inner x'
+	inner()
+outer() # dará 'inner x'
+```
+
+#### Built-in variables
+
+_Built-in_ se refiere a nombres globales de python.
+Tenemos que tener cuidado porque podemos sobreescribirlas con nuestras propias funciones y no da error.
+
+```python
+import builtins
+print(dir(builtins))
+```
+
+
+---------
+
+
+
+
+
+
+
+## METHODS
+
+
+* Métodos de instancia (regular methods)
+	* contienen self
+	* pueden motificar el objeto
+	* pueden acceder y modificar a la clase
+* Metodos de clase (class methods)
+	* cls
+	* no pueden modificar el objeto
+* Métodos estáticos (static methods)
+	* no contienen self ni cls
+
+	
+
+
+
+
+### __ init __ method (constructor)
+Se ejecuta automáticamente al instanciar una clase.
+Args: self (por convención) +  demás + *args + **kwargs.
+
+
+```
+def __init__(self, first, last):
+	self.first = first
+	self.last = last
+```
+
+### Regular methods (métodos de instancia)
+Cada metodo dentro de una clase tiene que tomar la instancia como primer argumento (self).
+
+```
+def fullname(self):
+	return f'The name is {self.name} {self.surname}'
+```
+Explicación: es como si llamaramos a la clase con el argumento como objeto
+`Employee.fullname(employee1) == employee1.fullname()`
+
+
+
+### Class methods (métodos de clase)
+> @classmethod
+
+Utilizan la clase como argumento, no el objeto; por ello hay que usar `cls` (no self).
+
+Pertenecen a la clase, y pueden usar los atributos y métodos públicos de las clases padre (a diferencia de los métodos de clase, que solo pertenecen a la clase y nada más).
+
+
+No se suelen llamar metodos de clase desde un objeto, pero hace lo mismo que llamarlo desde una clase.
+`Employee.set_raise_amount(1.05) == employee1.set_raise_amount(1.05)`
+Ambas nos lo cambian para todos (ya que cambian la variable de clase).
+
+
+#### Constructores con classmethods
+Mucha gente usa métodos de clase para crear constructores con funciones. Ej.
+
+```
+@classmethod
+def from_string(cls, string):
+	name, surname = string.split('-')
+	return cls(name, surname)
+```
+
+La `cls`del final se refiere a la clase, y es lo mismo que si pusieramos `Employee`. De esta forma estamos creando la clase con un método:  
+`employee1 = Employee.from_string('Santi-Bacat')`
+
+
+### Static methods (métodos estáticos)
+
+> @staticmethod
+
+
+No pasan ningun argumento al método (ni self ni cls) a diferencia de los anteriores. Son como funciones normales pero con alguna conexión con la clase.
+
+No se pueden atribuir a un objeto real (ni a la clase), pero son útiles para la clase.
+Le pertenecen a la clase, no a la instancia.
+
+Ej: un método que calcula si es festivo o no para los empleados (no usa nada de la clase).
+
+---
+
+
+## MAGIC METHODS
+Son `__methods__` y sirven para establecer acciones por defecto.
+
+`__repr__`: unambiguous representation  (solo para que la vean otros desarrollaodres).
+`__str__`: readable representation  (para el usuario final).
+> Por defecto se usa str>repr cuando hacemos un print
+
+`__add, sub, mul, matmul, __` = para hacer cálculos con clases
+Para el cálculo se hace usando other para el otro argumento:
+
+```
+def __add__(self, other):
+	return (self.pay + other.pay)
+```
+
+
+
+`__len__` = calcular la longitud
+
+
+------
+
+
+
+## INHERITANCE (HERENCIA)
+
+Nos permite obtener las características de la clase padre, superponerlas o añadir nuevas.
+
+Primero busca el init en la subclase y luego va a la clase padre.
+
+* Si no lo encuentra, ejecuta el init de la clase padre.
+* Si lo encuentra, lo ejecuta aquí. Si hay argumentos repetidos, lo pasamos a la clase padre (para mantener código reproducible). `super().__init__(arg1repetido, arg2repetido)`
+  * Tambien podríamos poner el nombre de la clase, pero esto se usa más en herencias múltiples:  `Employee.__init__(arg1repetido, arg2repetido)`
+
+
+
+Podemos usar la funcion help para ver todo sobre la clase (la subherencia, atributos heredados...).
+Podemos usar `isinstance()` para ver un objeto es instancia de una clase: `isinstance(manager1, Developer)`
+Podemos usar `issubclass()` para ver si una clase es subclase de otra (<--): `issubclass(Manager, Employee)` es True.
+
+
+### Herencia multiple:
+
+```
+class Subclase(Clase1, Clase 2):
+	return
+```
+
+Si un método es privado (__cazar) no puede ser accedido por las claes hijas
+El orden de la herencia múltiple es de izquierda a dercha (para override de métodos)
+
+
+
+
+---
+
+
+
+# iPYTHON SHELL
 
 ## Basic Commands
 
 
-* help() or ? shows information about anything
-* ?? shows even more information (source code)
-* nameobject.TAB shows object contents (autocomplete), also when importing-using variables
-* *character is Wildcard matching (matches any string)
-
-
+* `help()` or `?` = info
+* `??` more info (source code)
+* `nameobject.<TAB>` autocomplete (object content, variables..)
+* `*character` = Wildcard matching (matches any string)
 
 ```python
 help(len)
@@ -683,22 +954,24 @@ len.TAB
 
 ## Magic Functions
 
-* %paste --> useful when pasting code from internet
-* %cpaste --> same but multiline
-* %run --> run external code
-* %timeit --> get execution time
-* %time --> same but only for first loop (useful if first loop is harder to compute)
-* %%time --> multiline execution time (must be the first code in block)
-
-* prun --> runs code with profiler (see time for each line, to optimize code)
-* %lprun --> line-by-line profiler (must install line_profiler package)
-* %memit --> measures memory (must install memory_profiler package)
-* %mprun --> measures memory line-by-line profiler (only works for external packages .py)
-
 To get all magic functions>
-* %timeit? --> describe a magic function
-* %magic --> description of available magic functions
-* %lsmagic --> list all magic functions
+* `%timeit?` --> describe a magic function
+* `%magic` --> description of available magic functions
+* `%lsmagic` --> list all magic functions
+
+Available magic functions:
+* `%paste` --> useful when pasting code from internet
+* `%cpaste` --> same but multiline
+* `%run` --> run external code
+* `%timeit` --> get execution time
+* `%time` --> same but only for first loop (useful if first loop is harder to compute)
+* `%%time` --> multiline execution time (must be the first code in block)
+
+Others:
+* `prun` --> runs code with profiler (see time for each line, to optimize code)
+* `%lprun` --> line-by-line profiler (must install line_profiler package)
+* `%memit` --> measures memory (must install memory_profiler package)
+* `%mprun` --> measures memory line-by-line profiler (only works for external packages .py)
 
 
 ```python
@@ -722,18 +995,17 @@ for n in range(100):
   L.append(n**2)
 ```
 
-To use history
-* In --> last inputs
-* Out --> last outputs
-* print(_) --> previous output (also usable: __ = _2 = Out[2])
-* %history (use: %history -n 1-n)
+To use **history**
+* `In` --> last inputs
+* `Out` --> last outputs
+* `print(_)` --> previous output (also usable: __ = _2 = Out[2])
+* `%history` (use: %history -n 1-n)
 
 
 ```python
 %history
 print(_)
 ```
-
 
 ```python
 %prun print(range(10))
@@ -742,62 +1014,40 @@ pip install line_profiler
 %lprun -f print(range(10))
 
 pip install memory_profiler
-
 ```
 
-    range(0, 10)
-     
+## Terminal
 
-## Terminal commands
-
-* pwd gets current dir
-* ls lists current dir
-* cat shows inside a document (p.e. untitled.txt)
-* ! for use terminal commands in iPython
-* can't use !cd. Must use %cd or cd (%automagic function, such as cat, env, ls, man...)
+* `pwd` gets current dir
+* `ls` lists current dir
+* `cat` shows inside a document (p.e. untitled.txt)
+* `!` for use terminal commands in iPython
+    * can't use !cd. Must use %cd or cd (%automagic function, such as cat, env, ls, man...)
 
 If you save terminal output > python special list (SList) where you can use add functs (grep, fields, s, n, p)
 
-For error debugging:
-
-* %xmode (traces errors when executing code) Eg: %xmode Plain, Context, Verbose
-* %debug
-* %pdb on (turns on automatic debugger when an exception is raised)
-
-
-```python
-# If you want to add to developing ide >> first line
-#!/usr/bin/env python
-# change character codification (default ASCII) >> second line
-# -*- coding: UTF-8 -*-
-```
-
-
-```python
-Terminal commands
-* Para listar directorios: `ls`
-* Para mostrar el interior de un documento sin abrirlo: `cat`
 * Para añadir el entorno de desarrollo a un archivo python (primera linea): `#!/usr/bin/env python`
 * Para cambiar la codificacion de caracteres (por defecto ASCII), metemos en la segunda línea del archivo python: `# -*- coding: UTF-8 -*-`
-```
 
 
-      File "<ipython-input-25-da50eef9cd07>", line 1
-        Terminal commands
-                        ^
-    SyntaxError: invalid syntax
+For **error debugging**:
+
+* `%xmode` (traces errors when executing code) Eg: %xmode Plain, Context, Verbose
+* `%debug`
+* `%pdb on` (turns on automatic debugger when an exception is raised)
 
 
+---
 
-## Package organization
+# ADVANCED PYTHON
 
-### Importing
+## PACKAGES
 
-* Package help: ```help(package)```
-* Package functions: ```dir(package)```
+### IMPORTING
 
+* Package help: `help(package)`
+* Package functions: `dir(package)`
 * Import package:
-
 
 ```python
 import math # imports everything
@@ -808,35 +1058,329 @@ from math import sqrt as square_root # imports everything as other name local
 square_root(2)
 ```
 
-
-
-
-    1.4142135623730951
-
-
-
+### if name == main
 
 ```python
-Para ver la lista de simbolos de un paquete: `dir`.
+if __name__ == `__main__`:
+	main()
+```
 
-    import math
-    dir(math)
+Sirve para verificar si un archivo está siendo ejecutado directamente (llamando a ese archivo) o es importado.
+
+* Si se llama directamente, lo que hay dentro de `main()`se ejecuta gracias a esta línea. Además tambien se ejecuta todo lo que esté fuera.
+* Si se importa ese archivo a otro (`import primerpaquete`) se ejecutaría todo lo que está fuera de `main()`. Por ello, si hay algo que no queremos que se ejecute al importarlo, lo ponemos dentro de `main()`.
+	* Ej: si solo queremos importar paquetes o algo para reutilizar código.
+* Si queremos ejecutar este código en el otro archivo lo podremos llamar usando `primerpaquete.main()`.
+
+
+---
+
+## BE PYTHONIC
+
+**Duck typing**
+
+Se refiere a no tener en cuenta el tipo de objeto si puede hacer lo que se le permite.
+
+> Si anda como un pato y vuela como un pato, se le trata como a un pato.
+
+
+**EAFP (*easier to ask forgiveness than permission*)**
+
+Se refiere a que en otros lenguajes vamos anidando condicionales para hacer comprobaciones antes de ejecutar (*LBYL = look before you leak*), y en python es mejor dejar ejecutar y usar try/except para ver los errores.
+
+
+---
+
+
+## GENERATORS
+
+Es como hacer una lista pero usando `yield`. Mejor porque usa menos memoria (solo genera uno a la vez).
+Para obtener el siguiente resultado `next`.
+Cuando termina todos ya no se puede iterar más (da `StopIteration`).
+
+Cuando hacemos un for con una list comprehension en el fondo estamos haciendo un generador; para ello debemos usar `()` paréntesis.
+`(x*x for x in [1,2,3,4,5])`
+
+## DECORATORS
+
+Primero habla de los **closures** que yo no habia oido hablar; creo que son funciones anidadas en la que se guarda la ejecución pero no se ejecuta:
+
+```
+def outer_function(msg):
+	def inner_function():
+		print(msg)
+	return inner_function
+
+hi_func = outer_function('Hi')
+```
+
+De esta forma se crea la función con los parametros pero aun no se ejecuta.
+
+Esta es la base de funcionamiento de los decoradores, que modifican la ejecución de una función (wrapped):
+
+```py
+def decorator_function(original_function):
+	def wrapper_function(*args, **kwargs):
+		-loquequeramosquehagaeldecorador-
+		return original_function(*args, **kwargs)
+	return wrapper_function
+
+def decorator_class(object):
+	def __init__(self, original_function):
+		self.original_function = original_function
+
+	def __call__(self, *args, **kwargs):
+	-loquequeramosquehaga-
+	return self.original_function(*args,**kwargs)
+```
+La forma tipica de los decoradores es `@`. Estas dos cosas son lo mismo:
+`@decorator_function de display == decorator_function(display)`
+
+Para preservar la información de las variables, cuando vamos a usar varios decoradores lo mejor es usar:
+
+```py
+from functools import wraps
+
+def decorador(orig_func):
+	...
+	@wraps(orig_func)
+	def wrapper(...):
+		...
+	return wrapper
+
+@decorador
+orig_func()
+```
+
+### Decorators with args
+
+Se hace añadiendole otra función anidada "prefijo" que irá por encima del decorador:
+
+```python
+def prefix_decorator(prefix):
+	def decorator_function(original_function):
+			def wrapper_function(*args, **kwargs):
+					...
+		return wrapper_function
+	return decorator_function
+
+@prefix_decorator('LOG: )
+def function():
+	pass
+```
+
+Pocas veces se usará pero es interesante saberlo.
+
+
+
+
+## RANDOM
+
+`import random`
+
+`random.random()`= valor entre 0 y 1
+`random.uniform(inicio, final)` = devuelve float
+`random.randint(inicio, final)` = devuelve enteros
+`random.choice(list)` = devuelve un valor aleatorio de entre una lista
+`random.choices(list, k=veces)` = devuelve una lista de `k` valores aleatorios de entre una lista.
+* `weights = [50, 25, 25]` para ponderar el peso de cada elemento original de la lista 
+
+Valores unicos (evitar repeticion), no se usa choices sino `random.sample(list, k=)`.
+
+
+## REGULAR EXPRESSIONS
+
+`import re`
+
+Generalmente comunes para todos los lenguajes de programación.
+
+Los _raw strings_ se utilizan con `r''` e interpretan en crudo los strings.
+
+Lo primero que tenemos que hacer es crear un **patrón**:
+`pattern = re.compile(r'')`
+
+`finditer` busca en el texto y devuelve indices si es igual.
+
+* `pattern.finditer(text_to_search)`
+
+
+Los **metacarácteres** deben llevar \ delante para diferenciarlos de los caracteres reales. Son:
+`. ^$ * + ? {} [] \ | ()`
+
+Las minusculas son un valor y las mayusculas el contrario
+| Digit | Value |
+|-------|-------|
+\d | Digit 0-9
+\D | Not Digit (0-9)
+\w | Word chars (a-z, A-Z, 0-9, _)
+\W | Not word chars
+\s | Whitespace (space, tab, newline)
+
+\b | Word Boundary
+\B | Not word boundary
+^  | Beginning of a String
+$  | End of a String
+
+[] | Matches only chars in brackets
+[^]| NOT matches inside brackets
+.  | Matches anything
+
+Cuantificadores:
+*  | 0 o más
++  | 1 o más
+?  | 0 o 1
+{x}| número exacto
+{x,y}| rango
+
+
+Podemos especificar rangos entre guiones:
+`[a-e0-5]` o `[a-zA-Z0-9]` pero solo buscaria UN DIGITO cada vez.
+
+Ej: `r'\d\d\d[-.]\d\d\d[-.]\d\d\d\d'`
+Esto buscaría números de teléfono tipo 111-222-3333 o 111.222.3333
+
+Con los cuantificadores podemos evitar repeticiones. Se colocan DETRÁS:
+`r'\d{3}.\d{3}.\d{3}'`
+
+Tambien sirven para condiciones (? = tanto si se cumple como si no):
+`r'Mr\.?\s[A-Z]\w+'` = buscaría tanto Mr como Mr. seguido de espacio y el nombre en mayuscula (ej: Mr. Bacat o Mr Bacat), pero no si solo fuera la inicial (no buscaría Mr. B)
+
+Los **grupos** nos permiten buscar patrones alternativos pero parecidos. Se usan entre parentesis y con |:
+`r'M(r|s|rs)'` buscaría Mr/Ms/Mrs
+
+
+Cuando encontramos un patrón con
+`matches = pattern.finditer(text)` podemos acceder a los distintos grupos que hemos buscado en el texto:
+
+* `matches.group(0)` devuelve todo el string
+* `matches.group(1)` devuelve el primer grupo (y así sucesivamente)
+
+Además de `finditer`tambien podemos usar `sub` que sustituye el patrón encontrado por un string que le pasemos:
+`pattern.sub(sub_pattern, text)`
+Ej: `r'(\2\3', urls)` --> esto reemplaza por el segundo y el tercer grupo
+
+`findall` es similar a finditer pero (no se la diferencia, creo que es )
+
+`match`te dice si lo que hemos buscado está al principio del string (solo devuelve el primer resultado, no un iterable). No se usará mucho.
+
+`search` busca en todo el string pero devuelve solo el primer resultado tambien.
+
+
+Tambien se pueden añadir **FLAGS** a nuestros patrones:
+`re.IGNORECASE` ignora mayusculas y minusculas (es lo mismo que [a-zA-Z])
+
+---
+
+## DATES
+
+`import datetime`
+
+_DATE (fecha)_: AAAA-MM-DD
+
+:    Obtiene solo la fecha
+
+_TIME (tiempo)_: HH:MM:SS.mmss
+
+:    Se usa poco porque no tiene fecha
+
+_DATETIME (fecha y hora)_: AAAA-MM-DD HH:MM:SS.mmss
+
+:    Obtiene ambos atributos, es el que usaremos
+
+Uso:
+
+`datetime.date(y,m,d)`= para crear una fecha  
+`datetime.date.today` = fecha de hoy
+
+Si queremos solo un dato en concreto:
+
+`*.today.year()` = solo el año  
+`*.today.weekday()` = dia de la semana si Lunes es 0. Con `isoweekday()` Lunes es 1.
+
+Los **timedeltas** son intervalos de tiempo en relación a una fecha.  
+Con ello podemos:
+
+* Restar o sumar un intervalo creado (Ej.: `tdelta = datetime.timedelta(days=7)`) a una fecha
+* Calcular el intervalo entre dos fechas (si restamos o sumamos dos fechas, obtenemos un timedelta)
+
+Ahora esto se lo podemos sumar por ejemplo a la fecha de hoy y ver de dentro de una semana.
+
+Para la fecha actual hemos de tener en cuenta las zonas horarias.
+`datetime.datetime.today()` o `datetime.datetime.now()` no tienen bien implementadas las zonas horarias.
+
+Lo mejor es usar el paquete `pytz`: `datetime.datetime.now(tz=pytz.UTC)`
+
+Si queremos convertirla: `hora.astimezone(pytz.timezone('Spain'))`
+
+Para formatear horas en otro formato (ej: 23 de Julio de 2020)
+
+`hora.strftime('formato')` pueder ver los distintos formatos en la documentación.
+al reves (de string a hora) con `strptime()`
+
+---
+
+
+## os module
+
+* `os.chdir` = cambiar directorio
+* `os.getcwd()` = ver directorio activo
+* `os.listdir()` = ls
+* `os.mkdir()` y `os.makedirs()` = crea directorios (sin y con subdirectorios)
+* `os.rmdir()` y `os.removedirs()` = elimina "
+* `os.rename(old, new)` = renombrar
+* `os.stat(file)` = estadisticas de un archivo
+* `os.walk` = recorre directorios 
+* `os.path.join()` = para juntar directorios (mejor que hacerlo sumando porque aqui se encarga solo de las barras \)
+* `os.path.split()` = separa los subdirs y archivos
+* `os. path.exists()` = checkea si existe
+* `os.path.isfile/isdir()` = comprueba si es dir o archivo
+
+
+---
+
+# REFERENCE
+
+### == != is
+
+`==` checks *equality*
+dos latas de cocacola son iguales
+
+`is` checks *identity*
+dos latas de cocacola no son la misma lata (no son el mismo objeto que ocupa espacio en memoria
+
+-----
+
+### Subprocess
+
+```python
+import subprocess
+p1 = subprocess.run()
+	p1.args # te dice los argumentos que has dado
+	p1.stdout # te da la salida si la has guardado
+		# con capture_output = True
+	p1.stderr # te da los errores (tambien .errorcode)
 ```
 
 
-      File "<ipython-input-24-9a7073640286>", line 1
-        Para ver la lista de simbolos de un paquete: `dir`.
-               ^
-    SyntaxError: invalid syntax
+### str vs repr
+
+* The goal of `str` is to be *readable* 
+* the goal of `repr` is to be *unambiguous*
+
+Vamos, que hay objetos que pueden no ser un string pero si tener una representación leible (que es la que buscamos con str), y con repr vemos lo que realmente es.
+
+ej: "2016-10-22 12:13:43"
+vs datetime.datetime(2016,10,22,12,13,43,tz=UTC)
+
+### partition vs split
+
+`partition` rompe solo una vez en el caracter dado y devuelve una tupla (previo, caracter, posterior)
+`split` parte cada vez que se vea ese caracter
 
 
 
+---
 
-```python
-Para ver la ayuda de un paquete `help`.
-
-    help(math.sqrt)
-```
 
 # BIBLIOGRAFÍA
 
