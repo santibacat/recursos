@@ -270,10 +270,21 @@ def __add__(self, other):
 __NO VA AQUI__
 
 
-# ERRORES
+# RESTO DE PYTHON
+
+
+### ERRORES
 try, except (as ..), raise, else, finally
 
-Crear un error:
+* `try` lo que se intenta ejecutar
+* `except ErrorType` lo que ejecuta si hay un error de un tipo
+* `raise` para activar un error manualmente
+* `else` se ejecuta si try no da error
+* `finally` código que se ejecuta al final haya dado error o no
+
+
+
+Crear un error personalizado:
 
 ```
 class myError(Exception):
@@ -282,8 +293,11 @@ class myError(Exception):
 ```
 
 
+
+
+
 ---------
-## if name == main
+### if name == main
 
 ```
 if __name__ == `__main__`:
@@ -300,7 +314,7 @@ Sirve para verificar si un archivo está siendo ejecutado directamente (llamando
 
 -----
 
-## == + is
+### == + is
 
 == checkea igualdad
 dos latas de cocacola son iguales
@@ -477,7 +491,7 @@ Se refiere a que en otros lenguajes vamos anidando condicionales para hacer comp
 
 ---
 
-## FORMATTING STRINGS
+### FORMATTING STRINGS
 
 La forma antigua es con `.format()`.
 
@@ -486,7 +500,7 @@ La forma antigua es con `.format()`.
 Se pueden poner números en los corchetes por si hay valores repetidos:
 `I'm {0}. {0} {1}'.format(name, surname)`
 
-### f-strings
+#### f-strings
 
 A partir de python 3.6 
 
@@ -597,7 +611,7 @@ new_color.blue # podemos acceder individualmente
 
 
 
-## COMPREHENSIONS
+### COMPREHENSIONS
 
 ```python
 [n^2 for n in nums if n%2 == 0]
@@ -620,7 +634,7 @@ Los generadores son muy similares a las comprehensions.
 
 Recuerda que `zip` crea tuplas con el primer indice de cada lista, luego el segundo, y así hasta el final.
 
-## SORT OBJECTS
+### SORT OBJECTS
 
 Podemos usar `sorted()` que crea nueva variable o el método `list.sort()` para una ya creada.
 
@@ -628,7 +642,7 @@ Podemos usar `sorted()` que crea nueva variable o el método `list.sort()` para 
 `key=` es una función que diga *cómo* ordenar. Puede ser un lambda tipo `key = lambda e: e.salary` o un getter `key = attrgetter('age')`.
 
 
-## RANDOM
+### RANDOM
 
 `import random`
 
@@ -642,9 +656,98 @@ Podemos usar `sorted()` que crea nueva variable o el método `list.sort()` para 
 Valores unicos (evitar repeticion), no se usa choices sino `random.sample(list, k=)`.
 
 
-## REGULAR EXPRESSIONS
+### REGULAR EXPRESSIONS
+
+`import re`
+
+Generalmente comunes para todos los lenguajes de programación.
+
+Los _raw strings_ se utilizan con `r''` e interpretan en crudo los strings.
+
+Lo primero que tenemos que hacer es crear un **patrón**:
+`pattern = re.compile(r'')`
+
+`finditer` busca en el texto y devuelve indices si es igual.
+
+* `pattern.finditer(text_to_search)`
 
 
+Los **metacarácteres** deben llevar \ delante para diferenciarlos de los caracteres reales. Son:
+`. ^$ * + ? {} [] \ | ()`
+
+Las minusculas son un valor y las mayusculas el contrario
+| Digit | Value |
+|-------|-------|
+\d | Digit 0-9
+\D | Not Digit (0-9)
+\w | Word chars (a-z, A-Z, 0-9, _)
+\W | Not word chars
+\s | Whitespace (space, tab, newline)
+
+\b | Word Boundary
+\B | Not word boundary
+^  | Beginning of a String
+$  | End of a String
+
+[] | Matches only chars in brackets
+[^]| NOT matches inside brackets
+.  | Matches anything
+
+Cuantificadores:
+*  | 0 o más
++  | 1 o más
+?  | 0 o 1
+{x}| número exacto
+{x,y}| rango
 
 
- 
+Podemos especificar rangos entre guiones:
+`[a-e0-5]` o `[a-zA-Z0-9]` pero solo buscaria UN DIGITO cada vez.
+
+Ej: `r'\d\d\d[-.]\d\d\d[-.]\d\d\d\d'`
+Esto buscaría números de teléfono tipo 111-222-3333 o 111.222.3333
+
+Con los cuantificadores podemos evitar repeticiones. Se colocan DETRÁS:
+`r'\d{3}.\d{3}.\d{3}'`
+
+Tambien sirven para condiciones (? = tanto si se cumple como si no):
+`r'Mr\.?\s[A-Z]\w+'` = buscaría tanto Mr como Mr. seguido de espacio y el nombre en mayuscula (ej: Mr. Bacat o Mr Bacat), pero no si solo fuera la inicial (no buscaría Mr. B)
+
+Los **grupos** nos permiten buscar patrones alternativos pero parecidos. Se usan entre parentesis y con |:
+`r'M(r|s|rs)'` buscaría Mr/Ms/Mrs
+
+
+Cuando encontramos un patrón con
+`matches = pattern.finditer(text)` podemos acceder a los distintos grupos que hemos buscado en el texto:
+
+* `matches.group(0)` devuelve todo el string
+* `matches.group(1)` devuelve el primer grupo (y así sucesivamente)
+
+Además de `finditer`tambien podemos usar `sub` que sustituye el patrón encontrado por un string que le pasemos:
+`pattern.sub(sub_pattern, text)`
+Ej: `r'(\2\3', urls)` --> esto reemplaza por el segundo y el tercer grupo
+
+`findall` es similar a finditer pero (no se la diferencia, creo que es )
+
+`match`te dice si lo que hemos buscado está al principio del string (solo devuelve el primer resultado, no un iterable). No se usará mucho.
+
+`search` busca en todo el string pero devuelve solo el primer resultado tambien.
+
+
+Tambien se pueden añadir **FLAGS** a nuestros patrones:
+`re.IGNORECASE` ignora mayusculas y minusculas (es lo mismo que [a-zA-Z])
+
+
+### str vs repr
+
+The goal of str is to be readable and the goal of repr is to be unambiguous
+
+Vamos, que hay objetos que pueden no ser un string pero si tener una representación leible (que es la que buscamos con str), y con repr vemos lo que realmente es.
+
+ej: "2016-10-22 12:13:43"
+vs datetime.datetime(2016,10,22,12,13,43,tz=UTC)
+
+### partition vs split
+
+partition rompe solo una vez en el caracter dado y devuelve una tupla (previo, caracter, psoterior)
+split parte cada vez que se vea ese caracter
