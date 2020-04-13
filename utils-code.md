@@ -1,6 +1,4 @@
-code-utils
-
-# CODE UTILS
+# CODE SNIPPETS
 
 ## Python simpleHTTPserver
 
