@@ -13,7 +13,7 @@ x += 1 # same as x=x+1
 
 * Can't use `x++` as in C++. Use `x+=1`.
 * Don't use `^` for exponentiation as in C++. Use ``**`.
-* You can't sum string + ints (`error`). Must use type conversion.
+* You can't sum string + ints (`error`). Must use type conversion (casting): `float(), int(), str()...`
 
 
 ```python
@@ -89,6 +89,11 @@ print(s[1:7:1])
 * `strip()` no spaces (`lstrip()` left and `rstrip()` right)
 * `string.printable` to see all printable chars
 * `len(string.split())` counts chars
+
+Search on strings:
+* `count(pattern)` count the number of times a string is repeated in a string
+* `find(pattern)` return index for FIRST pattern.
+* `replace(pattern, new)` replaces one word with another
 
 ### USER INPUT
 
@@ -250,6 +255,13 @@ for x in range(0,5):
 l1 = [x**2 for x in range(0,5)]
 ```
 
+With `enumerate` we can get the index value of the list iteration. with `start` we can set the start id.
+
+```python
+for index, value in enumerate(list, start=1):
+  print(index, value)
+```
+
 
 
 ## STORAGE
@@ -267,7 +279,7 @@ l1 = [x**2 for x in range(0,5)]
 ### LISTS [ ]
 
 
-* Can mix different datatypes
+* Unordered, can mix different datatypes
 * Can be nested within other lists (multidimensional), but better use numpy
 * REMEMBER: First item is list[0] (!= list[1]) --> _Zero-index_
 
@@ -298,15 +310,16 @@ print(l1)
 
 
 **Useful functions:**
+* `len(list)` get number of list elements
 * `list.append(item)` appends at the end --TOP
 * `list.insert(index, item)` appends at given position
+* `list.extend(list2)` appends list2 contents to existing list (don't use append)
 * `list.remove(item)` removes by content ONLY THE FIRST OCURRENCE.
 * `del list[8]` deletes element by index --TOP
+* `list.index('value')` returns the index for one value in the list
 * `sorted(list)` sorts alphabetically TEMPORARY. `list.sort()` sorts PERMANENTLY.
   * May use `sort(reverse=True)`
 * `list.reverse()` reverses PERMANENTLY.
-* `list.extend(list2)` appends list2 contents to existing list
-* `len(list)` get number of list elements
 * `list.pop()` removes last element and returns it
 * `union.join(list)` joins all elements with <union>. Eg. `"-".join(list)`.
 * `sum/max/min(list)` si lista numérica solo.
@@ -367,6 +380,8 @@ print(range(10))
 
 
 
+Be careful when `=` two list values, because they are assigned to the SAME OBJECT.
+
 
 
 ### TUPLES ( )
@@ -407,6 +422,21 @@ Color = namedtuple('Color', ['red','green', 'blue'])
 new_color = Color(55,155,255)
 new_color.blue # podemos acceder individualmente
 ```
+
+### SETS { }
+
+* Similar to lists but ORDERED and UNIQUE values (no duplicates)
+* Can't create with {} (it's a dict)
+
+VERY USEFUL: we can use several sets and play with IoU:
+
+```python
+set1.intersection(set2)
+set1.union(set2)
+set1.difference(set2)
+```
+
+
 
 
 ### DICTIONARY { }
@@ -1089,6 +1119,7 @@ Se refiere a no tener en cuenta el tipo de objeto si puede hacer lo que se le pe
 Se refiere a que en otros lenguajes vamos anidando condicionales para hacer comprobaciones antes de ejecutar (*LBYL = look before you leak*), y en python es mejor dejar ejecutar y usar try/except para ver los errores.
 
 
+
 ---
 
 
@@ -1320,7 +1351,7 @@ al reves (de string a hora) con `strptime()`
 ---
 
 
-## os module
+## OS Module
 
 * `os.chdir` = cambiar directorio
 * `os.getcwd()` = ver directorio activo

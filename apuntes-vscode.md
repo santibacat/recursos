@@ -65,7 +65,7 @@ tambien `mayus+cmd+m`
 
 abrirla = `` ctrl+` ``
 
-clear = `cmd+K`
+clear = `cmd+K` o escribir `cls`
 
 ## Markdown
 
@@ -99,8 +99,9 @@ En debug console podemos meter código
 
 > Limpieza
 
-Format document = pep8  (solo lo pone 'bonito')
-linting = mejor aun
+* Format document = `autopep8`  (solo lo pone 'bonito') o `black`
+  * Podemos darle a `sort imports`para ordenar los imports.
+* linting = mejor aun
 
 > Extensiones interesantes
 
