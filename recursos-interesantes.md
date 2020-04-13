@@ -4,7 +4,7 @@
 * [Buscador mejores cursos](https://www.class-central.com/collection/top-free-online-courses)
 * [50 mejores cursos 2018](https://medium.freecodecamp.org/top-50-free-online-courses-2018-e67d0da38e95)
 * [Recomendacione xataka](https://www.xataka.com/robotica-e-ia/aprende-sobre-inteligencia-artificial-por-internet-cursos-publicaciones-y-las-recomendaciones-de-expertos)
-* [Free-programming-books](https://github.com/EbookFoundation/free-programming-books/blob/master/free-programming-books.md)
+* [Free-programming-books](https://github.com/EbookFoundation/free-programming-books/)
 
 
 ## PYTHON
@@ -42,6 +42,42 @@ GUI:
 * [ ] [Python No Theory Master]()
 * [ ] [Learn Python Interactive Tutorial](https://www.learnpython.org/)
 
+
+### FASTAI PYTHON RESOURCES
+
+by [Jeremy Howard](https://forums.fast.ai/t/recommended-python-learning-resources/26888)
+
+__Basic Resources__
+
+* [x] Whirlwind Tour of Python
+* [ ] Learn Python the Hard Way
+* [ ] Automate the boring stuff with Python by Al Sweigart
+* [ ] Python tutorials by Sentdex
+* [ ] Python OOP’s tutorial by Corey Schafer 
+* [ ] Real Python 
+* [ ] Udemy complete python bootcamp
+* [ ] Learn to Program with Python
+* [ ] Introducing Python
+* [x] Solo Learn
+* [ ] Code academy
+* [ ] Python - The No Theory Guide 
+* [ ] Introduction to Computer Science and Programming Using Python
+
+__Intermediate programmers__
+
+* [ ] The Hitchhiker’s Guide to Python
+* [ ] Peter Norvig’s Pytudes
+* [ ] Design of Computer Programs
+* [ ] Fluent Python 
+* [ ] Trey Hunner 
+* [ ] Python tricks by Dan bader 
+* [ ] Google’s Python Class
+
+__Advanced programmers (but maybe new to python)__
+
+* [ ] Learn x in y minutes 
+* [ ] David Beazley’s courses, tutorials, and books 
+* [ ] Raymond Hettinger
 
 
 
@@ -184,11 +220,5 @@ Otros:
 ## DEEP LEARNING
 
 * [Plantilla proyectos tensorflow](https://github.com/Mrgemy95/Tensorflow-Project-Template)
-
-
-
-
-
-
 
 
