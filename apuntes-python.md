@@ -2,7 +2,7 @@
 
 ## OPERATIONS
 
-Basic operations: +-*/
+Basic operations: `+ - * /`
 
 ```python
 20 // 6 # floor division
@@ -12,8 +12,8 @@ x += 1 # same as x=x+1
 ```
 
 * Can't use `x++` as in C++. Use `x+=1`.
-* Don't use `^` for exponentiation as in C++. Use ``**`.
-* You can't sum string + ints (`error`). Must use type conversion (casting): `float(), int(), str()...`
+* Don't use `^` for exponentiation as in C++. Use `**`.
+* You *can't sum string + ints* (error). Must use type conversion (casting): `float(), int(), str()...`
 
 
 ```python
@@ -22,24 +22,16 @@ print(2+int("2")) # 4
 ```
 
 
-    ---------------------------------------------------------------------------
-
-    TypeError                                 Traceback (most recent call last)
-
-    <ipython-input-6-db53bd892eed> in <module>()
-    ----> 1 print(2+"2")
-    
-
-    TypeError: unsupported operand type(s) for +: 'int' and 'str'
-
 
 * CAREFUL: Convert float to int **DOES NOT ROUND** (just cuts). Eg: f6.7 > i6
+
 
 
 **COMPLEX NUMBERS**
 
 ```python
 complex_var = 2+3j
+
 # imaginary or real components
 print("Complex: ", complex_var, "Real: ", complex_var.real, "Imag: ", complex_var.imag)
 ```
@@ -48,7 +40,9 @@ print("Complex: ", complex_var, "Real: ", complex_var.real, "Imag: ", complex_va
 
 * Create them with `""` or `''`
 * Behave like list of characters (can use `str[7]`)
-* Use `\` for special chars (\n = new line)
+* Use `\` for special chars:
+	* Separators: `\n` = new line, `\t` = new tab
+	* `\" \'` = " and ' in strings
 
 
 ```python
@@ -91,9 +85,10 @@ print(s[1:7:1])
 * `len(string.split())` counts chars
 
 Search on strings:
+
 * `count(pattern)` count the number of times a string is repeated in a string
 * `find(pattern)` return index for FIRST pattern.
-* `replace(pattern, new)` replaces one word with another
+* `replace(pattern, newpattern)` replaces one word with another
 
 ### USER INPUT
 
@@ -102,18 +97,10 @@ Search on strings:
 input("Write something: ")
 ```
 
-    Write something:  HELLO
-
-
-
-
-
-    'HELLO'
-
-
 
 ### STRING FORMATTING
 
+Print style:
 
 ```python
 print('str1','str2') #  with space
@@ -134,32 +121,33 @@ Old way for string formatting: `{}.format()`.
 nums = [4,5,6]
 print("Numbers: %i, %i, %i" % (nums[0], nums[1], nums[2])) # old, don't use
 print("Numbers: {0}, {1}, {2}".format(nums[0], nums[1], nums[2]))
-# acceptable, numbers needed only if repeated; otherwise in order
+	# acceptable, numbers needed only if repeated; otherwise in order
 ```
 
 New way **f-strings** using `f` before string (after python 3.6):
 
 `print(f"Numbers: {nums[0]}, {nums[1]}, {nums[2]}")`
-`f'My name is {name} {surname}`
 
-Es preferible usar double_quotes para que no afecte a las variables que haya dentro:  
+
+Es preferible usar double_quotes para que no afecte a las variables que haya dentro:
+
 `f"My name is {person['name']}"`
 
-Para formatear números se usan _dos puntos_: `{n:02.3f}`
+* Para formatear números se usan _dos puntos_: `{n:02.3f}`
 
-Para formatear fechas igual: `{birthday:%B %d %Y}`
+* Para formatear fechas igual: `{birthday:%B %d %Y}`
 
 ## VARIABLES
 
-* Python variables are muteable and don't need to be declared (don't have defined type, can dinamically change <-> int, float, string...
-* Delete a variable `del. Eg: `del foo`
+* Python variables are muteable and don't need to be declared (don't have defined type, can dinamically change <-> int, float, string...)
+* Delete a variable `del`. Eg: `del foo`
 * Case-sensitive (hi != Hi). Don't use UpperFirst (use upperLater). Separate with "_". No special chars (ñ, ç, €).
 
 
 ```python
 name = "santi"
 money = 13.753453
-print("Hello, %s! You've got %3.1f new dollars" % (name, money))
+print("Hello, %s! You've got %3.1f new dollars" % (name, money)) # old C-type formatting
 ```
 
     Hello, santi! You've got 13.8 new dollars
@@ -174,11 +162,13 @@ More advanced topics: see [variable scope](#variable-scope)
 
 **BOOLEAN OPERATORS**
 
+In python, better use _words_ rather than symbols. Parenthesis use as in math.
+
 * and (only true if all true) `&&`
 * or (true if any true) `||`
 * not (true if false) `!=`
 * operator precedence
-  * ** > complement > */%// > +- > boolean
+  * `**` > `complement` > `* / % //` > `+ -` > `boolean`
   
 ![](https://api.sololearn.com/DownloadFile?id=3515)
 
@@ -244,7 +234,7 @@ while True:
 
 ### FOR
 
-Iterates in a `range(from, to, step)`. From = 0; to = n-1
+Iterates in a `range(from, to, step)`. From = 0 to = n-1
 
 
 ```python
@@ -255,40 +245,41 @@ for x in range(0,5):
 l1 = [x**2 for x in range(0,5)]
 ```
 
-With `enumerate` we can get the index value of the list iteration. with `start` we can set the start id.
+With `enumerate` we can get the index value of the list iteration (use `start` to set the start id).
 
 ```python
 for index, value in enumerate(list, start=1):
-  print(index, value)
+  print(index, value) # prints id from 1
 ```
 
 
 
-## STORAGE
+## DATA STRUCTURES
 
-* List []
-* Dictionary {}
-* Tuple ()
-    * namedTuple
+Types: ['List []'](#lists), ['Tuples ()'](#tuples) (and [namedTuples](#namedtuples)), ['Sets {}'](#sets)
+ and ['Dictionary {}'](#dictionary)
+
+Usage:
+
+* Lists: when modified frequently and don't need random access.
+* Dicts: when need key-value pair, need fast lookup, data constantly mofified
+* Sets: when need uniqueness
+* Tuples: when don't want change in data
 
 
-* Set ()
-* 
-
-
-### LISTS [ ]
-
+### LISTS
 
 * Unordered, can mix different datatypes
 * Can be nested within other lists (multidimensional), but better use numpy
 * REMEMBER: First item is list[0] (!= list[1]) --> _Zero-index_
+* Be careful when `=` two list values, because they are assigned to the SAME OBJECT.
 
-New list: `l = []`.
+New list: `l = []`.	
 
 **List Indexing:**
 
-* `list[start:stop:step]`.
-* `list[::-1]` reverses a list --TOP
+* `list[start:stop:step]`
+* `list[::-1]` reverses a list :star:
 * `list[-2]` takes the penultimate value
 * `list[:]` takes all list WITH COPY
 
@@ -310,12 +301,13 @@ print(l1)
 
 
 **Useful functions:**
+
 * `len(list)` get number of list elements
-* `list.append(item)` appends at the end --TOP
+* `list.append(item)` appends at the end :star:
 * `list.insert(index, item)` appends at given position
-* `list.extend(list2)` appends list2 contents to existing list (don't use append)
+* `list.extend(list2)` appends **list2** contents to existing list (don't use append)
 * `list.remove(item)` removes by content ONLY THE FIRST OCURRENCE.
-* `del list[8]` deletes element by index --TOP
+* `del list[8]` deletes element by index :star:
 * `list.index('value')` returns the index for one value in the list
 * `sorted(list)` sorts alphabetically TEMPORARY. `list.sort()` sorts PERMANENTLY.
   * May use `sort(reverse=True)`
@@ -323,16 +315,17 @@ print(l1)
 * `list.pop()` removes last element and returns it
 * `union.join(list)` joins all elements with <union>. Eg. `"-".join(list)`.
 * `sum/max/min(list)` si lista numérica solo.
-* `list.count(value)` cuenta las veces que se repite un valor en una lista --TOP
+* `list.count(value)` cuenta las veces que se repite un valor en una lista :star:
 
 Exception: `list.insert(-1, item)` inserts in the PENULTIMATE position, not the last. Use `append` instead.
     
+    # INSERT
     my_list = ['A', 'B', 'C', 'D']
     my_list.insert (-1, 'E')
     print (my_list)
     # result = ['A', 'B', 'C', 'E', 'D']
 
-    # pop(n) -> Removes the element at index 'n' and returns it
+    # POP: pop(n) -> Removes the element at index 'n' and returns it
     l1 = ['A', 'B', 'C', 'D', 'E']
 
     # Removes the element at 0 position and returns it
@@ -344,21 +337,24 @@ Exception: `list.insert(-1, item)` inserts in the PENULTIMATE position, not the 
     print (l1)
     print (c)
 
-    # sort() vs sorted
+
+**Sort objects**:
+
+Podemos usar `sorted()` que crea nueva variable o el método `list.sort()` para una ya creada.
+
+* `reverse=True` la ordena al revés
+* `key=` es una función que diga *cómo* ordenar. 
+	* Puede ser un lambda tipo `key = lambda e: e.salary` o un getter `key = attrgetter('age')`.
+
+```python
     l1 = ['E', 'D', 'C', 'B', 'A']
     print(sorted(l1))
     print(l1)
     l1.sort()
     print (l1)
+```
 
-#### Sort objects
-
-Podemos usar `sorted()` que crea nueva variable o el método `list.sort()` para una ya creada.
-
-`reverse=True` la ordena al revés
-`key=` es una función que diga *cómo* ordenar. Puede ser un lambda tipo `key = lambda e: e.salary` o un getter `key = attrgetter('age')`.
-
-**Check pertenence**
+**Check pertenence**:
 
 ```python
 words = ["spam", "eggs"]
@@ -380,13 +376,11 @@ print(range(10))
 
 
 
-Be careful when `=` two list values, because they are assigned to the SAME OBJECT.
 
 
+### TUPLES
 
-### TUPLES ( )
-
-* Immutable lists. Created with or without ()
+* Immutable lists. Created with or without `( )`
 * Useful for switching: a, b = b, a
 
 
@@ -410,41 +404,41 @@ point[0] = 40 # give error, ca't change
 
 ### namedTuples
 
-Son como tuplas pero más entendibles. Y tienen las ventajas de las tuplas (inmutables y mas rápidas que los diccionarios).
+Enhanced and more comprehensive tuples. Same advantages (non-mutable and faster than dict).
 
-Ej: una tupla con colores RGB, para identificar correctamente cual es cada color.
+Eg. RGB-colored tuples (to identify each color)
+
 
 ```python
 from collections import namedtuple
-# namedtuple('nombre', ['args'])
+# namedtuple('name', ['args'])
 
 Color = namedtuple('Color', ['red','green', 'blue'])
 new_color = Color(55,155,255)
-new_color.blue # podemos acceder individualmente
+new_color.blue # we can access individually
 ```
 
-### SETS { }
+### SETS
 
-* Similar to lists but ORDERED and UNIQUE values (no duplicates)
+* Similar to lists but ORDERED and UNIQUE values (no duplicates). `{ }`
 * Can't create with {} (it's a dict)
 
 VERY USEFUL: we can use several sets and play with IoU:
 
-```python
-set1.intersection(set2)
-set1.union(set2)
-set1.difference(set2)
-```
+* Intersection `&`: combines both
+* Union `|`: only items in both
+* Difference `-`: only items in first but not in second
+* Simmetric difference `^`: items in either set but not in both
 
 
 
 
-### DICTIONARY { }
+### DICTIONARY
 
-* Used as key:value mappings
+* Used as key:value mappings `{ }`
 * Can use `dict`, `dict.keys()`, `dict.values()`
-* As in lists, can check pertenence with `in and `not in`.
-* `dict.get()` to see if key is in dict; otherwise returns specified value.
+* As in lists, can check pertenence with `in` and `not in`.
+* `dict.get()` to see if key is in dict; otherwise returns specified value or None.
 * `sorted(dict.keys())` useful for iterating over sorted dictionary keys
 
 Create with `dict = {}`. Access one key with `dict["keyname"]`.
@@ -454,7 +448,7 @@ params = {'name': 'Will', 'surname':'Smith'} # creation
 params['address'] = 'Major st.' # adds one element
 ```
 
-Iteration over dictionaries:
+**Iteration over dictionaries:**
 
 1) Iterating over `key-value` pair:
 
@@ -469,11 +463,15 @@ for key in dict.keys():
 
 2) Iterating with temporary ID with `enumerate` (uses iteration index and value):
 
+Usage:
+
 ```python
 for idx, x in enumerate(dict):
     print(idx, x) 
     # we get iteration index (0,1,2,3,...) and the value of iteration.
 ```
+
+Eg:
 
 ```python
 monsters = ['Kraken', 'Leviathan', 'Uroborus', 'Hydra']
@@ -504,7 +502,7 @@ Tambien se pueden hacer con diccionarios y sets:
 {name:hero for name, hero in zip(names, heros)if name != 'Peter}
 ```
 
-Los sets son como listas pero con valores unicos
+Tambien con sets que tienen valores únicos:
 
 ```python
 {n for n in nums}
@@ -538,8 +536,9 @@ def square(x, debug=False):
 Blank function = use `pass`.
 
 
-`*` in args means to make a tuple with arguments.
-* Has to be places last
+`*` in args means to make a tuple with arguments:
+
+* Has to be placed last
 * Can't have more than one (eg `def ...(..., *arg1, *arg2)` --> gives error)
 * Can have many keyword arguments after = `(..., *args, **kwargs)`
 * Kwargs return a *dictionary* with key_value pairs.
@@ -553,28 +552,47 @@ student_info(courses, info) # INCORRENT, will both as ARGS
 student_info(*courses,**info) # THIS IS CORRECT
 ```
 
+**Recursion** means calling a function inside itself. Eg: `factorial`
 
+* Need to have a base_case, when you can't break sub-functions any further (exit-condition of the recursion).
 
 
 ### Lambda functions:
 
+Short functions
 
 ```python
 f1 = lambda x: x**2
 
-# es igual que
+# same as
 
 def f2(x):
     return x**2
 ```
 
-Podemos 'mapear' una funcion como argumento de otra:
+### Map/Filter
+
+We can use **map** to apply a function to many iterables (apply the same function to each object, eg: list):
+
+`map(function, object)`
 
 
 ```python
 map(lambda x: x**2, range(-3,4))
 # Devuelve [9, 4, 1, 0, 1, 4, 9]
 ```
+
+**Filter** removes items that don't match a boolean predicate:
+
+`filter(predicate, object)`
+
+```python
+filter(lambda x: x%2==0, nums)
+```
+
+To print result converto to `list()` first.
+
+
 
 ## ERRORS AND EXCEPTIONS
 
@@ -721,13 +739,27 @@ Es interesante usar una variable de clase para valores inmutables por los objeto
 
 
 ### Private atributes (Atributos PRIVADOS)
+
+Weakly-private atributes: 
+
+* Se ponen con una `_`. Ej: `self._hiddenlist`
+* Simplemente advierten de que no deberían usarse por código externo a la clase (pero se puede acceder).
+* Su único efecto es no ser importados si usamos `from module_name import *`.
+
+Strongly-private atributes:
+
 Los atributos privados solo pueden ser modificados por la clase y no por fuera (ni siquiera por la instancia de clase).
 Esto se hace haciendo __ delante del atributo al crearlo.
-Ej `self.__password = password
+Ej `self.__password = password`
+
+Para poder acceder desce fuera de la clase debemos usar `object.Class.__privatemethod`.
+
+Eg: `audrey.Dog.__isanimal`
 
 
 
-### Limitar atributos de una clase
+####  Limitar atributos de una clase
+
 `object.__dict__` = te da un diccionario con todos los atributos de un objeto.
 
 En una clase o en una instancia de clase podemos añadir los atributos que queramos (aunque no estén definidos).
@@ -750,7 +782,7 @@ Al definir como property ya no podemos cambiar el valor de los atributos desde f
 
 Por ello principalmente sirven para trabajar con los atributos privados de una clase (ej self.__password) para no manipularla directamente:
 
-```
+```python
 @property
 def password(self):
 	return self.__password
@@ -758,6 +790,10 @@ def password(self):
 @password.setter
 def password(self, valor):
 	self.__password = self.__generar_password(valor)
+
+@password.getter
+def get_password(self, valor):
+	print(self.__password)
 	
 @password.deleter
 def delete_password(self):
@@ -887,7 +923,7 @@ def from_string(cls, string):
 	return cls(name, surname)
 ```
 
-La `cls`del final se refiere a la clase, y es lo mismo que si pusieramos `Employee`. De esta forma estamos creando la clase con un método:  
+La `cls` del final se refiere a la clase, y es lo mismo que si pusieramos `Employee`. De esta forma estamos creando la clase con un método:  
 `employee1 = Employee.from_string('Santi-Bacat')`
 
 
@@ -909,21 +945,46 @@ Ej: un método que calcula si es festivo o no para los empleados (no usa nada de
 ## MAGIC METHODS
 Son `__methods__` y sirven para establecer acciones por defecto.
 
+**Representación del objeto:**
+
 `__repr__`: unambiguous representation  (solo para que la vean otros desarrollaodres).
 `__str__`: readable representation  (para el usuario final).
 > Por defecto se usa str>repr cuando hacemos un print
 
-`__add, sub, mul, matmul, __` = para hacer cálculos con clases
+**Operaciones:**
+`__add +, sub -, mul *, matmul, truediv /, floordiv //, mod %, pow **__` = para hacer cálculos con clases
 Para el cálculo se hace usando other para el otro argumento:
 
 ```
 def __add__(self, other):
 	return (self.pay + other.pay)
+
+# same as x.__add__(y)
 ```
 
+Tambien se pueden hacer con booleanos: `__and &, xor ^, or |__`.
+
+y comparaciones: `__lt <, le <=, eq ==, ne !=, gt >, ge >=__`
+
+y conversión de objetos: `__int__`= para convertir a entero
+
+NOTAS:
+
+* Si x-y son de distintos dipos y `__add__` no está implementada, se usa la opuesta (`y.__radd__(x)`)
+* Si `__ne__` no está implementada, devuelve el contrario de `__eq__` 
 
 
-`__len__` = calcular la longitud
+
+Otros sirven para hacer que las clases sean como contenedores:
+
+* `__len__` = calcular la longitud
+* `__getitem__` para obtener el valor al indexar
+* `__setitem__` para cambiar valores indexados
+* `__delitem__` para dliminar valores indexados
+* `__iter__` para iterar en objetos
+* `__contains__` para hacer `in` sobre el objeto
+* `__new__` = se ejecuta antes que __init__
+
 
 
 ------
@@ -945,6 +1006,9 @@ Primero busca el init en la subclase y luego va a la clase padre.
 Podemos usar la funcion help para ver todo sobre la clase (la subherencia, atributos heredados...).
 Podemos usar `isinstance()` para ver un objeto es instancia de una clase: `isinstance(manager1, Developer)`
 Podemos usar `issubclass()` para ver si una clase es subclase de otra (<--): `issubclass(Manager, Employee)` es True.
+
+
+NO se puede usar herencia circular en python
 
 
 ### Herencia multiple:
@@ -1103,6 +1167,29 @@ Sirve para verificar si un archivo está siendo ejecutado directamente (llamando
 * Si queremos ejecutar este código en el otro archivo lo podremos llamar usando `primerpaquete.main()`.
 
 
+### PACKAGING
+
+To make packages, place all files in the same directory and create a file `__init__.py`, `setup.py` and `README`-`LICENSE`.txt
+
+In `setyp.py` you need necesary info for package assembly with `pip`:
+
+```python
+from distutils.core import setup
+
+setup(
+  name='PackageName',
+  version='1.0dev',
+  packages=['package1',],
+  license='MIT',
+  long_description=open('README.txt').read(),
+)
+
+After that: OR upload to PyPI, OR create binary with `python setup.py bdist` and after `register` and then `upload`; later `install`.
+
+To create exe: PyInstaller (win-osx) or py2exe (win).
+
+```
+
 ---
 
 ## BE PYTHONIC
@@ -1118,25 +1205,23 @@ Se refiere a no tener en cuenta el tipo de objeto si puede hacer lo que se le pe
 
 Se refiere a que en otros lenguajes vamos anidando condicionales para hacer comprobaciones antes de ejecutar (*LBYL = look before you leak*), y en python es mejor dejar ejecutar y usar try/except para ver los errores.
 
+**PEP8** (Python enhancement proposals) = style guide:
+
+* modules, Classes, variables_with_underscores, CONSTANTS
+* Avoid `from package import *`
+* Only one statement per line; lines < 80 chars
+
 
 
 ---
 
-
-## GENERATORS
-
-Es como hacer una lista pero usando `yield`. Mejor porque usa menos memoria (solo genera uno a la vez).
-Para obtener el siguiente resultado `next`.
-Cuando termina todos ya no se puede iterar más (da `StopIteration`).
-
-Cuando hacemos un for con una list comprehension en el fondo estamos haciendo un generador; para ello debemos usar `()` paréntesis.
-`(x*x for x in [1,2,3,4,5])`
-
 ## DECORATORS
+
+Modify functions using other functions (useful for extending functionallity without modifying a function).
 
 Primero habla de los **closures** que yo no habia oido hablar; creo que son funciones anidadas en la que se guarda la ejecución pero no se ejecuta:
 
-```
+```python
 def outer_function(msg):
 	def inner_function():
 		print(msg)
@@ -1149,7 +1234,7 @@ De esta forma se crea la función con los parametros pero aun no se ejecuta.
 
 Esta es la base de funcionamiento de los decoradores, que modifican la ejecución de una función (wrapped):
 
-```py
+```python
 def decorator_function(original_function):
 	def wrapper_function(*args, **kwargs):
 		-loquequeramosquehagaeldecorador-
@@ -1169,7 +1254,7 @@ La forma tipica de los decoradores es `@`. Estas dos cosas son lo mismo:
 
 Para preservar la información de las variables, cuando vamos a usar varios decoradores lo mejor es usar:
 
-```py
+```python
 from functools import wraps
 
 def decorador(orig_func):
@@ -1202,7 +1287,44 @@ def function():
 
 Pocas veces se usará pero es interesante saberlo.
 
+---
 
+
+## GENERATORS
+
+* Iterator function, uses `yield` (not return).
+* Generates one object at a time (on-demand: uses less memory).
+* Use `next` to get next result.
+* When finishes iterator, gives `StopIteration` and you can't get more results.
+
+
+
+
+Cuando hacemos un for con una list comprehension en el fondo estamos haciendo un generador; para ello debemos usar `()` paréntesis.
+`(x*x for x in [1,2,3,4,5])`
+
+
+
+## ITERTOOLS
+
+Functions useful in functional programming:
+
+* `count(start, [step])` = counts up from num to infinity
+* `cycle(object)` = iterates through an iterable infinitely
+* `repeat(object, times)` = iterates through an iterable 'x' number
+
+* `accumulate(object)` = sum al previous values in an iterator (p, p+p2, p+p2+p3...)
+* `chain(obj1, obj2)` = combines deveral iterables
+* `takewhile(predicate, object)` = iterates while predicate is True
+
+* `product(obj1, obj2)` = product of ALL posible combinations.
+* `permutations(object)` = permutate ALL posible combinations-order.
+
+
+
+
+
+---
 
 
 ## RANDOM
@@ -1286,13 +1408,14 @@ Cuando encontramos un patrón con
 * `matches.group(0)` devuelve todo el string
 * `matches.group(1)` devuelve el primer grupo (y así sucesivamente)
 
-Además de `finditer`tambien podemos usar `sub` que sustituye el patrón encontrado por un string que le pasemos:
-`pattern.sub(sub_pattern, text)`
-Ej: `r'(\2\3', urls)` --> esto reemplaza por el segundo y el tercer grupo
+Además de `finditer`tambien podemos usar:
 
-`findall` es similar a finditer pero (no se la diferencia, creo que es )
+`sub` que sustituye el patrón encontrado por un string que le pasemos: `pattern.sub(sub_pattern, text)`
+  Ej: `r'(\2\3', urls)` --> esto reemplaza por el segundo y el tercer grupo
 
-`match`te dice si lo que hemos buscado está al principio del string (solo devuelve el primer resultado, no un iterable). No se usará mucho.
+`findall` es similar a finditer pero devuelve una lista en vez de un iterable
+
+`match` te dice si lo que hemos buscado está al principio del string (solo devuelve el primer resultado, no un iterable). No se usará mucho.
 
 `search` busca en todo el string pero devuelve solo el primer resultado tambien.
 

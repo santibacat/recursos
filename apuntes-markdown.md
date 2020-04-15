@@ -178,6 +178,9 @@ Se insertan entre dos : poniendo el nombre del emoji.
 
 `:joy:` :joy:
 
+Todos los emojis: [aqui](https://gist.github.com/rxaviers/7360908#file-gistfile1-md)
+
+
 ### Portada (Jekyll front-matter)
 Hay que ponerla al inicio del archivo y usar tres ---:
 
