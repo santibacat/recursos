@@ -299,3 +299,76 @@ In information retrieval
 - Recall is a measure of how many truly relevant results are returned and that is equivalent to our previously defined sensitivity measure.
 
 Se supone que las estimaciones de una label, que estarán entre 0-1, deben estar igualmente distribuidas entre 0-1. Para comprobarlo podemos usar la curva de calibración (sklearn) en que vemos la distribución media de nuestras predicciones, que debe estár lo más cerca posible de la diagonal.
+
+
+## SEMANA 3 SEGMENTACION
+
+[Dataset para segmentación médica](https://drive.google.com/drive/folders/1HqEgzS8BV2c7xYNrZdEAnrHk7osJJ--2)
+
+
+Podemos utilizar cada secuencia de RM como si fuera un canal RGB (incluso usar más canales).
+
+se combinan, por ello hay que ALINEAR CORRECTAMENTE, lo que se llama image registration.
+
+generalmente se hace en un plano (en el mejor el axial).
+y ya de ahí como se hace un volumen 3d pdemos obtener lod eás.
+
+hacemos eso con todas las slices ahora, para la segmentación:
+
+* 2d approach: se van coloreando las slices una por una y luego se combinan. Lo malo: que perdemos contexto enntre lonchas.
+* 3d approach: no se puede pasar todo el volumen a la vez por problemas de memoria, por tanto se pasan pequeños 3d subvolumenes (con w x h x grosor), y los vamos pasando uno por uno al modelo y luego los unimos. Lo malo es que perdemos contexto tambien entre subvolumenes.
+
+
+Una de las arquitecturas más importantes para segmentacion es U-NET:
+
+* contracting path = CNN normal
+* expanding path = take small feature maps to get back the original size with 
+
+existen 2d y 3d unet
+la unica diferencia es que los pooling y las convoluciones son 2d o 3d
+
+[entender unet](https://towardsdatascience.com/u-net-b229b32b4a71)
+
+
+
+DATA AUGMENTATION
+
+Hay varias diferencas respecto a la aplicación 3d:
+
+* si aplicamos rotacion a la imagen al aumentar, tambien debemos rotar el output (y) ya que queremos predecir ubicacion de pixels
+* al tener 3d volumenes las transformaciones deben aplicarse a 3d no solo a 2d
+
+
+En cuanto al loss, se suele usar soft dice loss, que calcula el error entre el mapa real y la predicción, midiendo el solapamiento (overlap); queremos que el numerador sea grande y el denominador sea pequeño
+(ver imagen)
+
+
+Challenges to make then routine in medical practise:
+
+* generalisation: difficult due to diferent diseases (us-india)
+* technology is different between hospitals
+
+Para poder medir generalizacion hay que verificar con un test set EXTERNO que sea de la poblacion que queremos ver.
+Si no vemos que funciona, debemos añadir training data de esa poblacion y ahcer fine-tuning.
+
+además es necesario tunear modelos para filtrar los datos que no nos interesen o incluirlos en el modelo (ej: placas laterales), que no estan incluidas.
+
+Another challenge son la necesidad de metricas que se correlacionen con el outcome del paciente. Ya que AUROC, dice score... no se correlacinoann con el efecto del modelo en el paciente, en si el paciente mejora gracias al modelo.
+
+* un approach es decision curve analysis, que puede ayudar a cuantificar la mejora del apciente 
+* otro es randomized controlled trials (comparamos outcomes de pacientes a los que se aplica el modelo y a los que no)
+
+
+además en la realidad mediriamos el efecto del modelo no solo en global, sino el especcfiico: ej efecto segun edad, sexo y nivel socioeconomico.
+
+es necesario evitar los bias (ej: algoritmos de deteccion de melanoma que funcionan peor en negros)
+
+otro es la interpretability (como funcionan los modelos) para poder entender como funcionan y como arreglarlos si no funcionan.
+
+
+EJERCICO 3
+
+Cosas que se suelen hacer en segmentacion:
+
+* generar subsamples de volumen e intentar que contengan tejido patologico (o cosas a segmentar), y no solo ruido de fondo (como background de una rm).
+* estandarizacion 0-1
