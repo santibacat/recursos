@@ -135,3 +135,167 @@ GROUND TRUTH (REFERENCE STANDARD)
 Generalmente en medicina hay **consensus voting**, pero se puede hacer tanto como una sola voz como varias.
 
 **More definitive test:** Tambien se puede usar un test mejor (confirmatorio), como el tc con la rx simple.
+
+
+
+
+NOTAS DEL EJERCICIO 1
+
+* Distintos significados de 'clase': puede ser las distintas patologías o enfermedades, pueden ser la etiqueta de enfermedad positiva o negativa, o tambien puede referirse a la clase de software (como ImageDataGenerator)
+
+
+we need to build a new generator for validation and testing data. 
+
+**Why can't we use the same generator as for the training data?**
+
+
+Look back at the generator we wrote for the training data. 
+- It normalizes each image **per batch**, meaning that it uses batch statistics. 
+- We should not do this with the test and validation data, since in a real life scenario we don't process incoming images a batch at a time (we process one image at a time). 
+- Knowing the average per batch of test data would effectively give our model an advantage.  
+    - The model should not have any information about the test data.
+
+What we need to do is normalize incoming test data using the statistics **computed from the training set**. 
+* We implement this in the function below. 
+* There is one technical note. Ideally, we would want to compute our sample mean and standard deviation using the entire training set. 
+* However, since this is extremely large, that would be very time consuming. 
+* In the interest of time, we'll take a random sample of the dataset and calcualte the sample mean and sample standard deviation.
+
+Para ello, hay que hacer un ImageDataGenerator().fit(training_data) para que entrene con la media y la desviacion estandar :
+
+```python
+    # get data sample
+    batch = raw_train_generator.next()
+    data_sample = batch[0]
+
+    # use sample to fit mean and std for test set generator
+    image_generator = ImageDataGenerator(
+        featurewise_center=True,
+        featurewise_std_normalization= True)
+    
+    # fit generator to sample from training data
+    image_generator.fit(data_sample)
+```
+
+Para mostrar imagenes de un generador:
+
+```python
+x, y = train_generator.__getitem__(0)
+plt.imshow(x[0]);
+```
+
+A la hora de balancear para el cross-entropy weights, lo más facil para obtener 
+$$w_{pos} \times freq_{p} = w_{neg} \times freq_{n},$$
+
+es igualar pesos a frecuencias:
+
+$$w_{pos} = freq_{neg}$$
+$$w_{neg} = freq_{pos}$$
+
+Tambien hemos visto como hacer gradcams
+
+
+# SEMANA 2 
+
+Metrics =
+
+accuracy = correctamente clasificados / total
+la probabilidad de ser correcto se puede dividir en la suma de la probabilidad de que sea correcto y este enfermo y de que sea sano
+
+sensititivy (true positive rate) --> los positivos entre lso ENFERMOS
+specificity (true negative rate) --> los positivos entre los SANOS
+
+
+
+la otra parte que faltea es la pREVALENCIA.
+por tanto la accuracy seria como una media ponderada entre la sensibilidad y la especificidad.
+la prevalencia es los enfermos entre los totales.
+
+
+generalmente la pregunta clinica es distinta, es, SIENDO POSITIVO, CUAL ES LA PROBABILIDAD DE QUE SEA ENFERMO
+esto se suele aplicar a los test diagnosticos, y es el valor predictivo.
+
+
+como se relacionan s-e con valores predictivos? con las confusion matrix
+(ver imagen guardada)
+
+además, hay forma de calcular los valores predictivos teniendo la prevalencia, s y e
+
+
+$PPV = \frac{sensitivity \times prevalence}{sensitivity \times prevalence + (1 - specificity) \times (1 - prevalence)}$
+
+
+ROC CURVE
+
+nos permite plot s y e de forma gráfica eligiendo un ubral (tresold) sobre el cual se elige si el paciente es positivo o negativo.
+
+la elección del umbral (operating point) afecta al valor de la sensibildad y especificdad
+
+si aumentamos el numbral, tendremos una mayor especificidad y una menor sensibilidad (cogeremos menos pacientes pero estaremos más seguros de que son enfermos)
+
+INTERVALOS DE CONFIANZA
+
+como es imposible conseguir el valor real de una población, se usa una muestra de pacientes para conseguir un valor estimado.
+
+los intervalos de confianza nos permiten decir que un valor estimado está, con una confianza de x%, en un intervalo [x]
+
+SI: que con un 95% de confianza, un valor está en el intervalo []
+
+NO quiere decir que haya un 95% de probababilidad de que p esté en el intervalo []
+TAMPOCO que el 95% de las p muestrales (sample accuracies) estén en el intervalo []
+
+Es más complejo y requiere hacer 'varios experimentos', por tanto, quiere decir que en repeated sampling, este metodo produce intervalos que incluyen la p de la población en un 95% de las muestras.
+
+
+En la práctica solo se calcula el intervalo de confianza de uNA muestra, y no de muchas, y solemos aceptar que en el 95% de las ocasiones incluirá el valor poblacional; esto es debido a que el tamaño muestral incluye en la anchura del intervalo de confianza (ya que tendremos una mejor estimación del valor poblacional).
+Aunque tengamos el mismo valor estimado, el intervalo será más estrecho si tenemos más tamaño muestral).
+
+"A 95\% confidence interval for an estimate $\hat{s}$ of a parameter $s$ is an interval $I = (a, b)$ such that 95\% of the time when the experiment is run, the true value $s$ is contained in $I$. More concretely, if we were to run the experiment many times, then the fraction of those experiments for which $I$ contains the true parameter would tend towards 95\%."
+
+
+
+
+EJERCICIO SEMANA 2
+
+Hay que tener en cuenta que la SE y E no dependne de la prevalencia, solo consideran la gente en esa misma clase (o enfermos o sanos).
+
+Forma de hacer bootstraping (ir cogiendo ejemplos de pacientes con recambio para calcular el intervalo de confianza de algunos estimadores):
+
+```python
+def bootstrap_auc(y, pred, classes, bootstraps = 100, fold_size = 1000):
+    statistics = np.zeros((len(classes), bootstraps))
+
+    for c in range(len(classes)):
+        df = pd.DataFrame(columns=['y', 'pred'])
+        df.loc[:, 'y'] = y[:, c]
+        df.loc[:, 'pred'] = pred[:, c]
+        # get positive examples for stratified sampling
+        df_pos = df[df.y == 1]
+        df_neg = df[df.y == 0]
+        prevalence = len(df_pos) / len(df)
+        for i in range(bootstraps):
+            # stratified sampling of positive and negative examples
+            pos_sample = df_pos.sample(n = int(fold_size * prevalence), replace=True)
+            neg_sample = df_neg.sample(n = int(fold_size * (1-prevalence)), replace=True)
+
+            y_sample = np.concatenate([pos_sample.y.values, neg_sample.y.values])
+            pred_sample = np.concatenate([pos_sample.pred.values, neg_sample.pred.values])
+            score = roc_auc_score(y_sample, pred_sample)
+            statistics[c][i] = score
+    return statistics
+
+statistics = bootstrap_auc(y, pred, class_labels)
+```
+
+si el intervalo de confianza incluye el umbral entonces el valor no es representativo.
+
+
+Cuando las clases son desbalanceadas, la curva precision-recall es util.
+
+precision es ppv y recall es sensibilidad.
+
+In information retrieval
+- Precision is a measure of result relevancy and that is equivalent to our previously defined PPV. 
+- Recall is a measure of how many truly relevant results are returned and that is equivalent to our previously defined sensitivity measure.
+
+Se supone que las estimaciones de una label, que estarán entre 0-1, deben estar igualmente distribuidas entre 0-1. Para comprobarlo podemos usar la curva de calibración (sklearn) en que vemos la distribución media de nuestras predicciones, que debe estár lo más cerca posible de la diagonal.
