@@ -426,3 +426,39 @@ EJ3: ASCVD+ : riesgo de enf cardiovascular en >20a sin infarto previo
 Cuando tenemos caracteristicas con coeficientes negativos quire decir que disminuye el score (disminuye el riesgo).
 
 RISK SCORE COMPUTATION
+A la hora de calcular un score riesgo, generalmente se hace teniendo una variable (o su ln) y un coeficiente que se multiplica con esta, y se van sumando.
+
+Muchas veces tambien hay un coeficiente de interacción, que se conforma con la multiplicación de varias variables y la creación de un coeficiente conjunto.
+Esto modifica la curva que deja de ser lineal y refleja mejor las influencias de las variables (ej: la edad afecta más a la hipertension en jóvenes que en ancianos).
+
+EVALUATING PROGNOSTIC MODELS
+
+Sirve para evaluar los *risk scores* de varios pacientes.
+En general el paciente con peor pronostico tiene mayor score riesgo, y esto se llama que es concordant (concuerda); si no, es non-concordant.
+Para parejas de pacientes, pair-concordant.
+Risk ties es cuando tenemos un score riesgo igual pero con distinto outcome.
+Ties in outcome no se suelen considerar en la evaluacion de modelos pronosticos (cuando hay el mismo outcome con distinto score riesgo), ya que debemos tener distinto outcome.
+
+Cuando los outscomes son diferentes se llama permissible pair (porque se puede utilizar)
+
+Por tanto, para evaluar modelos pronostics:
+
+* +1 a permissible pair que sean concordant
+* +`0.5 a permissible pair with risk tie
+
+Esto se llama C-index:
+
+$ C-index = \frac{#concordant_pairs+0.5 x #risk ties} / # permissible pairs
+
+Para ello hay que hacer parejas de todos los pacientes (si hay de A-E: AB, AC, AD, AE, BC, BD, BE, CD, CE, DE) y calcular permissible pairs, concordant pairs, risk ties.
+
+
+EJERCICIO 1
+
+Los modelos esperan datos normalizados, no datos skewed.
+Por ello, una de las formas que se pueden hacer para normalizarlos es aplicarle una funcion logaritmica a los datos
+Luego hay que estandarizar los datos (media 0 y sd 1)
+
+Al calcular la media y la sd para hacer la estandarización siempre tenemos que calcularlo en la training data, pero no en el test. Luego se aplica en el test la estandarización usando la media y sd del training data.
+
+
