@@ -2,11 +2,11 @@
 
 ## MacOS
 
-`tab`= autocompletar
-`ctrl+w` = rm ultima palabra
-`ctrl+u/k` = elimina todo antes/despues del cursor
-`ctrl+a/e` = ir a inicio/fin
-`cmd+k`= limpiar
+* `tab`= autocompletar
+* `ctrl+w` = rm ultima palabra
+* `ctrl+u/k` = elimina todo antes/despues del cursor
+* `ctrl+a/e` = ir a inicio/fin
+* `cmd+k`= limpiar
 
 
 
