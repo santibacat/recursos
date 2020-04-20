@@ -205,7 +205,8 @@ la probabilidad de ser correcto se puede dividir en la suma de la probabilidad d
 sensititivy (true positive rate) --> los positivos entre lso ENFERMOS
 specificity (true negative rate) --> los positivos entre los SANOS
 
-
+![](assets/dl-ai-med2-1.jpg)
+![](assets/dl-ai-med2-2.jpg)
 
 la otra parte que faltea es la pREVALENCIA.
 por tanto la accuracy seria como una media ponderada entre la sensibilidad y la especificidad.
@@ -224,6 +225,8 @@ además, hay forma de calcular los valores predictivos teniendo la prevalencia, 
 
 $PPV = \frac{sensitivity \times prevalence}{sensitivity \times prevalence + (1 - specificity) \times (1 - prevalence)}$
 
+![](assets/dl-ai-med2-3.jpg)
+![](assets/dl-ai-med2-4.jpg)
 
 ROC CURVE
 
@@ -372,3 +375,54 @@ Cosas que se suelen hacer en segmentacion:
 
 * generar subsamples de volumen e intentar que contengan tejido patologico (o cosas a segmentar), y no solo ruido de fondo (como background de una rm).
 * estandarizacion 0-1
+
+Archivo para leer los fiftys = `nibabel.get_fdata()`.
+
+cross entropy loss = heavy class imbalance (bad for segmentation, not many postitive regions)
+better Dice similarity (measure how well two contours overlap)
+0 = mismatch. 1 = perfect match. se hace con sets
+
+![iou](https://i.stack.imgur.com/uH6cL.png)
+![](https://www.researchgate.net/publication/332453167/figure/fig1/AS:748486492450816@1555464494152/A-Venn-diagram-of-unions-and-intersections-for-two-sets-A-and-B-and-their-complements.png)
+
+Soft dice loss
+![](assets/dl-ai-med3-1.jpg)
+
+Diferencia entre fit y generadores
+
+https://www.geeksforgeeks.org/keras-fit-and-keras-fit_generator/
+
+
+
+#### Using the validation set for testing
+- Note: since we didn't do cross validation tuning on the final model, it's okay to use the validation set.
+- For real life implementations, however, you would want to do cross validation as usual to choose hyperparamters and then use a hold out test set to assess performance
+
+
+
+# CURSO 2: MEDICAL PROGNOSIS
+
+Medical prognosis is predicting the risk of a future event (death, heart attack, stroke...)
+
+Is a clinically useful task:
+
+* Informing patients (risk of illness, survival...)
+* Useful for guiding treatment (whether a patient should get drugs, receive end-of-life care...)
+
+
+Input: profile of patient (clinical history, physical exams, labs, imaging)
+-->
+Prognostic Model
+-->
+Output: risk score (number or probability %)
+
+Ej. CHADS_{2}DS_{2}-VASc
+MELD Score: riesgo muerte en 3 meses en pacientes con hepatopatía terminal
+
+Using the natural log of the features instead of the features themselves is common when there's reason to believe that the relationship between the risk and the features is linear in the natural log of the features.
+
+EJ3: ASCVD+ : riesgo de enf cardiovascular en >20a sin infarto previo
+
+Cuando tenemos caracteristicas con coeficientes negativos quire decir que disminuye el score (disminuye el riesgo).
+
+RISK SCORE COMPUTATION
