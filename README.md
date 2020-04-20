@@ -4,19 +4,29 @@
 
  ## Apuntes
 
+* [Bash y Terminal](apuntes-bash.md)
 * [Colab](apuntes-colab.ipynb)
+* [Competiciones y Kaggle](apuntes-competiciones.md)
 * [Git](apuntes-git.md)
 * [Keras](apuntes-keras.ipynb)
-* [Python]() pendiente de unificar
+* [Markdown](apuntes-markdown.md)
+* [Python](apuntes-python.md)
 * [Vim](apuntes-vim.md)
 * [Visual Studio Code](apuntes-vscode.md)
 
 
+## Apuntes Cursos
+
+* Deeplearning.ai Tensorflow [1 Basico](curso-deeplearningai1-basico.ipynb) [2](curso-deeplearningai2-imagenes.ipynb) [3](curso-deeplearningai3-NLP.ipynb)
+* Deeplearning.ai [Medical](curso-deeplearningai-med1.md)
+* [SaturdaysAI](curso-saturdaysAI.ipynb)
+
 ## Recursos
 
-* [Recursos Generales](recursos-interesantes.md)
+* [Recursos generales](recursos-interesantes.md)
 * [Recursos Rx-Med](recursos-medical.md)
-* [Recursos Publicaciones](recursos-publicaciones.md)
+* [Recursos publicaciones](recursos-publicaciones.md)
+
 
 ## Code Snippets
 
@@ -25,7 +35,4 @@
 
 ## TO-DO
 
-Por unificar:
-
-* Python apuntes
-* Apuntes saturdays +notas jj
+[ver todo.md](todo.md)
