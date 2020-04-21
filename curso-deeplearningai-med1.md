@@ -1,5 +1,7 @@
 # CURSO 1 MEDICAL IMAGING DIAGNOSIS
 
+## SEMANA 1 CLASIFICACION
+
 * Aprender el uso del ground truth para etiquetar dataset
 * Aprender a usar datos balanceados
 * Aprender a hacer subtareas en histologia (con imagenes de alta resolucion, hacerlas pequeñas, haciendo parches)
@@ -195,7 +197,7 @@ $$w_{neg} = freq_{pos}$$
 Tambien hemos visto como hacer gradcams
 
 
-# SEMANA 2 
+## SEMANA 2 
 
 Metrics =
 
@@ -402,6 +404,8 @@ https://www.geeksforgeeks.org/keras-fit-and-keras-fit_generator/
 
 # CURSO 2: MEDICAL PROGNOSIS
 
+## SEMANA 1. PRONOSTICO
+
 Medical prognosis is predicting the risk of a future event (death, heart attack, stroke...)
 
 Is a clinically useful task:
@@ -460,5 +464,145 @@ Por ello, una de las formas que se pueden hacer para normalizarlos es aplicarle 
 Luego hay que estandarizar los datos (media 0 y sd 1)
 
 Al calcular la media y la sd para hacer la estandarización siempre tenemos que calcularlo en la training data, pero no en el test. Luego se aplica en el test la estandarización usando la media y sd del training data.
+
+
+## SEMANA 2: DECISION TREES FOR PROGNOSIS
+
+Usaremos decision trees para predecir la mortalidad. El mayor problema es el overfitting.
+
+Los random forest tienen buena predicion con poco overfitting.
+
+Los decission trees van separando el input space en regiones mediante la 'respuesta' a preguntas (mediante splits de los datos).
+
+Los decision trees solo pueden hacer divisiones verticales u horizontales.
+
+Gracias a esto podemos binarizar las probabilidades de riesgo ("zonas" de alto y de bajo riesgo de un evento).
+
+El overfitting es malo y se ve cuando la accuracy es mucho mayor en train que en test.
+
+Una forma de controlarlos es disminuir el valor de `max depth` para tener modelos más simples.
+Otra forma es crear `random forests` que son ensembles de decision trees cada uno creado con un random sample with replacement del conjunto total de datos. Tambien se pueden hacer random sample de variables.
+
+Hay otros algoritmos de ensemble que se pueden usar: gradient boosting, XGBoost y LightGBM.
+
+A la hora de crear el algoritmo, podemos pasar los parámetros como un diccionario, pero para desempaquetarlos hay que usar `**` para desempaquetar:
+
+```python
+tree_parameters = {'criterion': 'entropy',
+                   'max_depth': 10,
+                   'min_samples_split': 2
+                  }
+
+dt = DecisionTreeClassifier(**tree_parameters)
+```
+
+
+### Identifying missing data
+
+Veremos lo que pasa solo cuando faltan datos de X (no del outcome y).
+
+Lo primero que haremos es separar en train-test y ELIMINAR los pacientes con NA.
+
+* Problema de esto: da modelos muy sesgados (bias).
+
+Por ejemplo, antes de quitarle los NA tenemos una accuracy aceptable y al quitarselo vemos que disminuye.
+Muchas veces esto se debe a que las distribuciones de las variables son diferentes entre train/test.
+
+De hecho si hacemos un plot entre la distribución de antes y despues de eliminar los NA, puede que haya diferencias en una zona concreta porque estemos eliminando pacientes de uan zona y esto sea lo que nos da el fallo al entrenar el modelo (porque no tenemos datos suficientes).
+
+Muchas veces se debe a errores sistematicos (ej: que en pacientes jovenes no se mide la TA de normal.)
+
+
+**Why data can be missing**:
+
+3 categorias:
+
+* _Missing completely at random:_ decidir aleatoriamente si se guarda o no. Generalmente no suele darse; la probabilidad de tener la variable medida es completamente aleatoria: no produce un biased model. `p(missing) = constant`
+* _Missing at random:_ missingess dependent only on available information --> hay una decisión no siempre aleatoria de medir una variable. Ej: medir TA a todos los ancianos, y a los jovenes solo a la mitad aleatoriamente. Esto daría un biased model pero solo para los jovenes. `p(missing|young) = 0.5; p(missing| old) = 0`
+* _Missing not at random:_ missingness non dependent on information. Ej: que al medico le de tiempo a coger las variables o le pille agobiado o esté tranquilo y le de tiempo. `p(missing) != constant`. Pero como no tenemos la información (porque no está apuntado en ningun sitio si el medico estaba agobiado), pues provoca que creemos bias models.
+
+**Imputation**
+
+Imputation sirve para rellenar los valores vacios (filling missing values).
+
+Lo primero es separar en train_test y ambos deben tener valores NA.
+
+El método más facil es mean imputation que es rellenar con la media.
+Si tenemos NA en el test set hay que rellenar los NA usando los valores medios del TRAINING set, no del test.
+
+Lo malo es que no preserva la corelación entre variables.
+Hay otra que si lo preserva: regression imputation.
+
+Lo que hace es intentar aprender un modelo lineal para intentar rellenar los valores vacios. Para el test set habria que usar la misma ecuacion que para el train set (obviamente).
+
+```python
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import SimpleImputer, IterativeImputer
+
+mean_imputer = SimpleImputer(missing_values = np.NaN, strategy='mean')
+mean_imputer.fit_transform(df)
+
+reg_imputer = IterativeImputer()
+reg_imputer.fit_transform(df)
+```
+
+## SEMANA 3: SURVIVAL MODELS
+
+Los modelos de supervivencia son una extensión de los modelos pronósticos, que (en vez de buscar el riesgo de un evento) buscan la probabilidad de supervivencia en un `tiempo t` futuro.
+
+La clave aquí es que pueden responder a la posibilidad de supervivencia a distintos tiempos `t` con un solo modelo  (a diferencia de los modelos pronosticos, que habría que hacer varios modelos).
+
+Survival function: `S(t) = Pr(T > t)`
+
+* Eje x = tiempo `t`
+* Eje y = posibilidad de supervivencia en este tiempo t: `S(t)`
+
+Propiedades de la *survival function*:
+
+* La posibilidad de supervivencia nunca puede aumentar con el paso del tiempo (tan solo seguir igual o disminuir).
+  * `S(y) <= S(x) si y>=x`
+* Comienza en 1 (supervivencia) y conforme la función tiende a infinito, la posibilidad de supervivencia tiende a 0.
+  * `S(t) = 1 si t=0`
+  * `S(t) = 0 si t=`$\infty$
+  
+En los survival models, la información que se recoge no es si/no (1/0), sino **CUÁNDO** ocurre: apuntamos el tiempo `t` que transcurre hasta el evento.  
+Aunque hay dos problemas:
+
+* End-of-study censoring: Si no hemos observado el evento en ese paciente y termina el estudio, lo indicamos con `t+`. Ej: 36+ meses.
+* Loss-to-follow-up censoring: Si el paciente ha decidido salirse del estudio (withdraw), lo mismo: 12+ meses.
+
+Estos son ejemplos de **datos censurados**, que tendremos que tener en cuenta (right-censored en este caso, porque no tenemos información a la derecha de la curva).
+
+
+Para estimar la función de supervivencia `S(t)` que nos da la probabiliad de supervivencia al tiempo `t` necesitamos los datos de todos los pacientes de la tabla:
+
+$S(t) = \frac{#survived at time t, #total patients}$
+
+El problema lo tenemos con los datos censurados: podríamos hacer una estimación en dos escenarios: que todos los datos censurados siguen vivos o que todos han muerto; la cifra real de supervivencia estará en medio de ambas.
+
+Para estimar la cifra real de supervivencia lo haremos siguiendo la regla de la cadena de probabilidad condicional (chain rule of conditional probability) (la explicación está en los videos):
+
+S(t) = sumproduct 1 - (di = # died at time t / ni = #survival at time t)
+
+$S(t) = \prod_{i=0}^N \left ( 1 - \frac{d_i}{n_i}\right )$
+
+Es decir, se calcula para todos los tiempos t (los presentes en la tabla al menos), el numero de muertos en ESE TIEMPO PRECISO entre los que sobrevivieron a ese tiempo (incluyendolo, >=).
+
+A esto se le llama Kaplan Meier Estimate, y se aplica a todos los pacientes en una muestra.
+
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Km_plot.jpg/250px-Km_plot.jpg)
+
+Así podemos comparar la probabilidad de supervivencia de dos muestras en un mismo tiempo t.
+
+* Lo normal es representar gráficamente la curva de supervivencia con respecto al tiempo
+* Cada punto representa la probabilidad de supervivencia en ese tiempo (t)
+
+Para saber si hay diferencias estadísticamente significativas entre las curvas de supervivencia se usa el **Log-Rank test**. Podemos usarlo de `lifelines.statistics.logrank_test`. 
+
+
+
+## SEMANA 4
+
+
 
 
