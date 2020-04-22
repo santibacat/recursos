@@ -983,7 +983,9 @@ Otros sirven para hacer que las clases sean como contenedores:
 * `__delitem__` para dliminar valores indexados
 * `__iter__` para iterar en objetos
 * `__contains__` para hacer `in` sobre el objeto
-* `__new__` = se ejecuta antes que __init__
+* `__new__` = se ejecuta antes que __init__ (lo primero de todo)
+* `__str__` y `__repr__` = para representar el objeto (lo que vemos al hacer print).  [Ver más](#str-vs-repr).
+* `__getattr__` = se usa cuando un atributo no está definido, y en vez de dar error, hace algo (crea el atributo, muestra un mensaje, etc). [Más info](https://stackoverflow.com/questions/3278077/difference-between-getattr-vs-getattribute).
 
 
 

@@ -601,7 +601,131 @@ Para saber si hay diferencias estadísticamente significativas entre las curvas 
 
 
 
-## SEMANA 4
+## SEMANA 4 HAZARD FUNCTIONS
+
+
+Hay dos cosas que van de la mano de la función de supervivencia: la función de riesgo (hazard function) y la funcion del riesgo acumulativo (cumulative hazard function)
+
+Anteriormente hemos visto la funcion de supervivencia, que nos daba la posibilidad de supervivencia pasado un tiempo t.
+
+Tambien podemos calcular la probabilidad de muerte, que es simplemente 1 - supervivencia.
+
+Ahora vamos a ver la funcion de riesgo, que lo que quiere es ver el riesgo INMEDIATO de muerte un paciente si llega a un tiempo t.
+
+hazard -\ lambda(t) = Pr(T=t|T>=t)
+
+Se puede representar graficamente tambien:
+
+*  Bathtub: un tipo de curva que tiene alto riesgo al inicio, luego disminuye bruscamente y va aumentando con el tiempo. Ej. qx o qt.
+
+La funcion riesgo está relacionada con la de superviencia y se puede utilizar una formula para obtener la funcion supervivencia en funcion a la función riesgo y viceversa.
+
+hazard = rate of death if aged t
+
+
+Cual es el riesgo acumulado del paciente hasta el tiempo t?
+CAPITAL LAMBDA, está muy relacionado con el riesgo a tiempo t (hazard), ya que se puede obtener sumando todos los riesgos acumulados hasta ese punto.
+/\ (t) = E -\ (t)
+
+Para ello t debe ser continuo (1, 2, 3...)
+
+Vemos como a partir de una curva de supervivencia podemos obtener las tres funciones: supervivencia, riesgo y riesgo acumulado.
+
+ej1:
+Cuando hacemos one-hot encoding muchas veces merece la pena convertirlo a float, ya que es lo que espera el modelo.
+
+
+MDOELO DE COX (COX PROPORTIONAL HAZARD).
+
+El modelo de riesgo poblacional nos da el riesgo conjunto pero no tiene en cuenta variables individuales (es el mismo riesgo para todos los individuos).
+
+El modelo de cox nos permite tener en cuenta diferencias individuales que condicionen diferencias en el riesgo (ejemplo: edad, fumador...). 
+
+$$
+\lambda(t, x) = \lambda_0(t)e^{\theta^T X_i}
+$$
+
+
+lambda_individual(t) = lambda_baseline x factor 
+
+El factor está determinado por distintas variables (multiplicados por pesos y sumadas):
+
+factor = exp(Esum variable x weight)
+
+Teniendo en cuenta que el riesgo base es el mismo, podemos comparar los riesgos de distintos pacientes comparando los factores, sin tener en cuenta ni comparar los modelos base de riesgo.
+
+Si vamos disgregando cada una de las variables que aparecen podemos calcular el riesgo relativo asociado a cada una de las variables (ej: el riesgo de fumar con respecto a no fumar, o el riesgo de duplicar la edad); tan solo hay que ir despejando las variables) y al final obtenemos una ecuacion comun que es:
+
+riesgo relativo = exp(coef x riesgo1 - coef x riesgo2)
+
+ej: riesgo(fumar/no fumar) = exp(coef x riesgo_fumador - coef x riesgo_nofumador)
+
+Por ello vemos que el riesgo de aumentar una unidad a la variable es igual a exp(weigth).
+
+Si tuvieramos un riesgo relativo negativo (protector) para una variable, exp(weight) seria <1 y por tanto el riesgo total dismnuiria con el tiempo
+
+Al comparar dos pacientes, si el hazard ratio es positivo quiere decir que el paciente del numerador tiene mas riesgo, si es el del denominador no.
+
+
+SURVIVAL TREES
+
+Toma los riesgos individuales en cuenta para calcular la supervivencia individualizada (al contrario que los arboles de supervivencia que vimos antes que eran generales para la poblacion).
+
+El modelo de cox tiene varias desventajas:
+
+* No es capaz de capturar relaciones no lineales en las caracteristicas (el riesgo no puede aumentar y luego disminuir); solo puede usar modelos lineales.
+* Otra desventaja es que la funcion riesgo para dos pacientes siempre es proporcional entre sí; por tanto la curva para pacientes similares es igual.
+
+Sin embargo, puede ocurrir que en la realidad las curvas sean distintas con el tiempo: por ejemplo en pacientes con alta o baja dosis de qt
+
+* Pacientes con alta dosis tienen un alto riesgo inmediato pero un menor posterior.
+* Pacientes con baja dosis tienen bajo riesgo de muerte a corto plazo ero alto a largo plazo.
+
+Por tanto el objetivo es obtener hazard functions que sean diferentes para distintos grupos dentro de la población (y tambien obviamnete cumulative functions y survival functions, que van asociadas).
+
+Los arboles de decisión que usabamos antes simplemente clasificaban entre alto riesgo o bajo riesgo en función del valor de las variables; ahora hay varias diferencias:
+
+* Tratamos con time-to-event (no con riersgo alto o bajo, sino con cual es el riesgo en cada punto del tiempo). lambda o riesgo acumulado o supervivencia (son intercambiables).
+* la otra diferencia es que son datos de supervivencia; poseen tanto si murió o no, como cuando, como la censura.
+
+
+Cómo podemos estimar el riesgo acumulado por cada grupo?
+Podemos usar el estimador de Nelson-Aalen
+
+H(t) = E (di/ni) = (# num died at time i/ # num survived to time i) 
+
+por tanto sería la suma de di/ni en cada punto hasta llegar a t
+
+
+¿Como podemos comparar el riesgo de dos pacientes?
+Como ahora a distinto tiempo hay distinto riesgo (sobre todo si los individuos pertenecena  distintas poblaciones), para comparar el riesgo de dos pacientes debemos conocer el tiempo t del que queremos comparar.
+
+Por ello el mortality score nos sirve para comparar los riesgos de dos pacientes; simplemente calculamos el riesgo acumulativo a distintos tiempos y hacemos la media o la suma, y así obtenemos un valor que podremos comparar.
+
+EVALUACION DE MODELOS DE SUPERVIVENCIA
+
+Para evaluar los modelos de supervivencia podemos utilizar la metrica C-index peromodificada para modelos de superviencia.
+
+Harrel's C-Index = # oncordant + 0.5 #risk ties  / # permissible pairs
+
+La definición solo varia en que ahora:
+
+* Concordant: pacientes con peor deselnace deben tener más riesgo = el que tiene más riesgo debe tener una t más pequeña (sino, non conordant); pero además si tenemos el mismo tiempo y el mismo riesgo, tambien es concondante. DEBEN ser permissible para poder compararlas.
+
+* Risk ties: si tienen el mismo risk score con distinta t; tambien si tienen la misma t y distinto risk score.
+
+* Permissible pairs: es más complicado que en etiquetas binarias:
+    * Es posible compararlos si: evento al mismo tiempo (incluso si uno censurado), ambos no censurados o el censurado fue despues.
+    * NO posible: si uno de los pacientes fue censurado antes de que el otro tuviera el evento o si ambos eran censurados.
+
+La formula es la misma pero con distinto principio como ya hemos visto.
+
+
+
+
+
+
+
 
 
 
