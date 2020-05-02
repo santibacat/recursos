@@ -17,40 +17,40 @@ Básico:
 * [Recommended fastai python resources](https://forums.fast.ai/t/recommended-python-learning-resources/26888)
 * [Python Docs Learning Resources](https://docs.python-guide.org/intro/learning/)
 
-* [X] [Sololearn](https://www.sololearn.com/Course/Python/)
-* [X] [Whirlwind Tour of Python]()
+* [ ] [Sololearn](https://www.sololearn.com/Course/Python/)
+* [ ] [Whirlwind Tour of Python]()
 * [ ] [Learn Python the Hard Way]()
-* [ ] [Automate the boring stuff with Python]() by Al Sweigart
-* [ ] [Python tutorials by Sentdex]()
-* [ ] [Python OOP’s tutorial]() by Corey Schafer 
-* [ ] [Udemy complete python bootcamp]()
-* [ ] [Learn to Program with Python]()
-* [ ] [Introducing Python]()
-* [ ] [Code academy]()
-* [x] [Python - The No Theory Guide]() 
-* [ ] [Introduction to Computer Science and Programming Using Python]()
+* [ ] [Automate the boring stuff with Python]() by Al Sweigart
+* [ ] [Python tutorials by Sentdex]()
+* [ ] [Python OOP’s tutorial]() by Corey Schafer 
+* [ ] [Udemy complete python bootcamp]()
+* [ ] [Learn to Program with Python]()
+* [ ] [Introducing Python]()
+* [ ] [Code academy]()
+* [ ] [Python - The No Theory Guide]() 
+* [ ] [Introduction to Computer Science and Programming Using Python]()
 * [ ] [Python Crash Course by Enric Mattes](https://ehmatthes.github.io/pcc/)
 * [ ] [Coursera Rice Univ - Interactive Prg with Python](https://www.coursera.org/learn/interactive-python-1)
 * [ ] [Coursera Michigan Univ - Programming for Everybody](https://www.coursera.org/lecture/python-data-analysis)
-* [X] [Corey Shafer Youtube]()
-* [ ] [Derek Banas Youtube]()
+* [ ] [Corey Shafer Youtube]()
+* [ ] [Derek Banas Youtu
 * [ ] [Jesus Conde VT Youtube]()
 
 __Intermediate programmers__
 
-* [ ] [The Hitchhiker’s Guide to Python]()
-* [ ] [Peter Norvig’s Pytudes]()
-* [ ] [Design of Computer Programs]()
+* [ ] [The Hitchhiker’s Guide to Python]()
+* [ ] [Peter Norvig’s Pytudes]()
+* [ ] [Design of Computer Programs]()
 * [ ] [Fluent Python by Luciano](https://github.com/fluentpython) 2015
-* [ ] [Trey Hunner]() 
-* [ ] [Python tricks]() by Dan bader 
-* [ ] [Google’s Python Class]()
+* [ ] [Trey Hunner]() 
+* [ ] [Python tricks]() by Dan bader 
+* [ ] [Google’s Python Class]()
 
 __Advanced programmers (but maybe new to python)__
 
-* [ ] [Learn x in y minutes]() 
-* [ ] [David Beazley’s]() courses, tutorials, and books 
-* [ ] [Raymond Hettinger]()
+* [ ] [Learn x in y minutes]() 
+* [ ] [David Beazley’s]() courses, tutorials, and books 
+* [ ] [Raymond Hettinger]()
 * [ ] [Learning Python 5ed by Mark Lutz](https://www.amazon.com/-/es/Mark-Lutz/dp/1449355730) libro gordo de petete
 * [ ] [Python Notes for Professionals](https://goalkicker.com/)
 
