@@ -12,63 +12,35 @@
 * [Real Python](https://realpython.com/search?q=classes) recursos Python leidos
 * [pyimagesearch](https://www.pyimagesearch.com/) recursos python en imagen
 
-Aprendizaje:
+Básico:
 
 * [Recommended fastai python resources](https://forums.fast.ai/t/recommended-python-learning-resources/26888)
 * [Python Docs Learning Resources](https://docs.python-guide.org/intro/learning/)
 * [X] [Sololearn](https://www.sololearn.com/Course/Python/)
-* [ ] [Coursera Rice Univ - Interactive Prg with Python](https://www.coursera.org/learn/interactive-python-1)
-* [ ] [Coursera Michigan Univ - Programming for Everybody](https://www.coursera.org/lecture/python-data-analysis)
-* [ ] [Corey Shafer Youtube]()
-* [ ] [Derek Banas Youtube]()
-* [ ] [Jesus Conde VT Youtube]()
-
-
-Libros:
-* [ ] basico [Python Crash Course by Enric Mattes](https://ehmatthes.github.io/pcc/)
-* [ ] avanzado [Learning Python 5ed by Mark Lutz](https://www.amazon.com/-/es/Mark-Lutz/dp/1449355730) libro gordo de petete
-* [ ] avanzado [Fluent Python by Luciano](https://github.com/fluentpython) 2015
-* [ ] avanzado [Python Notes for Professionals](https://goalkicker.com/)
-* [ ] img [Practical Python and OpenCV by Adrian Rosebock](https://www.pyimagesearch.com/practical-python-opencv/)
-
-
-GUI:
-* [ ] pyqt [PyQT5 Programming Book](https://www.amazon.es/Qt5-Python-GUI-Programming-Cookbook/dp/1788831004)
-* [ ] pyqt [Cursos Jesus Conde PyQt](https://www.youtube.com/watch?v=2Y_NdwcS2Fw)
-* [ ] pyqt [Learn PyQt](https://www.learnpyqt.com/) Pagina de videos
-
-### OTROS RECURSOS PYTHON
-
-* [ ] [Python No Theory Master]()
-* [ ] [Learn Python Interactive Tutorial](https://www.learnpython.org/)
-
-
-### FASTAI PYTHON RESOURCES
-
-by [Jeremy Howard](https://forums.fast.ai/t/recommended-python-learning-resources/26888)
-
-__Basic Resources__
-
-* [x] Whirlwind Tour of Python
+* [X] Whirlwind Tour of Python
 * [ ] Learn Python the Hard Way
 * [ ] Automate the boring stuff with Python by Al Sweigart
 * [ ] Python tutorials by Sentdex
 * [ ] Python OOP’s tutorial by Corey Schafer 
-* [ ] Real Python 
 * [ ] Udemy complete python bootcamp
 * [ ] Learn to Program with Python
 * [ ] Introducing Python
-* [x] Solo Learn
 * [ ] Code academy
-* [ ] Python - The No Theory Guide 
+* [x] Python - The No Theory Guide 
 * [ ] Introduction to Computer Science and Programming Using Python
+* [ ] [Python Crash Course by Enric Mattes](https://ehmatthes.github.io/pcc/)
+* [ ] [Coursera Rice Univ - Interactive Prg with Python](https://www.coursera.org/learn/interactive-python-1)
+* [ ] [Coursera Michigan Univ - Programming for Everybody](https://www.coursera.org/lecture/python-data-analysis)
+* [X] [Corey Shafer Youtube]()
+* [ ] [Derek Banas Youtube]()
+* [ ] [Jesus Conde VT Youtube]()
 
 __Intermediate programmers__
 
 * [ ] The Hitchhiker’s Guide to Python
 * [ ] Peter Norvig’s Pytudes
 * [ ] Design of Computer Programs
-* [ ] Fluent Python 
+* [ ] [Fluent Python by Luciano](https://github.com/fluentpython) 2015
 * [ ] Trey Hunner 
 * [ ] Python tricks by Dan bader 
 * [ ] Google’s Python Class
@@ -78,6 +50,26 @@ __Advanced programmers (but maybe new to python)__
 * [ ] Learn x in y minutes 
 * [ ] David Beazley’s courses, tutorials, and books 
 * [ ] Raymond Hettinger
+* [ ] avanzado [Learning Python 5ed by Mark Lutz](https://www.amazon.com/-/es/Mark-Lutz/dp/1449355730) libro gordo de petete
+* [ ] avanzado [Python Notes for Professionals](https://goalkicker.com/)
+
+__Images:__
+
+* [ ] img [Practical Python and OpenCV by Adrian Rosebock](https://www.pyimagesearch.com/practical-python-opencv/)
+
+
+__GUI:__
+* [ ] pyqt [PyQT5 Programming Book](https://www.amazon.es/Qt5-Python-GUI-Programming-Cookbook/dp/1788831004)
+* [ ] pyqt [Cursos Jesus Conde PyQt](https://www.youtube.com/watch?v=2Y_NdwcS2Fw)
+* [ ] pyqt [Learn PyQt](https://www.learnpyqt.com/) Pagina de videos
+
+### OTROS RECURSOS PYTHON
+
+* [ ] [Learn Python Interactive Tutorial](https://www.learnpython.org/)
+
+
+
+
 
 
 
@@ -139,6 +131,7 @@ Repos:
 * [ ] [DL with Python by Sebastian Rashka](https://github.com/rasbt/python-machine-learning-book-3rd-edition) 3ed nueva
 * [ ] [Curso aprendizaje automatico de Google](https://developers.google.com/machine-learning/crash-course/prereqs-and-prework?hl=es-419)
 * [ ] [Masters Degree](https://www.mrdbourke.com/aimastersdegree/) Recopilación self-learning ML
+* [ ] [Machine Learning Mastery](https://machinelearningmastery.com/) demasiados recursos
 
 ## tensorflow
 * [ ] [Hands-on ML with keras and tensorflow by Aurelien Geron](https://github.com/ageron/handson-ml2)
