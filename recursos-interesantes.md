@@ -16,24 +16,23 @@ Básico:
 
 * [Recommended fastai python resources](https://forums.fast.ai/t/recommended-python-learning-resources/26888)
 * [Python Docs Learning Resources](https://docs.python-guide.org/intro/learning/)
-
-* [ ] [Sololearn](https://www.sololearn.com/Course/Python/)
-* [ ] [Whirlwind Tour of Python]()
+* [x] [Sololearn](https://www.sololearn.com/Course/Python/)
+* [x] [Whirlwind Tour of Python]()
 * [ ] [Learn Python the Hard Way]()
 * [ ] [Automate the boring stuff with Python]() by Al Sweigart
 * [ ] [Python tutorials by Sentdex]()
-* [ ] [Python OOP’s tutorial]() by Corey Schafer 
+* [x] [Python OOP’s tutorial]() by Corey Schafer 
 * [ ] [Udemy complete python bootcamp]()
 * [ ] [Learn to Program with Python]()
 * [ ] [Introducing Python]()
 * [ ] [Code academy]()
-* [ ] [Python - The No Theory Guide]() 
+* [x] [Python - The No Theory Guide]() 
 * [ ] [Introduction to Computer Science and Programming Using Python]()
 * [ ] [Python Crash Course by Enric Mattes](https://ehmatthes.github.io/pcc/)
 * [ ] [Coursera Rice Univ - Interactive Prg with Python](https://www.coursera.org/learn/interactive-python-1)
 * [ ] [Coursera Michigan Univ - Programming for Everybody](https://www.coursera.org/lecture/python-data-analysis)
-* [ ] [Corey Shafer Youtube]()
-* [ ] [Derek Banas Youtu
+* [x] [Corey Shafer Youtube]()
+* [ ] [Derek Banas Youtube]()
 * [ ] [Jesus Conde VT Youtube]()
 
 __Intermediate programmers__
