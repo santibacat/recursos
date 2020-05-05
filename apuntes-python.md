@@ -81,8 +81,12 @@ print(s[1:7:1])
 * `upper()` UPPERCASE
 * `lower()` lowercase
 * `strip()` no spaces (`lstrip()` left and `rstrip()` right)
+  * `.strip("/")` eliminar caracteres indeseados al final del string
 * `string.printable` to see all printable chars
+* `"-".join(sentence)` unir listas de string
+* `sentence.split()` separar por caracteres
 * `len(string.split())` counts chars
+* Para encontrar el elemento más frecuente de una lista: `print(max(set(text), key=test.count))`
 
 Search on strings:
 
@@ -570,7 +574,7 @@ def f2(x):
     return x**2
 ```
 
-### Map/Filter
+### Map/Filter/Zip
 
 We can use **map** to apply a function to many iterables (apply the same function to each object, eg: list):
 
@@ -590,7 +594,15 @@ map(lambda x: x**2, range(-3,4))
 filter(lambda x: x%2==0, nums)
 ```
 
-To print result converto to `list()` first.
+To print result convert to `list()` first.
+
+**zip** packs two lists to iterate simultaneously:
+
+```python
+for x, y in zip(first, second):
+  print(x+y)
+```
+
 
 
 
@@ -1474,6 +1486,18 @@ Para formatear horas en otro formato (ej: 23 de Julio de 2020)
 al reves (de string a hora) con `strptime()`
 
 ---
+## TIME measure
+
+```python
+import time
+start_time = time.time()
+do_something()
+print(“%s seconds” % (time.time() — start_time)) 
+```
+
+tambien se puede usar el magic method `%timeit` al inicio
+
+
 
 
 ## OS Module
