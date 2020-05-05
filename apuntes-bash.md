@@ -8,6 +8,7 @@
 * `ctrl+a/e` = ir a inicio/fin
 * `cmd+k`= limpiar
 
+[Mac Bash aliases](https://github.com/kyleshevlin/.dotfiles/) forked in [aliases](assets/mac-aliases.sh) and [commands](assets/mac-commands.sh)
 
 
 ### iTerm integration commands
