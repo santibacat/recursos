@@ -195,3 +195,11 @@ date: 2014-06-06 20:00:00
 
 1. [Markdownguide](https://www.markdownguide.org/basic-syntax/)
 2. [Macdown tutorial](https://github.com/MacDownApp/macdown/blob/master/MacDown/Resources/help.md)
+
+
+# Utilidades Markdown
+
+* Convertir markdown a jupyter (y mantener sincronizado): [jupytext](https://github.com/mwouts/jupytext):
+  * Instalar: `conda install -c conda-forge jupytext`
+  * Uso: en jupyter, `File > Jupytext` podemos darle a autoguardado
+  * Desde comandos: `jupytext --to notebook --execute notebook.md    # convert notebook.md to an .ipynb file and run it`

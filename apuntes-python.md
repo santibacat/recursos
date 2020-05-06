@@ -489,7 +489,9 @@ for i, monster in enumerate(monsters):
     2 Uroborus
     3 Hydra
 
+#### defaultDict
 
+crea un valor por defecto para cuando inicializas un diccionario sin key por primera vez.
 
 ### COMPREHENSIONS
 
@@ -603,7 +605,16 @@ for x, y in zip(first, second):
   print(x+y)
 ```
 
+### Counter
 
+Sirve para contar cosas (por ejemplo listas, y te da una tupla con cada valor y su conteo.
+
+```python
+from collections import Counter
+ages = [22, 22, 25, 25, 30, 24, 26, 24, 35, 45, 52, 22, 22, 22, 25, 16, 11, 15, 40, 30]
+value_counts = Counter(ages)
+print(value_counts.most_common())
+```
 
 
 ## ERRORS AND EXCEPTIONS
@@ -1225,6 +1236,7 @@ Se refiere a que en otros lenguajes vamos anidando condicionales para hacer comp
 * Avoid `from package import *`
 * Only one statement per line; lines < 80 chars
 
+Enlaces: [PEP-8 python](https://www.python.org/dev/peps/pep-0008/), [Best guilelines medium](https://towardsdatascience.com/best-python-practices-for-data-scientists-11056edda8c7)
 
 
 ---
@@ -1502,19 +1514,25 @@ tambien se puede usar el magic method `%timeit` al inicio
 
 ## OS Module
 
-* `os.chdir` = cambiar directorio
 * `os.getcwd()` = ver directorio activo
 * `os.listdir()` = ls
+* `os.walk(directory)` = recorre directorios (similar a `ls -R`)
+* `os.stat(file)` = estadisticas de un archivo
+
+* `os.chdir` = cambiar directorio
 * `os.mkdir()` y `os.makedirs()` = crea directorios (sin y con subdirectorios)
 * `os.rmdir()` y `os.removedirs()` = elimina "
+* `os.remove(file)` = eliminar archivo
 * `os.rename(old, new)` = renombrar
-* `os.stat(file)` = estadisticas de un archivo
-* `os.walk` = recorre directorios 
+
 * `os.path.join()` = para juntar directorios (mejor que hacerlo sumando porque aqui se encarga solo de las barras \)
 * `os.path.split()` = separa los subdirs y archivos
-* `os. path.exists()` = checkea si existe
+* `os.path.exists()` = checkea si existe
 * `os.path.isfile/isdir()` = comprueba si es dir o archivo
 
+* `shutil` module:
+  * `shutil.copy2("source_file_path", "destination_directory_path")` — copiar archivos como `cp`
+  * `shutil.move("source_file_path", "destination_directory_path")` — mover como `mv`
 
 ---
 
@@ -1557,7 +1575,14 @@ vs datetime.datetime(2016,10,22,12,13,43,tz=UTC)
 `partition` rompe solo una vez en el caracter dado y devuelve una tupla (previo, caracter, posterior)
 `split` parte cada vez que se vea ese caracter
 
+### Walrus-operator
 
+Sirve para asignar (:=) y evaluar un booleano al mismo tiempo (asi nos ahorramos repetir una expresion)
+
+```py
+my_list = [1,2,3,4,5]
+if (n := len(my_list)) > 3:    print(f"The list is too long with {n} elements")
+```
 
 ---
 

@@ -155,14 +155,6 @@ Otros:
 * [ ] [Recursos Git](apuntes-git.md)
 * [ ] [Curso Linux Corey Shafer](https://www.youtube.com/watch?v=j6vKLJxAKfw&list=PL-osiE80TeTvGhHkpvfmKWOiIPF8UVy6c)
 
-### JUPYTER NOTEBOOKS
-
-* [nbviewer](https://nbviewer.jupyter.org/) visor ipynb online
-* [nbconvert](https://nbconvert.readthedocs.io/en/latest/) convertir ipynb a html-pdf-etc
-* [nbdev](https://nbdev.fast.ai/) para desarrollar en ipynb
-* [Binder](https://mybinder.org/) turn Github repo into Jupyter Notebooks
-  
-
 ---
 
 ## DATASETS
@@ -206,12 +198,6 @@ Otros:
 * [Two Minute Paper](https://www.youtube.com/user/keeroyz)
 * [3Blue1Brown](https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw) ciencia en español
 
----
 
-# UTILIDADES
-
-## DEEP LEARNING
-
-* [Plantilla proyectos tensorflow](https://github.com/Mrgemy95/Tensorflow-Project-Template)
 
 
