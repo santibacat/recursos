@@ -18,6 +18,11 @@ Barras de progreso: tqdm
 Conocer tiempo de ejecución:
 timebudget
 
+## Python simpleHTTPserver
+
+`python -m http.server [<portNo>]`
+
+
 ## DATA SCIENCE
 
 Ejecutar ml y data science en el navegador
@@ -42,3 +47,12 @@ Imbalanced-learn
 
 # CODE SNIPPETS
 
+---
+
+# UTILIDADES
+
+## DEEP LEARNING
+
+* [Plantilla proyectos tensorflow](https://github.com/Mrgemy95/Tensorflow-Project-Template)
+
+https://snippets.readthedocs.io/en/latest/index.html
