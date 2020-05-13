@@ -50,7 +50,7 @@ __Advanced programmers (but maybe new to python)__
 * [ ] [Learn x in y minutes]() 
 * [ ] [David Beazley’s]() courses, tutorials, and books 
 * [ ] [Raymond Hettinger]()
-* [ ] [Learning Python 5ed by Mark Lutz](https://www.amazon.com/-/es/Mark-Lutz/dp/1449355730) libro gordo de petete
+* [ ] [Learning Python 5ed by Mark Lutz](https://www.amazon.com/-/es/Mark-Lutz/dp/1449355730) Reference book
 * [ ] [Python Notes for Professionals](https://goalkicker.com/)
 
 __Images:__
@@ -60,8 +60,8 @@ __Images:__
 
 __GUI:__
 * [ ] pyqt [PyQT5 Programming Book](https://www.amazon.es/Qt5-Python-GUI-Programming-Cookbook/dp/1788831004)
-* [ ] pyqt [Cursos Jesus Conde PyQt](https://www.youtube.com/watch?v=2Y_NdwcS2Fw)
-* [ ] pyqt [Learn PyQt](https://www.learnpyqt.com/) Pagina de videos
+* [ ] pyqt [Cursos Jesus Conde PyQt](https://www.youtube.com/watch?v=2Y_NdwcS2Fw) spanish
+* [ ] pyqt [Learn PyQt](https://www.learnpyqt.com/) Video course
 
 ### OTROS RECURSOS PYTHON
 
@@ -79,9 +79,9 @@ __GUI:__
 
 Aprendizaje:
 * [ ] [Data project checklist](https://www.fast.ai/2020/01/07/data-questionnaire/) by Jeremy Howard
-* [x] book [Data Science Jaak Vanderplas](https://github.com/jakevdp/PythonDataScienceHandbook) creador de Altair
+* [x] book [Data Science Jaak Vanderplas](https://github.com/jakevdp/PythonDataScienceHandbook) Altair creator
 * [x] book [Data Science Joel Grus](https://github.com/joelgrus/data-science-from-scratch)
-* [ ] book [Data Science Wes McKinney](https://github.com/wesm/pydata-book) creador de Pandas
+* [ ] book [Data Science Wes McKinney](https://github.com/wesm/pydata-book) Pandas creator
 * [x] book [Scientific Python Lectures](https://github.com/jrjohansson/scientific-python-lectures)
 * [ ] [Curso Kaggle Data Science](https://www.kaggle.com/learn/overview)
 
@@ -93,10 +93,10 @@ Otros:
 
 ## DEEP LEARNING
 
-* [Kaggle](https://www.kaggle.com/) competiciones
-* [Papers with code](https://paperswithcode.com/sota) articulos ML con código
+* [Kaggle](https://www.kaggle.com/) competitions
+* [Papers with code](https://paperswithcode.com/sota) ML articles with code
 * [Glosario IA](https://ml-cheatsheet.readthedocs.io/en/latest/index.html)
-* [NVIDIA Education](https://www.nvidia.com/en-us/deep-learning-ai/education/) de pago
+* [NVIDIA Education](https://www.nvidia.com/en-us/deep-learning-ai/education/) paid
 * * [Deep Learning Wizard](https://www.deeplearningwizard.com/)
 
 
@@ -116,7 +116,7 @@ Repos:
 * [ ] [FastAI Deep Learning](http://course.fast.ai/) 
 * [ ] [FastAI Machine Learning](http://course18.fast.ai/ml)
 * [ ] [Deep Learning for Coders with FastAI](https://github.com/fastai/fastbook) by Jeremy Howard. TBA July 2020
-* [ ] [How to win a kaggle competition coursera](https://www.coursera.org/learn/competitive-data-science) de los rusos
+* [ ] [How to win a kaggle competition coursera](https://www.coursera.org/learn/competitive-data-science) russian
 * [ ] [Machine Yearning Book by Andrew Ng](https://towardsdatascience.com/6-concepts-of-andrew-ngs-book-machine-learning-yearning-abaf510579d4)
 
 
@@ -124,14 +124,14 @@ Repos:
 
 
 * [ ] [Deep Learning Ian Goodfellow](https://www.deeplearningbook.org/)
-* [ ] [The Hundred Page ML Book](http://themlbook.com/) y su [review](https://towardsdatascience.com/the-hundred-page-machine-learning-book-book-review-72b51c5ad083)
-* [ ] [MLCourse.ai ruso](https://mlcourse.ai/) y articulos en [Medium](https://medium.com/open-machine-learning-course)
-* [ ] [Cursos Stanford Univ. de IA](https://threadreaderapp.com/thread/1228432865878253572.html) hilo twitter
+* [ ] [The Hundred Page ML Book](http://themlbook.com/) and his [review](https://towardsdatascience.com/the-hundred-page-machine-learning-book-book-review-72b51c5ad083)
+* [ ] [MLCourse.ai ruso](https://mlcourse.ai/) and articles in[Medium](https://medium.com/open-machine-learning-course)
+* [ ] [Cursos Stanford Univ. de IA](https://threadreaderapp.com/thread/1228432865878253572.html)  twitter thread
 	* [Cheatsheets](https://stanford.edu/~shervine/teaching/)
 * [ ] [DL with Python by Sebastian Rashka](https://github.com/rasbt/python-machine-learning-book-3rd-edition) 3ed nueva
 * [ ] [Curso aprendizaje automatico de Google](https://developers.google.com/machine-learning/crash-course/prereqs-and-prework?hl=es-419)
-* [ ] [Masters Degree](https://www.mrdbourke.com/aimastersdegree/) Recopilación self-learning ML
-* [ ] [Machine Learning Mastery](https://machinelearningmastery.com/) demasiados recursos
+* [ ] [Masters Degree](https://www.mrdbourke.com/aimastersdegree/) Self-learning ML
+* [ ] [Machine Learning Mastery](https://machinelearningmastery.com/) Too many resources
 
 ## tensorflow
 * [ ] [Hands-on ML with keras and tensorflow by Aurelien Geron](https://github.com/ageron/handson-ml2)
@@ -178,16 +178,19 @@ Otros:
 
 # PROYECTOS INTERESANTES MACHINE LEARNING
 
-* [Spleeter](https://github.com/deezer/spleeter) = separa musica (FB)
-* [Demucs](https://github.com/facebookresearch/demucs) = separa  musica (Deezer)
-* [Deepnude](https://github.com/stacklikemind/deepnude_official) = desnuda gente
-* [Faceswap](https://github.com/deepfakes/faceswap) = para hacer deepfakes
+* [Spleeter](https://github.com/deezer/spleeter) = split music tracks (FB)
+* [Demucs](https://github.com/facebookresearch/demucs) = split music tracks (Deezer)
+* [Deepnude](https://github.com/stacklikemind/deepnude_official) = nude people
+* [Faceswap](https://github.com/deepfakes/faceswap) = deepfake generator (face swaping)
+* [OpenAI Jukebox](https://github.com/openai/jukebox/) = music generator
+* [Real Time Voice Cloning](https://github.com/CorentinJ/Real-Time-Voice-Cloning) = voice changer-cloning
+* [Neural Voice Puppetry](https://justusthies.github.io/posts/neural-voice-puppetry/) = lips moving with given voice
 
 # COMUNIDADES
 
 * [/reddit Machine Learning](https://www.reddit.com/r/MachineLearning)
 * [ArXiV vision computer](https://arxiv.org/list/cs.CV/recent)
-* Comunidades [Machine Learning Hispano](https://machinelearninghispano.com/), [SpainML](https://spainml.com/), [SaturdaysAI Global](https://github.com/SaturdaysAI/Itinerario_MachineLearning) y [SaturdaysAI Murcia](https://github.com/SaturdaysAI-Murcia/machine-learning)
+* Comunidades esp: [Machine Learning Hispano](https://machinelearninghispano.com/), [SpainML](https://spainml.com/), [SaturdaysAI Global](https://github.com/SaturdaysAI/Itinerario_MachineLearning) y [SaturdaysAI Murcia](https://github.com/SaturdaysAI-Murcia/machine-learning)
 
 
 # CIENCIA Y DIVULGACIÓN
