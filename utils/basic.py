@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function 
 
-def main():
+def test_packages():
 
     print("                           _____           ")
     print("                          |_   _|   /\     ")
@@ -81,6 +81,61 @@ def main():
     # import category_encoders as ce
     # from fbprophet import Prophet
 
+
+def print_imports():
+    print("""
+    # General libraries
+    import os
+    import gc
+    import time
+    import platform
+    import datetime
+    import multiprocessing
+    from tqdm import tqdm_notebook as tqdm
+
+    # Data libraries
+    import numpy             as np;  
+    import pandas            as pd;  
+    import pandas_profiling  as pp;  
+    import missingno         as ms;  
+    import seaborn           as sns;
+    import altair            as at;  
+    import matplotlib        as mp;  
+    import matplotlib.pyplot as plt
+
+    # ML libraries
+    import sklearn
+    import xgboost
+    import lightgbm
+    from sklearn import preprocessing
+    from sklearn import model_selection
+    from sklearn import pipeline
+    from sklearn import ensemble
+    from sklearn import impute
+    from sklearn import compose
+    from sklearn import metrics
+
+    # DL libraries
+    import tensorflow as tf
+    import fastai
+    import torch
+
+    # Set options
+    pd.set_option('display.max_rows',    500)
+    pd.set_option('display.max_columns', 500)
+    pd.set_option('display.width',       1000)
+
+    # Packages still not used
+    # import datatable         as dt
+    # import catboost          as cgb
+    # import h2o.automl        as ml_auto
+    # import yellowbrick       as ml_vis
+    # import eli5              as ml_exp
+    # import arviz             as av
+    # import category_encoders as ce
+    # from fbprophet import Prophet
+    """)
+
 def test_gpu(advanced=False, pytorch=True):
     """[Verifies GPU support on tf and pytorch]
 
@@ -105,8 +160,5 @@ def test_gpu(advanced=False, pytorch=True):
         print("GPU name:     ", torch.cuda.get_device_name(0))
 
 
-def snippets():
-    print("%load_ext tensorboard \n%tensorboard --logdir logs/ --port 6006")
-
 if __name__ == "__main__":
-    main()
+    print_packages()

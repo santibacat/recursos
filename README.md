@@ -6,9 +6,10 @@
 
 * [Bash y Terminal](apuntes-bash.md)
 * [Colab](apuntes-colab.ipynb)
+* [Data Science](apuntes-datascience.md)
 * [Competiciones y Kaggle](apuntes-competiciones.md)
 * [Git](apuntes-git.md)
-* [Keras](apuntes-keras.ipynb)
+* [Keras](old/apuntes-keras-old.ipynb)
 * [Markdown](apuntes-markdown.md)
 * [Python](apuntes-python.md)
 * [Vim](apuntes-vim.md)
@@ -28,10 +29,10 @@
 * [Recursos publicaciones](recursos-publicaciones.md)
 
 
-## Code Snippets
+## Programación
 
-* [test gpu python](test-gpu.ipynb)
-* [code utils](utils-code.md)
+* [Recursos programacion](recursos-programacion.md) --> solo para referencia (en md).
+* [Utils package](utils/snippets.py) --> solo codigo para importar
 
 ## TO-DO
 
