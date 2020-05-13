@@ -1164,6 +1164,9 @@ For **error debugging**:
 
 ### IMPORTING
 
+[Documentation](https://realpython.com/python-modules-packages/) and [Useful tips when importing](https://realpython.com/absolute-vs-relative-python-imports/)
+
+
 * Package help: `help(package)`
 * Package functions: `dir(package)`
 * Import package:
@@ -1175,6 +1178,17 @@ from math import * # imports everything as local
 sqrt(2)
 from math import sqrt as square_root # imports everything as other name local
 square_root(2)
+```
+
+Al importar con `import *` se importan todos los objetos excepto los que empiezan con `__` como `__name__`. Pero nn los paquetes no ocurre así, y habría que crear además en `__init__.py` una lista para `__all__` con los nombres de los modulos a importar.
+
+#### IMPORTAR DE OTRO DIRECTORIO
+
+Si tenemos un paquete que queremos importar en otra localización:
+
+```python
+# Add directory to path
+import sys; sys.path.insert(0, '/path')
 ```
 
 ### if name == main
@@ -1194,9 +1208,19 @@ Sirve para verificar si un archivo está siendo ejecutado directamente (llamando
 
 ### PACKAGING
 
+
 To make packages, place all files in the same directory and create a file `__init__.py`, `setup.py` and `README`-`LICENSE`.txt
 
-In `setyp.py` you need necesary info for package assembly with `pip`:
+In `__init__.py` hay que poner los subpaquetes para que se importen automaticamente al importar:
+```python
+# Ejemplo de __init__.py de un paquete llamado utils
+from utils import utils_basic, utils_advanced
+# para importar todos, lo mejor es hacer:
+from utils import *
+```
+
+
+In `setup.py` you need necesary info for package assembly with `pip`:
 
 ```python
 from distutils.core import setup
