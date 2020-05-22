@@ -115,7 +115,7 @@ crea tablas pivotadas tipo excel
 
 
 COMBINAR DATASETS
-[Ref](https://towardsdatascience.com/combining-pandas-dataframes-the-easy-way-41eb0f2c1ebf=)
+[Ref](https://towardsdatascience.com/combining-pandas-dataframes-the-easy-way-41eb0f2c1ebf)
 
 ![](https://miro.medium.com/max/2000/1*B_0ZwHjGz2YMR9pqXtVljw.png)
 
@@ -132,6 +132,12 @@ Panda avanzado:idxmax, idxmin() = devuelve la posicion (index) del minimo-maxim
 ne(valor) = devuelve True si el valor es el que has puesto, sino False 
 nsmallest, nlargest(numero, 'columna') = devuelve los x valores menores-mayores de una columna
 
+
+A partir de pandas 1, se puede convertir una columna en markdown:
+```python
+pip install tabulate #requisito
+df.to_markdown()
+```
 
 
 
@@ -294,6 +300,7 @@ Use kernel from > la otra abierta
 * [nbdev](https://nbdev.fast.ai/) para desarrollar una libreria en ipynb
 * [Binder](https://mybinder.org/) turn Github repo into Jupyter Notebooks
 * [Jupytext]() turn ipynb to md/py y viceversa automaticamente. Util para Git y control de versiones
+* [Dataframe_image](https://github.com/dexplo/dataframe_image) para imprimir df como imagenes para que se quede bien en pdf (en vez de como texto)
 
 
 

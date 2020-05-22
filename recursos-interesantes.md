@@ -5,6 +5,7 @@
 * [50 mejores cursos 2018](https://medium.freecodecamp.org/top-50-free-online-courses-2018-e67d0da38e95)
 * [Recomendacione xataka](https://www.xataka.com/robotica-e-ia/aprende-sobre-inteligencia-artificial-por-internet-cursos-publicaciones-y-las-recomendaciones-de-expertos)
 * [Free-programming-books](https://github.com/EbookFoundation/free-programming-books/)
+* [Project Based Learning](https://github.com/tuvtran/project-based-learning)
 
 
 ## PYTHON
@@ -104,6 +105,7 @@ Repos:
 * [Gran repo open-source](https://github.com/academic/awesome-datascience)
 * [Machine Learning Tutorials repo](https://github.com/ujjwalkarn/Machine-Learning-Tutorials)
 * Apuntes [ML](https://github.com/javiabellan/machine-learning) y [DL](https://github.com/javiabellan/deep-learning) by JaviAbellan
+* [Deep Learning Drizzle](https://deep-learning-drizzle.github.io/)
 
 
 ### CURSOS A++

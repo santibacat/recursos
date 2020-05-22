@@ -1,3 +1,36 @@
+# WORKFLOW
+
+## EDA
+
+* Hacer tSNE para hacernos una idea de la variabilidad del modelo
+* 
+## MODEL
+
+### Preprocessing
+
+* Normalization = 0-255
+* Contrast stretching
+
+### Imbalanced data
+
+* ADASYN = generar datos sinteticos para clases con menos ejemplos
+* SMOTE = oversampling clases minoritarias y undersampling mayoritarias --> Data augmentation
+
+
+### Ensemble
+
+* Ensemble = agrupar prediciones de varios modelos (computationally expensive).
+* Snapshot ensembling = guardar parametros del modelo periodicamente y usar cada uno como un 'minimodelo' ya que tienen distintos local minima.
+
+Anti-aliasing = prevenir shift-invariant, para ello añadir capa BlurPool.
+
+
+## RESULTS
+
+
+
+
+
 # PACKAGES
 
 ## PAQUETES INTERESANTES 
@@ -49,6 +82,17 @@ Imbalanced-learn
 
 # CODE SNIPPETS
 https://snippets.readthedocs.io/en/latest/index.html
+
+## Añadir utils
+```python
+import sys; sys.path.insert(0, '/home/deeplearning/code/recursos')
+import utils
+utils.basic.test_gpu()
+```
+
+
+
+
 ---
 
 # UTILIDADES
