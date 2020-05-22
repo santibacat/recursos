@@ -15,7 +15,7 @@ Medical challenges:
 
 
 
-EDAs:
+**EDAs:**
 ```python
 df.info() # tipos de variables
 df.shape() # filas y columnas
@@ -45,7 +45,7 @@ Loss function compares the error between the label and the prediction probabilit
 
 
 
-CLASS IMBALANCE
+### CLASS IMBALANCE
 
 Dado que la mayor parte de la contribucion al loss total procede de ejemplos normales, esto provoca que la clasificación no se haga correctamente.
 
@@ -58,12 +58,12 @@ $$\epsilon = \text{a tiny positive number}$$
 
 Por eso se le llama weighted loss.
 
-Otro procedimiento es RESAMPLING que se hace en el dataset para conseguir que haya el mismo numero de normales y anormales.
+Otro procedimiento es **RESAMPLING** que se hace en el dataset para conseguir que haya el mismo numero de normales y anormales.
 
 Se puede hacer mediante oversampling de la clase inferior o undersampling de la clase superior (que suele significar dejar sin utilizar ejemplos normales).
 
 
-MULTI-TASK CHALLENGE
+### MULTI-TASK CHALLENGE
 
 Consiste en que queremos predecir varias enfermedades o problemas a la vez; por tanto necesitariamos varios modelos.
 
@@ -71,44 +71,45 @@ Pero podemos hacerlo solo de una vez y ademas eso es bueno porque las caracteris
 
 Para ello tenemos que modificar el loss de binary a multi-task setting:  
 
-El multi-label loss sería el loss total que consiste en sumar los componentes indviduales del loss (de cada patologia por ej). 
+El **multi-label loss** sería el loss total que consiste en sumar los componentes indviduales del loss (de cada patologia por ej). 
 De ahí simplemente tenemos que ponderar el loss para cada output utilizando el factor de weighted que le corresponde segun lo que hemos visto en el apartado anterior.
 
-DATASET SIZE
+### DATASET SIZE
 
 Muchas veces no tenemos muchos datos (no tenemos millones como hace falta, sino 10000-100.000 ejempls). soluciones:
 
-* transfer learning: entrenar para otra tarea y así aplicar su conocimiento en otra red médica (pretraining --> fine tuning)
+* _Transfer learning:_ entrenar para otra tarea y así aplicar su conocimiento en otra red médica (pretraining --> fine tuning)
     * early layers = general features
     * later layers = higher-level features
 
-* generate more training samples = data augmentation
+* _Data augmentation:_ generate more training samples
     * aplicar rotacion, zoom, cambio brillo, ...
     * deben REFLEJAR variaciones que existan en la vida real
     * deben PRESERVAR las labels (no provocar que cambie la patología)
     * ej: rotate-flip para derma, rotate+crop+color noise para histopato
 
 
-SETS
+### SETS
 
-* training data se separa entre
-    * training set ) development of models
+* Training data se separa entre
+    * training set = development of models
     * validation set = tuning and selection of models
 
-a veces se hace cross-validation entre ellos
+A veces se hace cross-validation entre ellos
 
 * test set = reporting of results
 
 
-3 challenges in medicine:
+3 challenges in medicine con los sets:
 
 * patient overlap = we have to make each set independent
 * set sampling
 * ground truth 
 
+#### PATIENT OVERLAP
 
-PATIENT OVERLAP
-a veces memorizan caracteristicas de un paciente que esta en dos sets distintos y esto da lugar a una sobreestimación de la calidad del test set.
+
+A veces memorizan caracteristicas de un paciente que esta en dos sets distintos y esto da lugar a una sobreestimación de la calidad del test set.
 
 Forma parte del data leakage.
 
@@ -118,21 +119,19 @@ Pasos:
 3. Identify patient overlap in the intersection of the two sets
 
 
-Una forma de evitar este problema es no split per image (ya que asi aparecen imagenees del mismo paciente), sino usar split by patient, ya que solo aparece un paciente por set y por tanto no hay problema.
+Una forma de evitar este problema es no split per image (ya que asi aparecen imagenees del mismo paciente), sino **usar split by patient**, ya que solo aparece un paciente por set y por tanto no hay problema.
 
 
-SET SAMPLING
+#### SET SAMPLING
 
-al haber pocos casos, puede que al hacer la particion en test set haya pocos samples de patologia.
+Al haber pocos casos, puede que al hacer la particion en test set haya pocos samples de patologia.
 
 Por ello se suele poner que debe haber un % minimo de la clase minoritaria (a veces se pone un 50%).
 
-generalmente primero se samplea el test set, luego el validation (que debe tener una distribución igual al test set)
-
-por ultimo ya se samplea el train set
+Generalmente primero se samplea el test set, luego el validation (que debe tener una distribución igual al test set); por ultimo ya se samplea el train set.
 
 
-GROUND TRUTH (REFERENCE STANDARD)
+#### GROUND TRUTH (REFERENCE STANDARD)
 
 Generalmente en medicina hay **consensus voting**, pero se puede hacer tanto como una sola voz como varias.
 
@@ -141,12 +140,12 @@ Generalmente en medicina hay **consensus voting**, pero se puede hacer tanto com
 
 
 
-NOTAS DEL EJERCICIO 1
+### NOTAS DEL EJERCICIO 1
 
-* Distintos significados de 'clase': puede ser las distintas patologías o enfermedades, pueden ser la etiqueta de enfermedad positiva o negativa, o tambien puede referirse a la clase de software (como ImageDataGenerator)
+1- Distintos significados de 'clase': puede ser las distintas patologías o enfermedades, pueden ser la etiqueta de enfermedad positiva o negativa, o tambien puede referirse a la clase de software (como ImageDataGenerator)
 
 
-we need to build a new generator for validation and testing data. 
+2- We need to build a new generator for validation and testing data. 
 
 **Why can't we use the same generator as for the training data?**
 
@@ -194,33 +193,33 @@ es igualar pesos a frecuencias:
 $$w_{pos} = freq_{neg}$$
 $$w_{neg} = freq_{pos}$$
 
-Tambien hemos visto como hacer gradcams
+Tambien hemos visto como hacer **gradcams** para interpretability.
 
 
-## SEMANA 2 
+## SEMANA 2 METRICS
 
-Metrics =
 
-accuracy = correctamente clasificados / total
-la probabilidad de ser correcto se puede dividir en la suma de la probabilidad de que sea correcto y este enfermo y de que sea sano
+**Accuracy** =  correctamente clasificados / total
 
-sensititivy (true positive rate) --> los positivos entre lso ENFERMOS
-specificity (true negative rate) --> los positivos entre los SANOS
+La probabilidad de ser correcto se puede dividir en la suma de la probabilidad de que sea correcto y este enfermo y de que sea sano
+
+**sensititivy** (true positive rate) --> los positivos entre los ENFERMOS
+
+**specificity** (true negative rate) --> los positivos entre los SANOS
 
 ![](assets/dl-ai-med2-1.jpg)
 ![](assets/dl-ai-med2-2.jpg)
 
-la otra parte que faltea es la pREVALENCIA.
-por tanto la accuracy seria como una media ponderada entre la sensibilidad y la especificidad.
-la prevalencia es los enfermos entre los totales.
+La otra parte que falta es la **PREVALENCIA**. Por tanto la accuracy seria como una media ponderada entre la sensibilidad y la especificidad.
+
+Prevalencia = enfermos entre los totales.
 
 
-generalmente la pregunta clinica es distinta, es, SIENDO POSITIVO, CUAL ES LA PROBABILIDAD DE QUE SEA ENFERMO
-esto se suele aplicar a los test diagnosticos, y es el valor predictivo.
+Generalmente la pregunta clinica es distinta, es, **¿SIENDO POSITIVO, CUAL ES LA PROBABILIDAD DE QUE SEA ENFERMO?**
+esto se suele aplicar a los test diagnosticos, y es el **valor predictivo**.
 
 
-como se relacionan s-e con valores predictivos? con las confusion matrix
-(ver imagen guardada)
+¿como se relacionan s-e con valores predictivos? con las confusion matrix
 
 además, hay forma de calcular los valores predictivos teniendo la prevalencia, s y e
 
@@ -230,39 +229,40 @@ $PPV = \frac{sensitivity \times prevalence}{sensitivity \times prevalence + (1 -
 ![](assets/dl-ai-med2-3.jpg)
 ![](assets/dl-ai-med2-4.jpg)
 
-ROC CURVE
+**ROC CURVE**
 
-nos permite plot s y e de forma gráfica eligiendo un ubral (tresold) sobre el cual se elige si el paciente es positivo o negativo.
+nos permite plot S/E de forma gráfica eligiendo un umbral (threshold) sobre el cual se elige si el paciente es positivo o negativo.
 
-la elección del umbral (operating point) afecta al valor de la sensibildad y especificdad
+la elección del umbral (operating point) afecta al valor de la sensibildad y especificidad; _si aumentamos el umbral, tendremos una mayor especificidad y una menor sensibilidad_ (cogeremos menos pacientes pero estaremos más seguros de que son enfermos)
 
-si aumentamos el numbral, tendremos una mayor especificidad y una menor sensibilidad (cogeremos menos pacientes pero estaremos más seguros de que son enfermos)
+**INTERVALOS DE CONFIANZA**
 
-INTERVALOS DE CONFIANZA
-
-como es imposible conseguir el valor real de una población, se usa una muestra de pacientes para conseguir un valor estimado.
+Como es imposible conseguir el valor real de una población, se usa una muestra de pacientes para conseguir un valor estimado.
 
 los intervalos de confianza nos permiten decir que un valor estimado está, con una confianza de x%, en un intervalo [x]
 
-SI: que con un 95% de confianza, un valor está en el intervalo []
 
-NO quiere decir que haya un 95% de probababilidad de que p esté en el intervalo []
-TAMPOCO que el 95% de las p muestrales (sample accuracies) estén en el intervalo []
+>SI: que con un 95% de confianza, un valor está en el intervalo []
+
+>NO quiere decir que haya un 95% de probababilidad de que p esté en el intervalo []
+
+>>TAMPOCO que el 95% de las p muestrales (sample accuracies) estén en el intervalo []
 
 Es más complejo y requiere hacer 'varios experimentos', por tanto, quiere decir que en repeated sampling, este metodo produce intervalos que incluyen la p de la población en un 95% de las muestras.
 
 
-En la práctica solo se calcula el intervalo de confianza de uNA muestra, y no de muchas, y solemos aceptar que en el 95% de las ocasiones incluirá el valor poblacional; esto es debido a que el tamaño muestral incluye en la anchura del intervalo de confianza (ya que tendremos una mejor estimación del valor poblacional).
-Aunque tengamos el mismo valor estimado, el intervalo será más estrecho si tenemos más tamaño muestral).
+En la práctica solo se calcula el intervalo de confianza de UNA muestra, y no de muchas, y solemos aceptar que en el 95% de las ocasiones incluirá el valor poblacional; esto es debido a que el tamaño muestral incluye en la anchura del intervalo de confianza (ya que tendremos una mejor estimación del valor poblacional).
 
-"A 95\% confidence interval for an estimate $\hat{s}$ of a parameter $s$ is an interval $I = (a, b)$ such that 95\% of the time when the experiment is run, the true value $s$ is contained in $I$. More concretely, if we were to run the experiment many times, then the fraction of those experiments for which $I$ contains the true parameter would tend towards 95\%."
+Aunque tengamos el mismo valor estimado, el intervalo será más estrecho si tenemos más tamaño muestral.
+
+>"A 95\% confidence interval for an estimate $\hat{s}$ of a parameter $s$ is an interval $I = (a, b)$ such that 95\% of the time when the experiment is run, the true value $s$ is contained in $I$. More concretely, if we were to run the experiment many times, then the fraction of those experiments for which $I$ contains the true parameter would tend towards 95\%."
 
 
 
 
-EJERCICIO SEMANA 2
+### EJERCICIO SEMANA 2
 
-Hay que tener en cuenta que la SE y E no dependne de la prevalencia, solo consideran la gente en esa misma clase (o enfermos o sanos).
+Hay que tener en cuenta que la S y E no dependen de la prevalencia, solo consideran la gente en esa misma clase (o enfermos o sanos).
 
 Forma de hacer bootstraping (ir cogiendo ejemplos de pacientes con recambio para calcular el intervalo de confianza de algunos estimadores):
 
@@ -292,12 +292,12 @@ def bootstrap_auc(y, pred, classes, bootstraps = 100, fold_size = 1000):
 statistics = bootstrap_auc(y, pred, class_labels)
 ```
 
-si el intervalo de confianza incluye el umbral entonces el valor no es representativo.
+Si el intervalo de confianza incluye el umbral entonces el valor no es representativo.
 
 
 Cuando las clases son desbalanceadas, la curva precision-recall es util.
 
-precision es ppv y recall es sensibilidad.
+Precision es ppv y recall es sensibilidad.
 
 In information retrieval
 - Precision is a measure of result relevancy and that is equivalent to our previously defined PPV. 
@@ -313,14 +313,14 @@ Se supone que las estimaciones de una label, que estarán entre 0-1, deben estar
 
 Podemos utilizar cada secuencia de RM como si fuera un canal RGB (incluso usar más canales).
 
-se combinan, por ello hay que ALINEAR CORRECTAMENTE, lo que se llama image registration.
+Se combinan, por ello hay que ALINEAR CORRECTAMENTE, lo que se llama **image registration**.
 
-generalmente se hace en un plano (en el mejor el axial).
-y ya de ahí como se hace un volumen 3d pdemos obtener lod eás.
+Generalmente se hace en un plano (en el mejor el axial).
+y ya de ahí como se hace un volumen 3d pdemos obtener lo demas.
 
-hacemos eso con todas las slices ahora, para la segmentación:
+Hacemos eso con todas las slices ahora, para la segmentación:
 
-* 2d approach: se van coloreando las slices una por una y luego se combinan. Lo malo: que perdemos contexto enntre lonchas.
+* 2d approach: se van coloreando las slices una por una y luego se combinan. Lo malo: que perdemos contexto entre slices.
 * 3d approach: no se puede pasar todo el volumen a la vez por problemas de memoria, por tanto se pasan pequeños 3d subvolumenes (con w x h x grosor), y los vamos pasando uno por uno al modelo y luego los unimos. Lo malo es que perdemos contexto tambien entre subvolumenes.
 
 
@@ -336,7 +336,7 @@ la unica diferencia es que los pooling y las convoluciones son 2d o 3d
 
 
 
-DATA AUGMENTATION
+### DATA AUGMENTATION
 
 Hay varias diferencas respecto a la aplicación 3d:
 
@@ -344,34 +344,39 @@ Hay varias diferencas respecto a la aplicación 3d:
 * al tener 3d volumenes las transformaciones deben aplicarse a 3d no solo a 2d
 
 
-En cuanto al loss, se suele usar soft dice loss, que calcula el error entre el mapa real y la predicción, midiendo el solapamiento (overlap); queremos que el numerador sea grande y el denominador sea pequeño
+En cuanto al loss, se suele usar **soft dice loss**, que calcula el error entre el mapa real y la predicción, midiendo el solapamiento (overlap); queremos que el numerador sea grande y el denominador sea pequeño
 (ver imagen)
 
+### CHALLENGES 
 
 Challenges to make then routine in medical practise:
 
-* generalisation: difficult due to diferent diseases (us-india)
+#### GENERALIZATION
+
+* generalization: difficult due to diferent diseases (us-india)
 * technology is different between hospitals
 
 Para poder medir generalizacion hay que verificar con un test set EXTERNO que sea de la poblacion que queremos ver.
-Si no vemos que funciona, debemos añadir training data de esa poblacion y ahcer fine-tuning.
+Si no vemos que funciona, debemos añadir training data de esa poblacion y hacer fine-tuning.
 
 además es necesario tunear modelos para filtrar los datos que no nos interesen o incluirlos en el modelo (ej: placas laterales), que no estan incluidas.
 
+#### OUTCOME METRICS 
+
 Another challenge son la necesidad de metricas que se correlacionen con el outcome del paciente. Ya que AUROC, dice score... no se correlacinoann con el efecto del modelo en el paciente, en si el paciente mejora gracias al modelo.
 
-* un approach es decision curve analysis, que puede ayudar a cuantificar la mejora del apciente 
-* otro es randomized controlled trials (comparamos outcomes de pacientes a los que se aplica el modelo y a los que no)
+* un approach es **decision curve analysis**, que puede ayudar a cuantificar la mejora del apciente 
+* otro es **randomized controlled trials** (comparamos outcomes de pacientes a los que se aplica el modelo y a los que no)
 
 
 además en la realidad mediriamos el efecto del modelo no solo en global, sino el especcfiico: ej efecto segun edad, sexo y nivel socioeconomico.
 
 es necesario evitar los bias (ej: algoritmos de deteccion de melanoma que funcionan peor en negros)
 
-otro es la interpretability (como funcionan los modelos) para poder entender como funcionan y como arreglarlos si no funcionan.
+otro es la **interpretability** (como funcionan los modelos) para poder entender como funcionan y como arreglarlos si no funcionan.
 
 
-EJERCICO 3
+### EJERCICIO 3
 
 Cosas que se suelen hacer en segmentacion:
 
@@ -397,6 +402,7 @@ https://www.geeksforgeeks.org/keras-fit-and-keras-fit_generator/
 
 
 #### Using the validation set for testing
+
 - Note: since we didn't do cross validation tuning on the final model, it's okay to use the validation set.
 - For real life implementations, however, you would want to do cross validation as usual to choose hyperparamters and then use a hold out test set to assess performance
 
@@ -405,6 +411,8 @@ https://www.geeksforgeeks.org/keras-fit-and-keras-fit_generator/
 # CURSO 2: MEDICAL PROGNOSIS
 
 ## SEMANA 1. PRONOSTICO
+
+
 
 Medical prognosis is predicting the risk of a future event (death, heart attack, stroke...)
 
@@ -599,6 +607,8 @@ Así podemos comparar la probabilidad de supervivencia de dos muestras en un mis
 
 Para saber si hay diferencias estadísticamente significativas entre las curvas de supervivencia se usa el **Log-Rank test**. Podemos usarlo de `lifelines.statistics.logrank_test`. 
 
+![](assets/dl-ai-med4-1.jpg)
+![](assets/dl-ai-med4-2.jpg)
 
 
 ## SEMANA 4 HAZARD FUNCTIONS
@@ -721,6 +731,16 @@ La definición solo varia en que ahora:
 La formula es la misma pero con distinto principio como ya hemos visto.
 
 
+![](assets/dl-ai-med4-3.jpg)
+![](assets/dl-ai-med4-4.jpg)
+![](assets/dl-ai-med4-5.jpg)
+![](assets/dl-ai-med4-6.jpg)
+![](assets/dl-ai-med4-7.jpg)
+![](assets/dl-ai-med4-8.jpg)
+![](assets/dl-ai-med4-9.jpg)
+![](assets/dl-ai-med4-10.jpg)
+![](assets/dl-ai-med4-11.jpg)
+![](assets/dl-ai-med4-12.jpg)
 
 
 
