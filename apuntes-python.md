@@ -1205,6 +1205,29 @@ Sirve para verificar si un archivo está siendo ejecutado directamente (llamando
 	* Ej: si solo queremos importar paquetes o algo para reutilizar código.
 * Si queremos ejecutar este código en el otro archivo lo podremos llamar usando `primerpaquete.main()`.
 
+### argument parser
+
+Un ejemplo de parser cuando se ejecuta un archivo python:
+
+```python
+import argparse
+
+# Construct the argument parser
+ap = argparse.ArgumentParser()
+
+# Add the arguments to the parser
+ap.add_argument("-a", "--foperand", required=True,
+   help="first operand")
+ap.add_argument("-b", "--soperand", required=True,
+   help="second operand")
+   
+args = vars(ap.parse_args())
+
+# Calculate the sum
+print("Sum is {}".format(int(args['foperand']) + int(args['soperand'])))
+```
+
+
 
 ### PACKAGING
 
