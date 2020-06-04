@@ -1,2 +1,2 @@
 print("Importing utils by santibacat")
-from utils import *
+from utils import basic, dl, preprocess, snippets
