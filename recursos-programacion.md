@@ -79,6 +79,7 @@ Imbalanced-learn
 
 ## DEEP LEARNING
 
+wandb para ver como va el trainig (tipo tensorboard)
 
 # CODE SNIPPETS
 https://snippets.readthedocs.io/en/latest/index.html

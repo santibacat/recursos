@@ -134,6 +134,11 @@ def print_imports():
     # import arviz             as av
     # import category_encoders as ce
     # from fbprophet import Prophet
+
+    # Jupyter ext
+    %matplotlib inline
+    %load_ext autoreload
+    %autoreload 2
     """)
 
 def test_gpu(advanced=False, pytorch=True):
@@ -161,4 +166,4 @@ def test_gpu(advanced=False, pytorch=True):
 
 
 if __name__ == "__main__":
-    print_packages()
+    test_packages()

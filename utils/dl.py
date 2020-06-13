@@ -76,7 +76,9 @@ def print_metrics(y_test, y_pred):
 
 
 def image_grid_from_dfcolumn(df, filter, column_path = 'Path', num_samples=9):
-    """Taken from dl.ai med 1 diagnosis"""
+    """Taken from dl.ai med 1 diagnosis
+    Eg use: img_from_dfcolumn(df_filtered, df_filtered['Sex']=='Female')
+    """
     imgs = [df.loc[filter,column_path].sample().values for i in range(num_samples)]
     
 #     print(f'Printing df {df} with filter [{filter}]') NO SE HACERLO
@@ -92,3 +94,16 @@ def image_grid_from_dfcolumn(df, filter, column_path = 'Path', num_samples=9):
 
     # Adjust subplot parameters to give specified padding
     plt.tight_layout()  
+
+
+def f1_metric(y_true, y_pred):
+    import tensorflow.keras.backend as K
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+    predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+    precision = true_positives / (predicted_positives + K.epsilon())
+    recall = true_positives / (possible_positives + K.epsilon())
+    f1_val = 2*(precision*recall)/(precision+recall+K.epsilon())
+    return f1_val
+
+
