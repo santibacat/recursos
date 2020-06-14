@@ -47,15 +47,15 @@ def test_packages():
     import matplotlib.pyplot as plt
     # ML libraries
     import sklearn           as skl;print("  Sklearn (skl):        ", skl.__version__)
-    #import xgboost           as xgb;print("  XGBoost (xgb):        ", xgb.__version__)
-    #import lightgbm          as lgb;print("  LightGBM (lgb):       ", lgb.__version__)
-    from sklearn import preprocessing
-    from sklearn import model_selection
-    from sklearn import pipeline
-    from sklearn import ensemble
-    from sklearn import impute
-    from sklearn import compose
-    from sklearn import metrics
+    import xgboost           as xgb;print("  XGBoost (xgb):        ", xgb.__version__)
+    import lightgbm          as lgb;print("  LightGBM (lgb):       ", lgb.__version__)
+    # from sklearn import preprocessing
+    # from sklearn import model_selection
+    # from sklearn import pipeline
+    # from sklearn import ensemble
+    # from sklearn import impute
+    # from sklearn import compose
+    # from sklearn import metrics
 
     # DL libraries
     import tensorflow as tf

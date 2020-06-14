@@ -114,3 +114,6 @@ pandas 3https://towardsdatascience.com/why-and-how-to-use-pandas-with-large-data
 
 tesis
 pneumonia with pretrained challenge https://www.kaggle.com/kmader/pneumonia-with-pretrained-template
+
+
+ninite de data science packages
