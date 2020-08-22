@@ -7,9 +7,10 @@
 * [Bash y Terminal](apuntes-bash.md)
 * [Colab](apuntes-colab.ipynb)
 * [Data Science](apuntes-datascience.md)
+* [Deep Learning](apuntes-deeplearning.md)
+    * [Keras (antiguos)](old/apuntes-keras-old.ipynb)
 * [Competiciones y Kaggle](apuntes-competiciones.md)
 * [Git](apuntes-git.md)
-* [Keras](old/apuntes-keras-old.ipynb)
 * [Markdown](apuntes-markdown.md)
 * [Python](apuntes-python.md)
 * [Vim](apuntes-vim.md)
@@ -36,4 +37,4 @@
 
 ## TO-DO
 
-[ver todo.md](todo.md)
+[ver todo list](todo.md)
