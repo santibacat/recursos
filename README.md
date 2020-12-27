@@ -19,6 +19,7 @@
 ## Apuntes Cursos
 
 * Deeplearning.ai Tensorflow [1 Basico](curso-deeplearningai1-basico.ipynb) [2 Imagenes](curso-deeplearningai2-imagenes.ipynb) [3 NLP](curso-deeplearningai3-NLP.ipynb)
+* [Advanced Techniques with Tensorflow](curso-deeplearningai-tf-advanced.md)
 * Deeplearning.ai [Medical](curso-deeplearningai-med1.md)
 * [SaturdaysAI](curso-saturdaysAI.ipynb)
 

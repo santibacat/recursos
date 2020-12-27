@@ -1,0 +1,1404 @@
+ADVANCED TECHNIQUES IN TENSORFLOW
+DEEPLEARNING.AI SPECIALIZATION
+DECEMBER 2020
+
+# COURSE 1: CUSTOM MODELING
+## WEEK 1: FUNCTIONAL API
+
+### Multioutput models
+
+En los modelos multioutput y multiinput, es necesario usar la Functional API. La diferencia es:
+
+* Tiene un __Input__
+* Luego tiene capas intermedias (similar a la sequential API)
+* Luego tiene __Model__ en el que se especifican los inputs y outputs.
+  * ```model = Model(inputs=input_layer, outputs=[y1_output, y2_output])```
+
+A la hora de compilar, se puede usar un loss y metrics diferente para cada output especificandolo en un __diccionario__.
+
+```python 
+model.compile(optimizer=optimizer,
+              loss={'y1_output': 'mse', 'y2_output': 'mse'},
+              metrics={'y1_output': tf.keras.metrics.RootMeanSquaredError(),
+                       'y2_output': tf.keras.metrics.RootMeanSquaredError()})
+```
+
+
+Esto es parecido a lo que se hizo en (Inception)[https://towardsdatascience.com/a-simple-guide-to-the-versions-of-the-inception-network-7fc52b863202]
+
+### Multi-input models
+
+El tipico ejemplo son los __SIAMESE__ networks, que se usan para predecir similaridad entre dos imágenes (que pasan ambas por un mismo modelo y separado que despues se une y se entrena para calcular similaridad).
+
+Generalmente en este tipo de modelos tendremos:
+
+* Un modelo base *base_network* en el que pasaremos las dos imagenes por separado (con su input y output, se usa como una funcion).
+* Una salida conjunta al modelo, que generalmente será una funcion de similaridad (como *euclidean distance*), enrollada en una __Lambda layer__. A ella se le pasan como argumentos los dos modelos anteriores separados:
+* Generalmente también se usa un _custom loss_, como el contrastive loss with margin.
+
+```python
+def euclidean_distance(vects):
+    x, y = vects
+    sum_square = K.sum(K.square(x - y), axis=1, keepdims=True)
+    return K.sqrt(K.maximum(sum_square, K.epsilon()))
+
+
+def eucl_dist_output_shape(shapes):
+    shape1, shape2 = shapes
+    return (shape1[0], 1)
+
+vect_output_a = base_network(input_a)
+vect_output_b = base_network(input_b)
+output = Lambda(euclidean_distance, name="output_layer", output_shape=eucl_dist_output_shape)([vect_output_a, vect_output_b])
+
+# specify the inputs and output of the model
+model = Model([input_a, input_b], output)
+
+# For reference: contrastive loss with margin
+def contrastive_loss_with_margin(margin):
+    def contrastive_loss(y_true, y_pred):
+        '''Contrastive loss from Hadsell-et-al.'06
+        http://yann.lecun.com/exdb/publis/pdf/hadsell-chopra-lecun-06.pdf
+        '''
+        square_pred = K.square(y_pred)
+        margin_square = K.square(K.maximum(margin - y_pred, 0))
+        return K.mean(y_true * square_pred + (1 - y_true) * margin_square)
+    return contrastive_loss
+```
+
+A la hora de entrenar, tendremos que pasar como lista los dos inputs a _model.fit_:
+
+```history = model.fit([tr_pairs[:,0], tr_pairs[:,1]], tr_y, epochs=20, batch_size=128```
+
+
+### TIPS SEMANA 1:
+
+* Para randomizar los datos (shuffle data): ```df = df.iloc[np.random.permutation(len(df))]```
+* Recordar que **.pop** devuelve el valor y lo elimina de la lista (o del lugar donde esté guardado).
+* Cuando buscamos los (losses en la documentación)[https://www.tensorflow.org/api_docs/python/tf/keras/losses#functions], debemos buscarlos en funciones, no en clases.
+
+## WEEK 2: CUSTOM LOSS
+
+### Custom Loss Functions
+Para implementar un custom loss tan solo hay que crear una funcion que tenga como argumentos `y_true, y_pred`.
+
+```python
+def my_huber_loss(y_true, y_pred):
+    threshold = 1
+    error = y_true - y_pred
+    is_small_error = tf.abs(error) <= threshold
+    small_error_loss = tf.square(error) / 2
+    big_error_loss = threshold * (tf.abs(error) - (0.5 * threshold))
+    return tf.where(is_small_error, small_error_loss, big_error_loss)
+```
+
+Si quisieramos pasarle __hiperparámetros__, es necesario hacer una __wrapper function__ por encima para encapsular (no directamente):
+
+```python
+def my_huber_loss_with_threshold(threshold):
+    def my_huber_loss(y_true, y_pred):
+        error = y_true - y_pred
+        is_small_error = tf.abs(error) <= threshold
+        small_error_loss = tf.square(error) / 2
+        big_error_loss = threshold * (tf.abs(error) - (0.5 * threshold))
+        return tf.where(is_small_error, small_error_loss, big_error_loss)
+    return my_huber_loss
+```
+
+![](assets/tf-adv-c1-1.jpg)
+
+Luego tan solo hay que especificar esa función cuanto compilemos el modelo:
+
+```python
+model.compile(optimizer='sgd', loss=my_huber_loss_with_threshold(threshold=0.9))
+```
+
+### Custom Loss Classes
+
+Además de como funciones, también podemos hacerlas como clases que derivan de tf.keras.Loss. Se les llama _Object-Oriented Loss_. Deben tener:
+
+* Una parte __init__ en que se inicializan los parametros que se van a usar
+* Una parte __call__ en que se ejecutan las operaciones
+
+El loss a continuación es igual que la función creada antes:
+
+```python
+from tensorflow.keras.losses import Loss
+
+class MyHuberLoss(Loss):
+  
+    # class attribute
+    threshold = 1
+  
+    # initialize instance attributes
+    def __init__(self, threshold):
+        super().__init__()
+        self.threshold = threshold
+
+    # compute loss
+    def call(self, y_true, y_pred):
+        error = y_true - y_pred
+        is_small_error = tf.abs(error) <= self.threshold
+        small_error_loss = tf.square(error) / 2
+        big_error_loss = self.threshold * (tf.abs(error) - (0.5 * self.threshold))
+        return tf.where(is_small_error, small_error_loss, big_error_loss)
+
+model.compile(optimizer='sgd', loss=MyHuberLoss(threshold=1.02))
+```
+
+Otro ejemplo de esto es el Contrastive Loss que se usa en las siamese networks; podemos crearlo como función:
+
+```python
+def contrastive_loss_with_margin(margin):
+    def contrastive_loss(y_true, y_pred):
+        '''Contrastive loss from Hadsell-et-al.'06
+        http://yann.lecun.com/exdb/publis/pdf/hadsell-chopra-lecun-06.pdf
+        '''
+        square_pred = K.square(y_pred)
+        margin_square = K.square(K.maximum(margin - y_pred, 0))
+        return K.mean(y_true * square_pred + (1 - y_true) * margin_square)
+    return contrastive_loss
+```
+
+![](assets/tf-adv-c1-2.jpg)
+![](assets/tf-adv-c1-3.jpg)
+
+O también como clase
+
+```python
+class ContrastiveLoss(Loss):
+    margin = 0
+    def __init__(self, margin):
+        super().__init__()
+        self.margin = margin
+
+    def call(self, y_true, y_pred):
+        square_pred = K.square(y_pred)
+        margin_square = K.square(K.maximum(self.margin - y_pred, 0))
+        return K.mean(y_true * square_pred + (1 - y_true) * margin_square)
+```
+
+## WEEK 3: CUSTOM LAYERS
+
+### Lambda layer
+
+La capa más facil que podemos crear es una _Lambda layer_ que simplemente encapsula código arbitrario (generalmente una funcion).
+Deriva de `tf.keras.layers.Lambda(lambda x: tf.function(x))`
+
+### Custom layers
+
+Se basan en heredar de _tf.keras.layers.Layer_. Todas las capas estan formadas por:
+
+* Weights: son variables que asignan el estado de la capa (pesos).
+* Computation state: son las formulas-transformaciones que se aplican a los inputs para convertirlos en outputs.
+
+Para crearlos, es necesario establecer tres funciones:
+
+* **__init__** que crea la capa y establece los parametros (de entrada). Aquí siempre debemos heredar de **__super__**.
+* **build**, que crea el estado de los pesos. Para ello generalmente usamos como entrada el _input shape_.
+* **call**, que usa como entrada los _inputs_ y calcula las transformaciones para devolver la salida.
+
+Podemos ver el estado de los pesos de una capa ejecutando __layer.variables__.
+
+```python
+# inherit from this base class
+from tensorflow.keras.layers import Layer
+
+class SimpleDense(Layer):
+
+    def __init__(self, units=32):
+        '''Initializes the instance attributes'''
+        super(SimpleDense, self).__init__()
+        self.units = units
+
+    def build(self, input_shape):
+        '''Create the state of the layer (weights)'''
+        # initialize the weights
+        w_init = tf.random_normal_initializer()
+        self.w = tf.Variable(name="kernel",
+            initial_value=w_init(shape=(input_shape[-1], self.units),
+                                 dtype='float32'),
+            trainable=True)
+
+        # initialize the biases
+        b_init = tf.zeros_initializer()
+        self.b = tf.Variable(name="bias",
+            initial_value=b_init(shape=(self.units,), dtype='float32'),
+            trainable=True)
+
+    def call(self, inputs):
+        '''Defines the computation from inputs to outputs'''
+        return tf.matmul(inputs, self.w) + self.b
+```
+
+### Activation in custom layers
+
+Si queremos añadir un activador (relu...) a nuestra capa, tan solo hay que especificarlo en _init_ y en _call_ (no hay que tocar los pesos):
+
+Por ejemplo, a la anterior habría que añadirle:
+
+```python
+
+class SimpleDense(Layer):
+    def __init__(self, units=32, activation=None):
+        super(SimpleDense, self).__init__()
+        self.units = units
+        self.activation = tf.keras.activations.get(activation)
+
+    def build(self, input_shape):
+        # se deja igual
+
+    def call(self, inputs):
+        return self.activation(tf.matmul(inputs, self.w) + self.b)
+```
+
+
+## WEEK 4: CUSTOM MODELS
+
+### Basic custom models
+
+Además de agrupar un modelo en una función, tambien podemos crearlo como _Clase_, heredando desde _Model_. Para ello debemos definir dos funciones:
+
+* **__init__** que sirve para instanciar los atributos de la clase (en este caso, las capas).
+* **call** sirve para construir el modelo  y definir las salidas.
+
+
+```python
+class WideAndDeepModel(Model):
+    def __init__(self, units=30, activation='relu', **kwargs):
+        '''initializes the instance attributes'''
+        super().__init__(**kwargs)
+        self.hidden1 = Dense(units, activation=activation)
+        self.hidden2 = Dense(units, activation=activation)
+        self.main_output = Dense(1)
+        self.aux_output = Dense(1)
+
+    def call(self, inputs):
+        '''defines the network architecture'''
+        input_A, input_B = inputs
+        hidden1 = self.hidden1(input_B)
+        hidden2 = self.hidden2(hidden1)
+        concat = concatenate([input_A, hidden2])
+        main_output = self.main_output(concat)
+        aux_output = self.aux_output(hidden2)
+        
+        return main_output, aux_output
+```
+
+Como deriva de _Model_, podemos seguir usando:
+
+* Built-in training, evaluation and prediction (model.fit...)
+* Saving-serialization (model.save, model.save_weights)
+* Summarization, plot (model.summary, tf.keras.utils.plot_model)
+
+La principal limitación de la Functional API es que no es dinámica (no podemos tener redes recurrentes) y con capas conectadas de forma gráfica.
+
+Gracias al subclassing podemos:
+
+* Diseñar una arquitectura modular
+* Probar experimentos rápidamente (tan solo )
+
+
+## Advanced custom models
+
+Podemos usar subclases para crear 'bloques' (se comportan como modelo pero son conjuntos de capas que luego se aplican en otro modelo más grande). Ej.: los bloques en Inception o los identity blocks en las ResNet.
+
+Por ejemplo, primero creamos los __identity blocks__:
+
+```python
+class IdentityBlock(tf.keras.Model):
+    def __init__(self, filters, kernel_size):
+        super(IdentityBlock, self).__init__(name='')
+
+        self.conv1 = tf.keras.layers.Conv2D(filters, kernel_size, padding='same')
+        self.bn1 = tf.keras.layers.BatchNormalization()
+
+        self.conv2 = tf.keras.layers.Conv2D(filters, kernel_size, padding='same')
+        self.bn2 = tf.keras.layers.BatchNormalization()
+
+        self.act = tf.keras.layers.Activation('relu')
+        self.add = tf.keras.layers.Add()  
+    
+    def call(self, input_tensor):
+        x = self.conv1(input_tensor)
+        x = self.bn1(x)
+        x = self.act(x)
+
+        x = self.conv2(x)
+        x = self.bn2(x)
+        x = self.act(x)
+
+        x = self.add([x, input_tensor]) # el shortcut se hace con la suma de ambos, NO la concatenación
+        x = self.act(x)
+        return x
+```
+
+
+Una vez que tenemos hecha nuestra skip connection, podemos crear el modelo ResNet completo usando estos bloques:
+
+```python
+class ResNet(tf.keras.Model):
+    def __init__(self, num_classes):
+        super(ResNet, self).__init__()
+        self.conv = tf.keras.layers.Conv2D(64, 7, padding='same')    # estas son las capas iniciales del modelo
+        self.bn = tf.keras.layers.BatchNormalization()
+        self.act = tf.keras.layers.Activation('relu')
+        self.max_pool = tf.keras.layers.MaxPool2D((3, 3))
+
+        # Use the Identity blocks that you just defined             # estos son los identity blocks
+        self.id1a = IdentityBlock(64, 3)
+        self.id1b = IdentityBlock(64, 3)
+
+        self.global_pool = tf.keras.layers.GlobalAveragePooling2D()     # estas son las capas finales del modelo
+        self.classifier = tf.keras.layers.Dense(num_classes, activation='softmax')
+
+    def call(self, inputs):
+        x = self.conv(inputs)
+        x = self.bn(x)
+        x = self.act(x)
+        x = self.max_pool(x)
+
+        # insert the identity blocks in the middle of the network
+        x = self.id1a(x)
+        x = self.id1b(x)
+
+        x = self.global_pool(x)
+        return self.classifier(x)
+```
+
+
+Note that _add_ layer is different from _concatenate_ layer. Add is used for skip connections.
+
+### Dinamically-named variables
+
+When we create a class with some atributes, we can access them by using **__dict__**.
+
+```python
+# Define a small class MyClass
+class MyClass:
+    def __init__(self):
+        self.var1 = 1
+
+my_obj = MyClass()
+
+my_obj.__dict__
+# returns {'var1': 1}
+```
+
+For that, we can also use **vars()**, which also can change the state of the attribute using bracket notation:
+
+```python
+vars(my_obj)['var3'] = 3
+
+vars(my_obj)
+# returns {'var1': 1, 'var3': 3}
+```
+
+We can also loop over attribute names to change their value (eg: increment them)
+
+```python
+# Use a for loop to increment the index 'i'
+for i in range(4,10):
+    # Format a string that is var
+    vars(my_obj)[f'var{i}'] = 0
+```
+
+If we use them inside a Class, we should use _self_:
+
+```python
+class MyClass:
+    def __init__(self):
+        vars(self)['var1'] = 1 # Use vars(self) to access the class's dictionary of variables
+```
+
+
+## WEEK 5: CALLBACKS
+
+Son funciones que permiten controlar el proceso de entrenamiento, que derivan de tf.keras.callbacks.Callback.
+Nos permiten entender el estado del modelo durante el entrenamiento (estados internos, estadisticas y metricas durante el entrenamiento...).
+
+![](assets/tf-adv-c1-5.jpg)
+
+
+### Built-in callbacks 
+
+Algunos de los callbacks por defecto más importantes son:
+
+* Tensorboard: nos permite visualizar modelos, experimentos y metricas en tiempo real.
+* ModelCheckpoint: nos guarda el modelo de vez en cuando (cuando se lo digamos). Solo guarda el modelo con mejor puntuación.
+* EarlyStopping: para el entrenamiento cuando hay un cambio definido en una metrica (se estanca, empeora...).
+* CSVLogger: guarda las metricas y los valores de loss en un csv para hacer tracking.
+
+
+```python
+tensorboard_callback = tf.keras.callbacks.TensorBoard(logdir)
+%tensorboard --logdir logs
+
+chkpt_callback = tf.keras.callbacks.ModelCheckpoint('weights.{epoch:02d}-{val_loss:.2f}.h5', verbose=1
+stop_callback = tf.keras.callbacks.EarlyStopping(
+              patience=3,
+              min_delta=0.05,
+              baseline=0.8,
+              mode='min',
+              monitor='val_loss',
+              restore_best_weights=True,
+              verbose=1)
+csv_callback = tf.keras.callbacks.CSVLogger(csv_file)
+
+model.fit(train_batches, 
+          epochs=10, 
+          validation_data=validation_batches, 
+          callbacks=[tensorboard_callback,...])
+```
+
+Tambien hay callbacks para modificar la **Learning Rate** conforme avanza el entrenamiento:
+
+```python
+def step_decay(epoch):
+	initial_lr = 0.01
+	drop = 0.5
+	epochs_drop = 1
+	lr = initial_lr * math.pow(drop, math.floor((1+epoch)/epochs_drop))
+	return lr
+
+lr_scheduler = tf.keras.callbacks.LearningRateScheduler(step_decay, verbose=1)
+
+lr_reducer = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', 
+                                       factor=0.2, verbose=1,
+                                       patience=1, min_lr=0.001)
+```
+
+### Custom callbacks
+
+Para crear un custom callback tan solo tenemos que heredar de la subclase tf.keras.callbacks.Callback().
+
+
+>For training, testing, and predicting, following methods are provided to be overridden.
+>#### `on_(train|test|predict)_begin(self, logs=None)`
+>Called at the beginning of `fit`/`evaluate`/`predict`.
+>#### `on_(train|test|predict)_end(self, logs=None)`
+>Called at the end of `fit`/`evaluate`/`predict`.
+>#### `on_(train|test|predict)_batch_begin(self, batch, logs=None)`
+>Called right before processing a batch during training/testing/predicting. Within this method, `logs` is a dict with `batch` and `size` available keys, representing the current batch number and the size of the batch.
+>#### `on_(train|test|predict)_batch_end(self, batch, logs=None)`
+>Called at the end of training/testing/predicting a batch. Within this method, `logs` is a dict containing the stateful metrics result.
+
+>### Training specific methods
+>In addition, for training, following are provided.
+>#### `on_epoch_begin(self, epoch, logs=None)`
+>Called at the beginning of an epoch during training.
+>#### `on_epoch_end(self, epoch, logs=None)`
+>Called at the end of an epoch during training.
+
+Ejemplos:
+
+Callback para imprimir el tiempo en que empieza y acaba cada batch
+
+```python
+class PrintTime(tf.keras.callbacks.Callback):
+
+    def on_train_batch_begin(self, batch, logs=None):
+        print('Training: batch {} begins at {}'.format(batch, datetime.datetime.now().time()))
+
+    def on_train_batch_end(self, batch, logs=None):
+        print('Training: batch {} ends at {}'.format(batch, datetime.datetime.now().time()))
+```
+
+Cada epoch se nos devuelve el valor de los **epochs** y un diccionario de **logs**, que contiene el loss y las metricas. Esto lo podemos usar en los callbacks:
+
+```python
+# este callback imprime el ratio train-val loss en cada epoch
+callback = tf.keras.callbacks.LambdaCallback(
+    on_epoch_end=lambda epoch,logs: 
+    print("Epoch: {}, Val/Train loss ratio: {:.2f}".format(epoch, logs["val_loss"] / logs["loss"]))
+)
+```
+
+Si queremos pasarle parámetros, debemos hacerlo en init. Por ejemplo en este callback que para el entrenamiento si detecta overfitting (ratio train-val loss demasiado alto):
+
+```python
+class DetectOverfittingCallback(tf.keras.callbacks.Callback):
+    def __init__(self, threshold=0.7):
+        super(DetectOverfittingCallback, self).__init__()
+        self.threshold = threshold # aqui es donde hay que añadirselo; el resto no hace falta inicializarlos
+
+    def on_epoch_end(self, epoch, logs=None):
+        ratio = logs["val_loss"] / logs["loss"]
+        print("Epoch: {}, Val/Train loss ratio: {:.2f}".format(epoch, ratio))
+
+        if ratio > self.threshold:
+            print("Stopping training...")
+            self.model.stop_training = True     # así es como podemos parar el entrenamiento
+```
+
+También podemos hacer callbacks para visualizar predicciones. Por ejemplo este usa la función display_digits (creada anteriormente), y, cada x epochs (en este caso 10), toma una muestra de digitos y muestra la imagen real, la label real  y la label predicha y muestra si se ha equivocado o no. Al final hace hasta un gif.
+
+```python
+class VisCallback(tf.keras.callbacks.Callback):
+    def __init__(self, inputs, ground_truth, display_freq=10, n_samples=10):
+        self.inputs = inputs
+        self.ground_truth = ground_truth
+        self.images = []
+        self.display_freq = display_freq
+        self.n_samples = n_samples
+
+    def on_epoch_end(self, epoch, logs=None):
+        # Randomly sample data
+        indexes = np.random.choice(len(self.inputs), size=self.n_samples)
+        X_test, y_test = self.inputs[indexes], self.ground_truth[indexes]
+        predictions = np.argmax(self.model.predict(X_test), axis=1)
+
+        # Plot the digits
+        display_digits(X_test, predictions, y_test, epoch, n=self.display_freq)
+
+        # Save the figure
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        image = Image.open(buf)
+        self.images.append(np.array(image))
+
+        # Display the digits every 'display_freq' number of epochs
+        if epoch % self.display_freq == 0:
+            plt.show()
+
+    def on_train_end(self, logs=None):
+        imageio.mimsave(GIF_PATH, self.images, fps=1)
+```
+
+
+# COURSE 2: CUSTOM TRAINING
+## WEEK 1: GRADIENT TAPE
+
+### Tensors
+
+Los tensores son estructuras flexibles que almacenan datos. En función de su dimensionalidad:
+
+* Scalar: sin dimensiones (10)
+* Vector: dimension 1 (1, 2, 3)
+* Matrix: dimension 2 ([1, 2, 3], [4, 5, 6], [7, 8, 9])
+* Pueden tener muchas más dimensiones.
+
+En tensorflow, hay dos tipos: _tf.Constant_ que no se puede modificar, y _tf.Variable_ que se puede modificar.
+
+Al crear un tensor, se crea con _tf.Tensor_ especificando el _shape_ y el _data type_:
+
+```python
+tensor = tf.Variable(initial_value = , shape =(2,2) , dtype = tf.int32)
+```
+
+Cosas a tener en cuenta:
+
+* Un tensor puede contener un valor de String
+* Un tf.variable NO puede convertir la estructura de los datos en funcion del dtype (si le pasamos [1, 2, 3, 4, 5, 6] no podemos poner dtype (2, 2) sino (4,)); en cambio en un tf.constant si podemos
+* En una tf.constant tambien podemos hacer broadcast: si establecemos un valor unico (-1) y un shape, todos los valores se estableceran al mismo
+
+Si tenemos un modelo y usamos _model.variables_, obtenemos los valores de los tensores que contiene (w, b...)
+
+#### Operaciones que se pueden hacer con tf: 
+
+* tf.add, tf.substract, tf.multiply, tf.square
+* __tf.reduce_sum__ (que lo que hace es sumar todos los valores de una dimension para obtener un escalar: ej, de 1 2 3 obtenemos 6)
+* tf.reshape(x, (newshape1, newshape2)): para cambiar la forma del tensor
+* tf.cast(x, dtype=tf.float32): para convertir un tipo de archivo en otro
+* tensor.numpy(): sirve para obtener el valor de un tensor convertido en un numpy array
+
+### GradientTape
+
+Sirve para ejecutar directamente el training loop y calcular las derivadas de los gradientes para actualizar nosotros los parámetros. Básicamente el orden que usaremos será:
+
+Para cada ejemplo de cada batch:
+    1- Calcular el forward pass
+    2- Calcular el loss
+    3- Añadirlo al histórico de losses
+4- Calcular las derivadas del loss respecto a los parametros
+5- Actualizar los parametros con las derivadas
+
+```python
+x = tf.ones((2,2))
+
+with tf.GradientTape() as tape:
+    # Esto no siempre hace falta, es simplemente para saber que es lo que hay que fijar
+    tape.watch(x) 
+
+    # Make prediction
+    pred_y = w * real_x + b
+
+    # Calculate loss
+    reg_loss = simple_loss(real_y, pred_y)
+
+# Calculate gradients
+w_gradient = tape.gradient(reg_loss, w)
+b_gradient = tape.gradient(reg_loss, b)
+
+# Update variables
+w.assign_sub(w_gradient * LEARNING_RATE)
+b.assign_sub(b_gradient * LEARNING_RATE)
+```
+
+O lo que es lo mismo (pero bien definido):
+
+![](assets/tf-adv-1.jpg)
+
+
+
+Si al llamar al tape usamos __persistent=True__, podremos usarlo para calcular varios gradientes a la vez (sino, por defecto se extingue después de un uso). Para eliminarlo, usaremos `del t`:
+
+```python
+with tf.GradientTape(persistent=True) as t:
+    ...
+dz_dx = t.gradient(z, x)
+dy_dx = t.gradient(y, x)  # ahora ya no dará error
+del t
+```
+
+## WEEK 2: CUSTOM TRAINING LOOP
+
+### Steps to replace training loop
+
+Normalmente _model.compile_ y _model.fit_ se encargan del training loop, pero lo podemos reemplazar completamente y hacer el entrenamiento nosotros. Para ello los pasos son:
+
+1. Definir el modelo
+2. Preparar el training data
+3. Definir el loss y el optimizador (y las metricas)
+4. Entrenar el modelo con inputs mediante minimizar el loss con el optimizador
+5. Validar el modelo
+
+```python
+def train(model, inputs, outputs, learning_rate):
+  with tf.GradientTape() as t:
+    current_loss = loss(model(inputs), outputs)
+  dw, db = t.gradient(current_loss, [model.w, model.b])
+  model.w.assign_sub(learning_rate * dw)
+  model.b.assign_sub(learning_rate * db)
+
+  return current_loss
+
+# Instanciate model
+model = Model()
+
+# Collect the history of W-values and b-values to plot later
+list_w, list_b = [], []
+epochs = range(15)
+losses = []
+
+# Training loop
+for epoch in epochs:
+  list_w.append(model.w.numpy())
+  list_b.append(model.b.numpy())
+  current_loss = train(model, xs, ys, learning_rate=0.1)
+  losses.append(current_loss)
+  print('Epoch %2d: w=%1.2f b=%1.2f, loss=%2.5f' %
+        (epoch, list_w[-1], list_b[-1], current_loss))
+
+```
+
+### Losses and Metrics
+
+Generalmente los usaremos directamente de tf.keras.losses y tf.keras.metrics, de donde los podemos tomar tanto como función como como clase.
+
+Con las metricas podemos usar tres métodos:
+
+1. **metric.update_state()** to accumulate metric statistics after each bach
+2. **metric.result** to get current value of metric for display
+3. **metric.reset_state()** to reset metric value typically at end of epoch
+
+Nota: SparseCategoricalCrossentropy se usa cuando los labels son integers y no one-hot encoded.
+
+### Training loop
+
+![](assets/tf-adv-2.jpg)
+![](assets/tf-adv-3.jpg)
+
+El cuaderno de esta semana (C2W2Lab2) es muy util para hacer un custom training loop, siguiendo los pasos que hemos visto al principio.
+
+**1- Crear el modelo**
+**2- Preprocesar los datos de entrada**
+
+Generalmente, con imágenes esto implica normalizar de 0-1 y a veces eliminar la dimension (flatten, de 28x28 a 784):
+
+```python
+def format_image(data):        
+    image = data["image"]
+    image = tf.reshape(image, [-1]) # esto hace flatten
+    image = tf.cast(image, 'float32') # esto convierte a floar
+    image = image / 255.0 # esto normaliza
+    return image, data["label"]
+
+train_data = train_data.map(format_image)
+test_data = test_data.map(format_image)
+```
+
+Además, generalmente también hemos de establecer los batches y, si es necesario, cargarlos en memoria:
+
+```python
+batch_size = 64
+train = train_data.shuffle(buffer_size=1024).batch(batch_size)
+test =  test_data.batch(batch_size=batch_size)
+```
+
+**3- Definir el loss, optimizador y metricas**
+**4- Crear el training loop**
+
+El training loop son una serie de pasos que se repiten por cada epoch (pasada completa al df):
+* Para training data, utilizar los _batches_ y realizar el entrenamiento para cada batch:
+  * Pasar los datos del minibatch al modelo y calcular las prediciones (**logits**); y calcular el loss entre la realidad y las predicciones (*y_true, y_pred* o *labels, logits*)
+  * Calcular el gradiente entre el loss y los parametros entrenables por el modelo
+  * Aplicarle el optimizador para modificar el valor de los parametros
+  * Al final de **cada step** obtenemos las predicciones (logits) y el loss, y con ello hacemos track del valor del loss y calculamos las _training metrics_
+  * Además, al final de **cada epoch** calculamos el training loss y metrics del epoch.
+* En validación, simplemente se calcula el loss (_validation loss_) y las _validation metrics_ para TODO el epoch (pasando el validation data por el modelo).
+
+    From coursera:
+    Perform training over all batches of training data.
+    Get values of metrics.
+    Perform validation to calculate loss and update validation metrics on test data.
+    Reset the metrics at the end of epoch.
+    Display statistics at the end of each epoch.
+
+
+Aqui tenemos las funciones auxiliares para llamarlas después en el training loop:
+
+```python
+def apply_gradient(optimizer, model, x, y):
+  with tf.GradientTape() as tape:
+    logits = model(x) # logits ==  predictions
+    loss_value = loss_object(y_true=y, y_pred=logits)
+  
+  gradients = tape.gradient(loss_value, model.trainable_weights)
+  optimizer.apply_gradients(zip(gradients, model.trainable_weights))
+  
+  return logits, loss_value
+
+def train_data_for_one_epoch():
+  losses = []
+  pbar = tqdm(total=len(list(enumerate(train))), position=0, leave=True, bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} ')
+  for step, (x_batch_train, y_batch_train) in enumerate(train):
+      logits, loss_value = apply_gradient(optimizer, model, x_batch_train, y_batch_train)
+      
+      losses.append(loss_value)
+      
+      train_acc_metric(y_batch_train, logits)
+      pbar.set_description("Training loss for step %s: %.4f" % (int(step), float(loss_value)))
+      pbar.update()
+  return losses
+
+def perform_validation():
+  losses = []
+  for x_val, y_val in test:
+      val_logits = model(x_val)
+      val_loss = loss_object(y_true=y_val, y_pred=val_logits)
+      losses.append(val_loss)
+      val_acc_metric(y_val, val_logits)
+  return losses
+
+```
+
+Y a la hora de ejecutar el training loop llamamos a estas funciones:
+
+```python
+model = base_model()
+
+# Iterate over epochs.
+epochs = 10
+epochs_val_losses, epochs_train_losses = [], []
+for epoch in range(epochs):
+  print('Start of epoch %d' % (epoch,))
+  
+  losses_train = train_data_for_one_epoch()
+  train_acc = train_acc_metric.result()
+
+  losses_val = perform_validation()
+  val_acc = val_acc_metric.result()
+
+  losses_train_mean = np.mean(losses_train)
+  losses_val_mean = np.mean(losses_val)
+  epochs_val_losses.append(losses_val_mean)
+  epochs_train_losses.append(losses_train_mean)
+
+  print('\n Epoch %s: Train loss: %.4f  Validation Loss: %.4f, Train Accuracy: %.4f, Validation Accuracy %.4f' % (epoch, float(losses_train_mean), float(losses_val_mean), float(train_acc), float(val_acc)))
+  
+  train_acc_metric.reset_states()
+  val_acc_metric.reset_states()
+```
+
+
+
+Other useful code:
+
+Plot confusion matrix with sklearn:
+
+```python
+def plot_confusion_matrix(y_true, y_pred, title='', labels=[0,1]):
+    
+    cm = confusion_matrix(y_true, y_pred)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    cax = ax.matshow(cm)
+    plt.title(title)
+    fig.colorbar(cax)
+    ax.set_xticklabels([''] + labels)
+    ax.set_yticklabels([''] + labels)
+    plt.xlabel('Predicted')
+    plt.ylabel('True')
+    fmt = 'd'
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+          plt.text(j, i, format(cm[i, j], fmt),
+                  horizontalalignment="center",
+                  color="black" if cm[i, j] > thresh else "white")
+    plt.show()
+```
+
+Custom F1-score code:
+
+```python
+class F1Score(tf.keras.metrics.Metric):
+
+    def __init__(self, name='f1_score', **kwargs):
+        '''initializes attributes of the class'''
+        
+        # call the parent class init
+        super(F1Score, self).__init__(name=name, **kwargs)
+
+        # Initialize Required variables
+        # true positives
+        self.tp = tf.Variable(0, dtype = 'int32')
+        # false positives
+        self.fp = tf.Variable(0, dtype = 'int32')
+        # true negatives
+        self.tn = tf.Variable(0, dtype = 'int32')
+        # false negatives
+        self.fn = tf.Variable(0, dtype = 'int32')
+
+    def update_state(self, y_true, y_pred, sample_weight=None):
+        '''
+        Accumulates statistics for the metric
+        
+        Args:
+            y_true: target values from the test data
+            y_pred: predicted values by the model
+        '''
+
+        # Calulcate confusion matrix.
+        conf_matrix = tf.math.confusion_matrix(y_true, y_pred, num_classes=2)
+        
+        # Update values of true positives, true negatives, false positives and false negatives from confusion matrix.
+        self.tn.assign_add(conf_matrix[0][0])
+        self.tp.assign_add(conf_matrix[1][1])
+        self.fp.assign_add(conf_matrix[0][1])
+        self.fn.assign_add(conf_matrix[1][0])
+
+    def result(self):
+        '''Computes and returns the metric value tensor.'''
+
+        # Calculate precision
+        if (self.tp + self.fp == 0):
+            precision = 1.0
+        else:
+            precision = self.tp / (self.tp + self.fp)
+      
+        # Calculate recall
+        if (self.tp + self.fn == 0):
+            recall = 1.0
+        else:
+            recall = self.tp / (self.tp + self.fn)
+
+        # Return F1 Score
+        ### START CODE HERE ###
+        f1_score = 2 * ((precision * recall) / (precision + recall))
+        ### END CODE HERE ###
+        
+        return f1_score
+
+    def reset_states(self):
+        '''Resets all of the metric state variables.'''
+        
+        # The state of the metric will be reset at the start of each epoch.
+        self.tp.assign(0)
+        self.tn.assign(0) 
+        self.fp.assign(0)
+        self.fn.assign(0)
+```
+
+
+En binary classification, con las predicciones en cada batch hay que hacer esto para las metricas:
+
+```python
+        #Round off logits to nearest integer and cast to integer for calulating metrics
+        logits = tf.round(logits)
+        logits = tf.cast(logits, 'int64')
+
+# o lo que es lo mismo (en val)
+        #Round off and cast outputs to either  or 1
+        val_logits = tf.cast(tf.round(model(x_val)), 'int64')
+```
+
+## WEEK 3: GRAPH MODE
+
+### AUTOGRAPH
+
+Autograph es una herramienta de tf que convierte el código pythonic en código de grafos que es el que tf necesita para paralelizar y acelerar. Para comprobar que es lo que está haciendo, podemos investigar con `print(tf.autograph.to_code(funcion.python_function))`
+
+Para ello debemos añadir el decorador `@tf.function` al inicio. Podemos usarlo tanto en funciones creadas por nosotros como en clases heredadas de keras.
+
+Un ejemplo:
+
+```python
+@tf.function
+def f(x):
+    if x>0:
+        x = x * x
+    return x
+
+print(tf.autograph.to_code(f.python_function))
+```
+
+Es importante a la hora de ejecutar grafos, verificar que el ORDEN de las instrucciones es el que queremos (suma, multiplicación...) para no tener errores a la hora de ejecutarlo.
+Si creamos alguna función que vayamos a ejecutar en grafo, es mejor usar `tf.print` que está diseñada para grafos, ya que `print` de python puede tener errores (y solo se imprime una vez cuando hacemos loops en vez de varias veces).
+También hay que tener cuidado con la creación de variables locales dentro de la función, ya que a veces pueden provocar un error en el autograph. Es mejor crearlas fuera de la función y llamarlas desde dentro.
+
+## WEEK 4: DISTRIBUTED STRATEGY
+
+Sirve para entrenar un modelo en distintos lugares (GPU, TPU, CPU...) al mismo tiempo aprovechando la potencia combinada. Se hace gracias a la clase `tf.distribute.Strategy`. Debemos conocer los distintos elementos que existen:
+
+* **Device**: cada uno de los dispositivos que puede entrenar (gpu, tpu...)
+* **Replica**: son copias del modelo en el que estamos trabajando que se distribuyen en las distintos devices
+* **Worker**:  software que corre en el device que se dedica a entrenar la replica en ese device (similar a decir 'máquina').
+* **Mirrored variables**: son variables que están en sincronizacion entre los distintos dispositivos (ya que es necesario para el training).
+
+Hay distintos tipos de estrategias de clasificación:
+
+* Dependientes del hardware:
+  * Single-machine multi-device: varios devices en una máquina
+  * Multi-machine: varias máquinas (con uno o varios devices)
+
+* Según el tipo de entrenamiento:
+  * Síncrono: todas entrenan el mismo modelo con distintos datos, y agregan gradientes al final de cada paso que se reducen con all-reduce algorithm. El más usado.
+  * Asíncrono: todos los workers son independientes y cambian el entrenamiento en un parameter server.
+
+Los tipos que soporta tf más usados son:
+
+![](assets/tf-adv-4.jpg)
+![](assets/tf-adv-5.jpg)
+
+### MIRRORED Strategy
+
+Para acomodar el entrenamiento, hay que cambiar el codigo en dos partes:
+
+* Data preprocessing: es necesario establecer el batch size CONJUNTO para las replicas (multiplicando el bs por el numero de replicas total)
+* Model declaration: hay que establecer al crear el modelo que sea dentro del espacio (scope) de la estrategia definida.
+  * No es necesario que _model.compile_ ni _model.fit_ estén dentro del scope
+
+
+```python
+strategy = tf.distribute.MirroredStrategy()
+
+print(f'Number of devices: {strategy.num_replicas_in_sync}')
+
+# batch size = 64
+batch_size_per_replica = 64
+batch_size = batch_size_per_replica * strategy.num_replicas_in_sync
+
+with strategy.scope():
+    model = tf.keras.Sequential...
+
+model.compile(...)
+```
+
+Con esto se crea una replica para cada device, y las variables se sincronizan (y se tratan como MirroredVariable) y se sincronizan entre si (gracias al algoritmo de nvidia nccl).
+
+### MULTIPLE GPU Mirrored Strategy
+
+En este caso, hay varios cambios que tenemos que hacer:
+
+* Lo primero es convertir el train-test dataset a un dataset distribuido: `train_dist_dataset = strategy.experimental_distribute_dataset(train_dataset)`.
+* En el training loop hay que usar este dataset disttribuido; y además hay que hacer usar un training step distribuido (propio): `distributed_train_step(batch)`.
+  * Esta función llamará posteriormente a `train_step`, que se verá más adelante. Cn ella conseguiremos los losses per replica y devolveremos una suma reducida de estos losses.
+* Posteriormente hay que ponderar, dividiendo el _training loss_ por el _num batches_.
+
+El código está a continuación. La parte importante es *distributed_train-test_step*, ya que es la única que tiene que ver con la distribución (la otra es igual que si fuera solo una GPU).
+
+```python
+# `run` replicates the provided computation and runs it
+# with the distributed input.
+@tf.function
+def distributed_train_step(dataset_inputs):
+  per_replica_losses = strategy.run(train_step, args=(dataset_inputs,))
+  #tf.print(per_replica_losses.values)
+  return strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
+
+def train_step(inputs):
+  images, labels = inputs
+  with tf.GradientTape() as tape:
+    predictions = model(images, training=True)
+    loss = compute_loss(labels, predictions)
+
+  gradients = tape.gradient(loss, model.trainable_variables)
+  optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+
+  train_accuracy.update_state(labels, predictions)
+  return loss
+
+#######################
+# Test Steps Functions
+#######################
+@tf.function
+def distributed_test_step(dataset_inputs):
+  return strategy.run(test_step, args=(dataset_inputs,))
+
+def test_step(inputs):
+  images, labels = inputs
+
+  predictions = model(images, training=False)
+  t_loss = loss_object(labels, predictions)
+
+  test_loss.update_state(t_loss)
+  test_accuracy.update_state(labels, predictions)
+```
+
+Y ahora para entrenar hacemos el training loop usando esas funciones:
+
+```python
+EPOCHS = 10
+for epoch in range(EPOCHS):
+  # Do Training
+  total_loss = 0.0
+  num_batches = 0
+  for batch in train_dist_dataset:
+    total_loss += distributed_train_step(batch)
+    num_batches += 1
+  train_loss = total_loss / num_batches
+
+  # Do Testing
+  for batch in test_dist_dataset:
+    distributed_test_step(batch)
+
+  template = ("Epoch {}, Loss: {}, Accuracy: {}, Test Loss: {}, " "Test Accuracy: {}")
+
+  print (template.format(epoch+1, train_loss, train_accuracy.result()*100, test_loss.result(), test_accuracy.result()*100))
+
+  test_loss.reset_states()
+  train_accuracy.reset_states()
+  test_accuracy.reset_states()
+```
+
+
+Cosas a tener en cuenta:
+
+* Si nuestra GPU tiene menos de 4 cores: `os.environ["TF_MIN_GPU_MULTIPROCESSOR_COUNT"] = "4"`
+* Si las GPU que vamos a usar son distintas: `strategy = tf.distribute.MirroredStrategy(cross_device_ops=tf.distribute.HierarchicalCopyAllReduce())`
+* Si usamos un loss ya creado, debemos tener en cuenta que no haga la reducción por defecto: `loss_object = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True, reduction=tf.keras.losses.Reduction.NONE)`
+
+### TPU Strategy
+
+Generalmente los usaremos en Colab, ya que se usan solo en google.
+
+Iniciaremos con este código que será el que inicie la TPU y establezca la estrategia:
+
+```python
+# Detect hardware
+try:
+  tpu_address = 'grpc://' + os.environ['COLAB_TPU_ADDR']
+  tpu = tf.distribute.cluster_resolver.TPUClusterResolver(tpu_address) # TPU detection
+  tf.config.experimental_connect_to_cluster(tpu)
+  tf.tpu.experimental.initialize_tpu_system(tpu)
+  strategy = tf.distribute.experimental.TPUStrategy(tpu) 
+  # Going back and forth between TPU and host is expensive.
+  # Better to run 128 batches on the TPU before reporting back.
+  print('Running on TPU ', tpu.cluster_spec().as_dict()['worker'])  
+  print("Number of accelerators: ", strategy.num_replicas_in_sync)
+except ValueError:
+  print('TPU failed to initialize.')
+```
+
+* Es necesario un custom training loop (no keras.fit)
+* Llamar a la funcion distribuida dentro del loop: llamar a strategy.run para entrenar en cada replica y obtener per-replica-losses, y usar strategy.reduce para reducir los losses.
+* Para el testing lo mismo, se llama a la funcion de test dentro del loop y a strategy.run
+
+```python
+  @tf.function
+  def distributed_train_step(dataset_inputs):
+    per_replica_losses = strategy.run(train_step,args=(dataset_inputs,))
+    print(per_replica_losses)
+    return strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses,
+                           axis=None)
+ 
+  @tf.function
+  def distributed_test_step(dataset_inputs):
+    strategy.run(test_step, args=(dataset_inputs,))
+```
+
+### OTHER Distribution Strategies
+
+#### OneDeviceStrategy
+
+Sigue siendo un solo dispositivo pero se beneficia de seguir utilizando un dataset distribuido: `strategy = tf.distribute.OneDeviceStrategy(device='gpu:0')`
+
+#### MultiWorkerMirroredStrategy
+
+Cuando hay muchas gpu pero en MUCHAS maquinas. `strategy = tf.distribute.experimental.MultiWorkerMirroredStrategy()`. Más info [en la documentacion de keras](https://www.tensorflow.org/tutorials/distribute/multi_worker_with_keras)
+
+* Es dificil de hacer.
+* Las variables se replican en cada device de cada equipo
+* Es necesario hacer tolerancia a fallos con tf.keras.callbacks.ModelCheckpoint
+* La sincronización se hace con CollectiveOps
+* Es necesario definir la **Cluster Specification** en que se define el rol de cada uno de los workers (principal, comprobación...)
+
+#### Others
+
+* **CentralStorageStrategy**:
+  * Variables: not mirrored but placed on CPU
+  * Computation: replicated across local GPUs
+
+* **ParameterServerStrategy**: some machines are designated as workers, and others as parameter servers (combina lo mejor de CentralStorageStrategy y MultiWorkerStrategy)
+  * Variables: placed on one parameter server (ps)
+  * Computation: replicated across GPUs of all workers
+
+# COURSE 3: ADVANCED COMPUTER VISION
+
+## WEEK 1: BASICS
+
+Lo primero en computer vision es distinguir:
+
+* Multiclass classification: clasificación excluyente (uno u otro) entre varias clases (>2; si 2 clases: binary). Ej.: perro vs gato
+* Multilabel classificacion: clases no excluyentes en una imagen (puede haber varias.. Ej.: hombre con un sombrero
+
+Es la multilabel classification la que permite que haya varios objetos en una misma imagen, y por tanto la que permite la detección de dónde estan dichos objetos (localización) además de la clasificación.
+
+La segmentación actúa en forma de pixel: cada pixel se identifica a un objeto. Existen dos formas:
+
+* Semantic segmentation: semántica, se mueve por el contexto (meaning); todos los objetos con el mismo significado se tratan como el mismo. Ej.: un grupo de personas.
+  * Mask R-CNN.
+* Instance segmentation: por objetos; cada uno se trata invidualmente (ej: cada persona).
+
+
+Las redes de imágenes (redes convolucionales) se suelen beneficiar del transfer learning, ya que ahorra tiempo y requiere menos datos de entrenamiento. Consiste básicamente en copiar las capas iniciales de un modelo (y sus pesos) que son las que realizan feature extraction (sobre todo lss iniciales, de low-level features).
+Los distintos metodos para entrenar redes con transfer learning son:
+
+* Congelar pesos de las primeras capas (de las capas preentrenadas) y entrenar solo las ultimas capas. Muy util cuando hay poco datos para entrenar.
+* No congelar pesos, y entrenar pero usando los pesos preentrenados: generalmente ahorra tiempo con respecto a entrenarlo de cero.
+
+Generalmente hay poco código que cambiar con transfer learning:
+
+```python
+# Instantiate the model
+pre_trained_model = InceptionV3(input_shape=(150, 150, 3),
+                                include_top=False,
+                                weights=None)
+
+# load pre-trained weights
+pre_trained_model.load_weights(weights_file)
+
+# freeze the layers
+for layer in pre_trained_model.layers:
+    layer.trainable = False
+
+# pre_trained_model.summary()
+
+last_layer = pre_trained_model.get_layer('mixed7')
+print('last layer output shape: ', last_layer.output_shape)
+last_output = last_layer.output
+
+# add rest of layers
+model = Model(pre_trained_model.input, x)
+```
+
+Es mejor mantener el tamaño de entrada de los modelos preentrenados; si hay que cambiar el tamaño (por ejemplo hacer una imagen más grande) mejor usar primero una capa que se llama **UpSampling2D**.
+
+### OBJECT DETECTION
+
+En object detection, al contrario que en classification, tendremos dos outputs:
+
+* Uno para predecir el tipo (softmax)
+* Uno para predecir la bounding box (regression)
+
+Para ello hace falta que la entrada sea tambien igual.
+
+Además, para evaluar la calidad de la segmentación se utiliza una métrica que es **IoU** o intersection-over-union, que es una relación entre 0-1 que nos dice el porcentaje de solapamiento entre la predición y la realidad. A más cerca de uno, mejor solapamiento.
+
+IoU = intersección (área de solapamiento) / union (área total)
+
+```python
+# Código para IoU
+def intersection_over_union(pred_box, true_box):
+
+    xmin_pred, ymin_pred, xmax_pred, ymax_pred =  np.split(pred_box, 4, axis = 1)
+    xmin_true, ymin_true, xmax_true, ymax_true = np.split(true_box, 4, axis = 1)
+
+    #Calculate coordinates of overlap area between boxes
+    xmin_overlap = np.maximum(xmin_pred, xmin_true)
+    xmax_overlap = np.minimum(xmax_pred, xmax_true)
+    ymin_overlap = np.maximum(ymin_pred, ymin_true)
+    ymax_overlap = np.minimum(ymax_pred, ymax_true)
+
+    #Calculates area of true and predicted boxes
+    pred_box_area = (xmax_pred - xmin_pred) * (ymax_pred - ymin_pred)
+    true_box_area = (xmax_true - xmin_true) * (ymax_true - ymin_true)
+
+    #Calculates overlap area and union area.
+    overlap_area = np.maximum((xmax_overlap - xmin_overlap),0)  * np.maximum((ymax_overlap - ymin_overlap), 0)
+    union_area = (pred_box_area + true_box_area) - overlap_area
+
+    # Defines a smoothing factor to prevent division by 0
+    smoothing_factor = 1e-10
+
+    #Updates iou score
+    iou = (overlap_area + smoothing_factor) / (union_area + smoothing_factor)
+
+    return iou
+
+#Makes predictions
+original_images, normalized_images, normalized_bboxes = dataset_to_numpy_with_original_bboxes_util(visualization_validation_dataset, N=500)
+predicted_bboxes = model.predict(normalized_images, batch_size=32)
+
+
+#Calculates IOU and reports true positives and false positives based on IOU threshold
+iou = intersection_over_union(predicted_bboxes, normalized_bboxes)
+iou_threshold = 0.5
+
+print("Number of predictions where iou > threshold(%s): %s" % (iou_threshold, (iou >= iou_threshold).sum()))
+print("Number of predictions where iou < threshold(%s): %s" % (iou_threshold, (iou < iou_threshold).sum()))
+```
+
+### TIPS SEMANA 1
+
+Código interesante para crear las bounding boxes:
+
+```python
+def draw_bounding_box_on_image(image, ymin, xmin, ymax, xmax, color=(255, 0, 0), thickness=5):
+    """
+    Adds a bounding box to an image.
+    Bounding box coordinates can be specified in either absolute (pixel) or
+    normalized coordinates by setting the use_normalized_coordinates argument.
+    
+    Args:
+      image: a PIL.Image object.
+      ymin: ymin of bounding box.
+      xmin: xmin of bounding box.
+      ymax: ymax of bounding box.
+      xmax: xmax of bounding box.
+      color: color to draw bounding box. Default is red.
+      thickness: line thickness. Default value is 4.
+    """
+  
+    image_width = image.shape[1]
+    image_height = image.shape[0]
+    cv2.rectangle(image, (int(xmin), int(ymin)), (int(xmax), int(ymax)), color, thickness)
+
+
+def draw_bounding_boxes_on_image(image, boxes, color=[], thickness=5):
+    """
+    Draws bounding boxes on image.
+    
+    Args:
+      image: a PIL.Image object.
+      boxes: a 2 dimensional numpy array of [N, 4]: (ymin, xmin, ymax, xmax).
+             The coordinates are in normalized format between [0, 1].
+      color: color to draw bounding box. Default is red.
+      thickness: line thickness. Default value is 4.
+                           
+    Raises:
+      ValueError: if boxes is not a [N, 4] array
+    """
+    
+    boxes_shape = boxes.shape
+    if not boxes_shape:
+        return
+    if len(boxes_shape) != 2 or boxes_shape[1] != 4:
+        raise ValueError('Input must be of size [N, 4]')
+    for i in range(boxes_shape[0]):
+        draw_bounding_box_on_image(image, boxes[i, 1], boxes[i, 0], boxes[i, 3],
+                                 boxes[i, 2], color[i], thickness)
+
+
+def draw_bounding_boxes_on_image_array(image, boxes, color=[], thickness=5):
+    """
+    Draws bounding boxes on image (numpy array).
+    
+    Args:
+      image: a numpy array object.
+      boxes: a 2 dimensional numpy array of [N, 4]: (ymin, xmin, ymax, xmax).
+             The coordinates are in normalized format between [0, 1].
+      color: color to draw bounding box. Default is red.
+      thickness: line thickness. Default value is 4.
+      display_str_list_list: a list of strings for each bounding box.
+    
+    Raises:
+      ValueError: if boxes is not a [N, 4] array
+    """
+
+    draw_bounding_boxes_on_image(image, boxes, color, thickness)
+  
+    return image
+```
+
+When you have the predictions, this code can make bounding boxes and IoU over the image:
+
+```python
+# utility to display a row of images (10) with their predictions
+# originally images where digits (that's why the name display_digits)
+# it uses the auxiliary functions defines above
+
+def display_digits_with_boxes(images, pred_bboxes, bboxes, iou, title, bboxes_normalized=False):
+
+    n = len(images)
+
+    fig = plt.figure(figsize=(20, 4))
+    plt.title(title)
+    plt.yticks([])
+    plt.xticks([])
+  
+    for i in range(n):
+      ax = fig.add_subplot(1, 10, i+1)
+      bboxes_to_plot = []
+      if (len(pred_bboxes) > i):
+        bbox = pred_bboxes[i]
+        bbox = [bbox[0] * images[i].shape[1], bbox[1] * images[i].shape[0], bbox[2] * images[i].shape[1], bbox[3] * images[i].shape[0]]
+        bboxes_to_plot.append(bbox)
+    
+      if (len(bboxes) > i):
+        bbox = bboxes[i]
+        if bboxes_normalized == True:
+          bbox = [bbox[0] * images[i].shape[1],bbox[1] * images[i].shape[0], bbox[2] * images[i].shape[1], bbox[3] * images[i].shape[0] ]
+        bboxes_to_plot.append(bbox)
+
+      img_to_draw = draw_bounding_boxes_on_image_array(image=images[i], boxes=np.asarray(bboxes_to_plot), color=[(255,0,0), (0, 255, 0)])
+      plt.xticks([])
+      plt.yticks([])
+    
+      plt.imshow(img_to_draw)
+
+      if len(iou) > i :
+        color = "black"
+        if (iou[i][0] < iou_threshold):
+          color = "red"
+        ax.text(0.2, -0.3, "iou: %s" %(iou[i][0]), color=color, transform=ax.transAxes)
+```
+
+
+Please remind that YOU HAVE TO NORMALIZE the original bounding boxes before passing them to the displayer:
+
+```python
+def read_image_tfds(image, bbox):
+    image = tf.cast(image, tf.float32)
+    shape = tf.shape(image)
+
+    factor_x = tf.cast(shape[1], tf.float32)
+    factor_y = tf.cast(shape[0], tf.float32)
+
+    image = tf.image.resize(image, (224, 224,))
+
+    image = image/127.5
+    image -= 1
+
+    bbox_list = [bbox[0] / factor_x ,   # THIS IS THE IMPORTANT PART TO NORMALIZE BBOXES
+                 bbox[1] / factor_y,    # SIMPLY TO DIVIDE BY THAT SHAPE (X or Y)
+                 bbox[2] / factor_x ,   # Same has to be done inverse when displaying bboxes over image
+                 bbox[3] / factor_y]    # (see above)
+    
+    return image, bbox_list
+```
+
+Como loss muchas veces se usa MSE para las bounding boxes.
+

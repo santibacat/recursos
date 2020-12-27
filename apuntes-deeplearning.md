@@ -18,7 +18,7 @@ Luego debemos crear los hiperparámetros:
 
 ```python
 # Initilize a new wandb run
-wandb.init(entity="santibacat", project="keras-intro", config=defaults)
+wandb.init(entity="santibacat", project="keras-intro", config=defaults, name='name for this run', notes='notes)
 # documentation https://docs.wandb.com/library/init
 # config = dictionary with configuration, see https://docs.wandb.com/library/config
 
