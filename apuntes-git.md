@@ -115,6 +115,8 @@ Podemos hacerlo de dos formas:
 Git te crea un archivo intermedio con los cambios de los dos para que tu lo edites. Además podemos ver las diferencias entre archivos:  
 `git diff <source-branch> <target-branch>`
 
+> TIPS: Para actualizar todos los subdirectorios git de una carpeta comun, podemos ejecutar en bash: `for d in ./*/ ; do (cd "$d" && git pull origin master); done`.
+
 ### Fork
 
 Un fork es un clon de un repositorio. Cuando hacemos un fork (lo haremos en github):

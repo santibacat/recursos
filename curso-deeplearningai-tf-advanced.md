@@ -299,7 +299,7 @@ Gracias al subclassing podemos:
 * Probar experimentos rápidamente (tan solo )
 
 
-## Advanced custom models
+### Advanced custom models
 
 Podemos usar subclases para crear 'bloques' (se comportan como modelo pero son conjuntos de capas que luego se aplican en otro modelo más grande). Ej.: los bloques en Inception o los identity blocks en las ResNet.
 
@@ -1401,4 +1401,254 @@ def read_image_tfds(image, bbox):
 ```
 
 Como loss muchas veces se usa MSE para las bounding boxes.
+
+## WEEK 2: OBJECT DETECTION
+
+### Tipos de detección de objetos
+
+Generalmente se refiere a la detección de  MÚLTIPLES objetos en una imagen que pueden pertenecer a MÚLTIPLES clases; cada una se acompaña de la probabilidad de que pertenezca a esa clase.
+
+Esto se hace mediante el uso de distintos **TIPOS DE ALGORITMOS**:
+
+* **Sliding windows**: son ventanas de un tamaño predefinido que se van deslizando por la imagen, y van prediciendo si en cada window puede haber un objeto.
+  * Cambiando el tamaño de la window o de la imagen fuente podemos conseguir distintas detecciones de objetos, para así conseguir bounding boxes más precisas.
+  * Generalmente habrá distintas windows que detectan el mismo objeto: para combinarlas usaremos _non-maximum suppresion (NMS)_, que consiste en usar la ventana con el mayor IoU.
+* **Selective search**: un algoritmo crea múltiples propuestas de posibles boxes que pueden contener objetos de interés. Estas se van solapando entre sí para dejar tan solo una por cada objeto detectado.
+  * Lo malo es que es lento.
+
+**ALGORITMOS:**
+
+* R-CNN (Region-based Convolutional Neural Network):
+  * 1- Primero extrae region proposals mediante el uso de selective search (unas 2000). Por ello es LENTO.
+  * 2- Calcula las CNN features de cada region proposal usando AlexNet. Para ello las cambia de dimension para que coincida con las de alexnet (Warped Region).
+  * 3- Usa SVM para calcular las imagenes y regresión para calcular sus bounding boxes.
+  * Se puede hacer transfer learning: entrenando con un auxiliary dataset y haciendo fine-tuning con un domain-specific dataset.
+
+* Fast R-CNN:
+  * 1- NO extrae las region proposals, sino que las espera en el input (ROI). No hay selective search.
+  * 2- Mediante una deep convnet se calcula el Conv Feature Map, que guarda las features dependiendo de donde se localizan en la imagen. 
+  * 3- Con las ROI (region proposals) que teniamos como input, y usando el Feature Map, se calculan las caracteristicas de la feature map de cada ROI (ROI projection)
+  * 4- Pasamos cada ROI projection por una pooling layer, obteniendo así un ROI feature vector (flattened) unidimensional, siempre igual (da igual como sea el bbox o lo que contenga)
+  * 5- Con este ROI feature vector hacemos softmax (clasificacion) y regresión (bbox).
+
+* Faster R-CNN:
+  * 1- Inicialmente se pasa la imagen por una CNN y se obtiene un feature map.
+  * 2- Posteriormente, y a diferencia de Fast R-CNN, esta sí que extrae region proposals: pasa el feature maps por una red, llamada RPN (Region Proposal Network), que es una fully convolutional network (sin dense layers), que nos da propuestas de las bboxes.
+    * Lo hace calculando el ancho de la bbox (el centro lo extraen las sliding windows), ya que obtiene una puntuacion
+    * Se requiere que se entrene end-to-end.
+
+### Tensorflow Hub
+
+[Tensorflow Hub](https://www.tensorflow.org/hub) es un repositorio de modelos preentrenados para múltiples tareas.
+
+```python
+import tensorflow_hub as tfhub
+
+module_handle = 'copy_url_from_webpage'
+model = hub.load(module_handle).signatures['default']
+```
+
+Las signatures sirven porque los modelos pueden usarse para distintas tareas; _default_ es la tarea por defecto. Para ver cuales son, usamos `model.signatures.keys()`.
+
+Generalmente, para pasar una imagen a tensor (en una predicción) hay que usar código de preprocesamiento, como este:
+
+```python
+def run_detector(detector, path):
+    '''
+    Runs inference on a local file using an object detection model.
+    
+    Args:
+        detector (model) -- an object detection model loaded from TF Hub
+        path (string) -- path to an image saved locally
+    '''
+    
+    # load an image tensor from a local file path
+    img = tf.io.read_file(path)
+    
+    # convert to a tensor
+    img = tf.image.decode_jpeg(img, channels=3)
+
+    # add a batch dimension in front of the tensor
+    converted_img  = tf.image.convert_image_dtype(img, tf.float32)[tf.newaxis, ...]
+    
+    # run inference using the model
+    result = detector(converted_img)
+
+    # save the results in a dictionary
+    result = {key:value.numpy() for key,value in result.items()}
+
+    # print results
+    print("Found %d objects." % len(result["detection_scores"]))
+
+    print(result["detection_scores"])
+    print(result["detection_class_entities"])
+    print(result["detection_boxes"])
+```
+
+Podemos crear nosotros la herramienta para dibujar los bboxes con sus confianzas (como en el ejercicio de esta semana, C3W2lab2), pero mejor usaremos la API de tf de object detection.
+
+### TF Object Detection API
+
+Para visualizar bboxes podemos usar la API de tensorflow de object detection. A día de hoy debemos compilarla manualmente, y luego la usaremos:
+
+```python
+# Clone the tensorflow models repository
+!git clone --depth 1 https://github.com/tensorflow/models
+
+# Install the Object Detection API
+%%bash
+sudo apt install -y protobuf-compiler
+cd models/research/
+protoc object_detection/protos/*.proto --python_out=.
+cp object_detection/packages/tf2/setup.py .
+python -m pip install .
+```
+
+Ahora ya podemos usar los paquetes:
+
+```python
+from object_detection.utils import label_map_util 
+# convierte una etiqueta '5' en el nombre de la categoria 'food'
+# los category labels son almacenados en pbtxt adyacente (category index), que contiene el key:value pair
+# generalmente se guarda en PATH_TO_LABELS y de ahi se lee:
+PATH_TO_LABELS = './models/research/object_detection/data/mscoco_label_map.pbtxt'
+category_index = label_map_util.create_category_index_from_labelmap(PATH_TO_LABELS, use_display_name=True)
+
+from object_detection.utils import visualization_utils as viz_utils
+# contiene APIs para crear directamente bounding boxes sobre las imagenes con las predicciones. 
+viz_utils.visualize_boxes_and_labels_on_image_array(image=-..., boxes=..., classes=..., scores=..., ...)
+
+
+from object_detection.utils import ops as utils_ops
+# similar a la anterior pero tambien con herramientas utiles para segmentacion como creación de mascaras
+```
+
+[Documentación](https://github.com/tensorflow/models/blob/master/research/object_detection/utils/visualization_utils.py)
+
+Cuando pasamos una imagen a un modelo (para hacer prediccion) obtenemos el resultado (_results_) en un diccionario; por tanto podemos obtener los valores:
+
+```python
+results = hub_model(image_np) # de aqui podemos acceder a results['detection_scores'], results['detection_classes']...
+result = {key:value.numpy() for key, value in results.items()}
+result.keys()
+```
+
+Los resultados que se obtienen son:
+
+* detection_scores +++
+* detection_keypoint_scores
+* detection_classes +++
+* detection_keypoints
+* num_detections
+* detection_boxes ++++
+
+Los marcados con + se obtienen siempre en detección. El resto en segmentación.
+
+Por tanto, podemos usarlos y pasarselos a la función de visualización:
+
+```python
+viz_utils.visualize_boxes_and_labels_on_image_array(
+  image = image_np_with_detections[0],
+  boxes = result['detection_boxes'][0],
+  classes = (result['detection_classes'][0] + label_id_offset).asstype(int),
+  scores = result['detection_scores'][0],
+  category_index = category_index,
+  use_normalized_coordinates = True,
+  min_score_thresh = .40 # minimum % of confidence where bbox will be displayed
+)
+```
+
+Generalmente las coordinadas tienen que ser normalizadas: para denormalizarlas tan solo hay que multiplicar por el width/height de la imagen.
+
+Más documentación:
+
+* [Pagina original tf object detection](https://github.com/tensorflow/models/tree/master/research/object_detection)
+* [Ejemplos y guias](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf2.md)
+* [Tutorial original TFHub object detection](https://colab.research.google.com/github/tensorflow/hub/blob/master/examples/colab/tf2_object_detection.ipynb)
+* [Checkpoints de tf](https://www.tensorflow.org/guide/checkpoint)
+
+
+### Custom Object Detection Model
+
+Usaremos un modelo preentrenado llamado RetinaNet, que tiene una salida de clases y otra de bboxes (se dice que tiene dos _heads_): solo reentrenaremos la salida de clases con las nuestras propias.
+
+En vez de utilizar un modelo de tfhub, usaremos el __model configuration__ del modelo (que es el que define su arquitectura) y luego inilciaremos sus pesos con el __checkpoint__. Esta es una forma de separar el modelo en sí de sus pesos preentrenados. Los podemos obtener del [Tensorflow model garden](https://github.com/tensorflow/models).
+
+```python
+!wget http://url-to-checkpoint.tar.gz
+!tar -xf checkpoint.tar.gz
+!mv .../checkpoint models/research/object_detection/test_data/
+
+from object_detection.utils import config_util
+from object_detection.utils import colab_utils
+from object_detection.builders import model_builder
+```
+
+Primero hemos de tener anotadas las imagenes. La herramienta *colab_utils* nos permite etiquetar bounding boxes de imagenees y las guarda en un numpy array:
+```python
+gt_boxes = [] # gt = ground_truth
+colab_utils.annotate(train_images_np, box_storage_pointer = gt_boxes)
+```
+
+
+
+Ahora inicializaremos el modelo:
+
+```python
+# primero importamos la configuracion del modelo, que es el archivo que define su configuracion
+pipeline_config = 'models/research/object_detection/configs/tf2/model.config'
+# esto son los pesos, para despues
+checkpoint_path = 'models/research/object_detection/test_data/checkpoint/ckpt-0'
+
+# Para crear el modelo llamamos a su configuracion.
+configs = config_util.get_config_from_pipeline_file(pipeline_config)
+
+# Podemos ver sus atributos y cambiar cosas:
+model_config = configs['model']
+model_config.ssd.num_classes = num_classes # para modificar el num clases del modelo
+model_config.ssd.freeze_batchnorm = True
+
+detection_model = model_builder.build(model_config = model_config, is_training = True)
+```
+
+Ahora restauramos los pesos pero SOLO de la box head, no de la class_head. Para ello:
+
+* Primero creamos una variable _box-predictor_, que contiene las base-layers y la box head
+  * Desechamos por tanto la classification head
+* Creamos otra variable _model_, que contiene tanto el box-predictor que hemos creado antes como el feature-extractor
+* Finalmente, creamos otra variable llamada _Checkpoint_ a la que pasamos model.
+
+```python
+fake_box_predictor = tf.compat.v2.train.Checkpoint(
+    _base_tower_layers_for_heads=detection_model._box_predictor._base_tower_layers_for_heads,
+    # _prediction_heads=detection_model._box_predictor._prediction_heads, # si quisieramos guardar la class head, ejecutariamos esto tambien
+    _box_prediction_head=detection_model._box_predictor._box_prediction_head,
+    )
+fake_model = tf.compat.v2.train.Checkpoint(
+          _feature_extractor=detection_model._feature_extractor,
+          _box_predictor=fake_box_predictor)
+ckpt = tf.compat.v2.train.Checkpoint(model=fake_model)
+ckpt.restore(checkpoint_path).expect_partial()
+
+# Run model through a dummy image so that variables are created
+image, shapes = detection_model.preprocess(tf.zeros([1, 640, 640, 3]))
+# el modelo espera 640x640x3, por tanto lo pasamos asi. Para otros modelos será otro input
+prediction_dict = detection_model.predict(image, shapes)
+_ = detection_model.postprocess(prediction_dict, shapes)
+print('Weights restored!')
+```
+
+Una vez que tenemos el modelo creado:
+
+* Elegimos las variables que congelamos y en las que hacemos fine-tuning (trainable variables) (ver con `model.trainable_variables`).
+* Hacemos un custom loop:
+  * Primero es necesario preprocesar las input images para que sean aceptables por la entrada del modelo
+  * De ahi se calcula el loss y se aplican los gradientes
+
+
+## WEEK 3: SEGMENTATION
+
+
+
+
 
