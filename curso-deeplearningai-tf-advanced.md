@@ -1648,7 +1648,409 @@ Una vez que tenemos el modelo creado:
 
 ## WEEK 3: SEGMENTATION
 
+### FCN (Fully Connected Networks)
+
+El objetivo es asignar PIXELES de la imagen a cada categoria (a diferencia de las bounding boxes). Hay dos dipos principalmente:
+
+* Semantic segmentation: se determinan las clases como un todo (ej: 'gente')
+* Instance segmentation: se determinan cada uno de los objetos de cada clase (ej: distintas personas)
+
+Normalmente en el map index: 0= background, 1= label..
+
+La arquitectura básica de red de segmentación incluye:
+
+* Entrada de una imagen w x h x ch (3 si rgb)
+* **Encoder**: feature extractor y down-sampling de la imagen (generalmente con una red preentrenada sin las fully connected) --> downsampled feature map
+* **Decoder**: upsampling de la imagen y pixel-wise label map (es como si reemplazara las FC de la CNN)
+* Salida de una imagen w x h x n (numero de clases)  (esto es el pixel mask)
 
 
+Las más arquitecturas basicas son FCN (Fully Convolutional Neural Networks) =/= FC (fully connected):
+
+* Usan arquitecturas comunes para extraer (VGG16, MobileNet...) pero REEMPLAZAN las FC de las CNN
+* Usan capas iniciales (early de la CNN) para feature extraction y downsampling
+* Usan capas finales para up sample y pixel-wise label map
+
+Otras que podemos ver son SegNet (una arquitectura que es SIMETRICA de tamaño en los dos lados), así como UNet (que también es simétrica, pero que usa connections entre las dos partes para mejorar la segmentacion) y Mask-RCNN (que se usa tanto para segmentar como para clasificar).
+
+Dentro de las FCN hay muchos tipos:
+
+* FCN32 solo hace 5 pooling layers (2x2 with stride 2) por lo que necesita luego un upsampling de x32 (2^5)
+* FCN16 no solo utiliza el pool5 para generar la imagen, sino tambien pool4 (y los suma)
+* FCN8 utiliza pool3, pool4 y pool5
+* Por tanto, vemos que cuantas mas pool usa para formar la imagen, mejor hace la segmentacion
+
+Hemos de entender como funciona el **Upsampling**:
+
+* Consiste en aumentar h y w de un feature map
+* Hay dos tipos en tensorflow:
+  * UpSampling2D - simple scaling (escala la imagen de dos formas: nearest, que copia el valor del pixel mas cercano, o bilinear, que es una interpolacion lineal de todos los pixeles cercanos, como una 'media')
+  * Conv2DTranspose - deconvolution (transposed convolution), que intenta hacer una convolucion invesa para recrear la entrada original despues de una convolucion, aunque nunca se puede obtener el resultado perfecto por perdida de informacion: pooling, padding...)
+
+```python
+x = UpSampling2D(size = (2,2) ,data_format = 'channels_last', interpolation = 'nearest')
+x = Conv2DTranspose(filters = 32, kernel_size = (3,3)) # multiplica el tamaño x3
+```
+
+A la hora de crear la red, hemos de tener en cuenta varias cosas:
+
+* Generalmente, después de un _Conv2DTranspose()_ va una capa _Cropping2D()_ que elimina los pixeles de los bordes que no usaremos: `Cropping2D(cropping=(1,1))(x)`
+* Al contrario que en las CNNs, en que no se guardan los resultados intermedios (simplemente es x --> x --> x...), aquí si se guardan porque se usarán en la fase del Decoder, por tanto deben tener nombres distintos.
+* Para combinar los distintos tamaños y que encajen se suelen usar __Conv2D__ con F filtros de __1x1__: esto lo que hace es pasar de (BS x w x h x ch) a (BS x w x h x F), por que que podemos jugar con el numero de filtros F para obtener el tamaño deseado.
+* Para sumarlos usaremos `tf.keras.layers.Add()`.
+
+```python
+def VGG_16(image_input):
+
+  # create 5 blocks with increasing filters at each stage. 
+  # you will save the output of each block (i.e. p1, p2, p3, p4, p5). "p" stands for the pooling layer.
+  x = block(image_input,n_convs=2, filters=64, kernel_size=(3,3), activation='relu',pool_size=(2,2), pool_stride=(2,2), block_name='block1')
+  p1= x
+
+  x = block(x,n_convs=2, filters=128, kernel_size=(3,3), activation='relu',pool_size=(2,2), pool_stride=(2,2), block_name='block2')
+  p2 = x
+
+  ...
+
+  return (p1, p2, p3, p4, c7)
+
+def fcn8_decoder(convs, n_classes):
+
+  # unpack the output of the encoder
+  f1, f2, f3, f4, f5 = convs
+  
+  # upsample the output of the encoder then crop extra pixels that were introduced
+  o = tf.keras.layers.Conv2DTranspose(n_classes , kernel_size=(4,4) ,  strides=(2,2) , use_bias=False )(f5)
+  o = tf.keras.layers.Cropping2D(cropping=(1,1))(o)
+
+  # load the pool 4 prediction and do a 1x1 convolution to reshape it to the same shape of `o` above
+  o2 = f4
+  o2 = ( tf.keras.layers.Conv2D(n_classes , ( 1 , 1 ) , activation='relu' , padding='same'))(o2)
+
+  # add the results of the upsampling and pool 4 prediction
+  o = tf.keras.layers.Add()([o, o2])
+
+  # upsample the resulting tensor of the operation you just did
+  o = (tf.keras.layers.Conv2DTranspose( n_classes , kernel_size=(4,4) ,  strides=(2,2) , use_bias=False ))(o)
+  o = tf.keras.layers.Cropping2D(cropping=(1, 1))(o)
+
+  # load the pool 3 prediction and do a 1x1 convolution to reshape it to the same shape of `o` above
+  o2 = f3
+  o2 = ( tf.keras.layers.Conv2D(n_classes , ( 1 , 1 ) , activation='relu' , padding='same'))(o2)
+
+  # add the results of the upsampling and pool 3 prediction
+  o = tf.keras.layers.Add()([o, o2])
+  
+  # upsample up to the size of the original image
+  o = tf.keras.layers.Conv2DTranspose(n_classes , kernel_size=(8,8) ,  strides=(8,8) , use_bias=False )(o)
+
+  # append a softmax to get the class probabilities
+  o = (tf.keras.layers.Activation('softmax'))(o)
+
+  return o
+
+
+def segmentation_model():
+  '''
+  Defines the final segmentation model by chaining together the encoder and decoder.
+
+  Returns:
+    keras Model that connects the encoder and decoder networks of the segmentation model
+  '''
+  
+  inputs = tf.keras.layers.Input(shape=(224,224,3,))
+  convs = VGG_16(image_input=inputs)
+  outputs = fcn8_decoder(convs, 12)
+  model = tf.keras.Model(inputs=inputs, outputs=outputs)
+  
+  return model
+
+```
+
+
+Para __MEDIR__ la exactitud de la segmentation entre la realidad (GT) y la prediccion:
+* Area of Overlap (intersection) = sum(TP), 
+* Combined Area = numero de pixels total de la prediccion y la segmentation mask (area total de las dos segmentaciones por separado)
+* Area of Union = es el combined area - area of overlap (el area total que abarcan las dos segmentaciones unidas)
+* **IoU (intersection over union)** = area de la interseccion / area de la union. Generalmente usado para el _worst case performance_
+* **Dice Score** = 2x (area of overlap / combined area). Generalmente usado para el _average case performance_.
+
+$$IOU = \frac{area\_of\_overlap}{area\_of\_union}$$
+<br>
+$$Dice Score = 2 * \frac{area\_of\_overlap}{combined\_area}$$
+
+```python
+def compute_metrics(y_true, y_pred):
+  '''
+  Computes IOU and Dice Score.
+
+  Args:
+    y_true (tensor) - ground truth label map
+    y_pred (tensor) - predicted label map
+  '''
+  
+  class_wise_iou = []
+  class_wise_dice_score = []
+
+  smoothening_factor = 0.00001
+
+  for i in range(12):
+    intersection = np.sum((y_pred == i) * (y_true == i))
+    y_true_area = np.sum((y_true == i))
+    y_pred_area = np.sum((y_pred == i))
+    combined_area = y_true_area + y_pred_area
+    
+    iou = (intersection + smoothening_factor) / (combined_area - intersection + smoothening_factor)
+    class_wise_iou.append(iou)
+    
+    dice_score =  2 * ((intersection + smoothening_factor) / (combined_area + smoothening_factor))
+    class_wise_dice_score.append(dice_score)
+
+  return class_wise_iou, class_wise_dice_score
+  ```
+
+### UNet for Medical Segmentation
+
+Es una FCN pero en que existen _skip-connections_ entre el encoder y el decoder:
+
+* Encoder: tenemos un conjunto de 2conv+Maxpool(2), que va aumentando el numero de filtros y disminuyendo el tamaño
+* __Bottleneck__: es una capa 2conv pero sin Maxpool asociada
+* Decoder: tenemos conjuntos de DeConv + Concatenacion con la salida del mismo nivel del encoder (si era 512, se concatenan y la salida es 1024). 
+  * Despues 2Conv. A la salida final, se aplican N filtros 1x1 en Conv2D para obtener N salidas de cada pixel.
+
+Por tanto, aquí es importante:
+
+* Guardar la salida de cada ConvBlock del encoder, para concatenarlo con el decoder.
+* Aplicar a la salida una conv2d con N (=num_classes) filtros de 1x1
+
+
+## Instance Segmentation
+
+No solo se generan mapas de segmentacion, sino que obtenemos boxes de cada objeto segmentado. El más importante es Mask R-CNN, pero no se enseña en este curso porque es muy complejo.
+
+
+# COURSE 4: INTERPRETABILITY
+
+Nos sirve para ser consciente de en qué se fijan las CNN para tomar sus decisiones.
+
+### CAMs (Class Activation Maps)
+
+Son mapas de activación que superponemos a la imagen para ver en qué se ha centrado. Para ello:
+
+* Elegimos las capas que nos interesa visualizar del modelo  (alguna conv, denses del final...)
+* Creamos un modelo cuya salida sean estas capas (`.output`)
+* Usamos este modelo para hacer las predicciones. 
+* Se calculan los 'pesos' que cada feature tiene en la decisión global
+* Con estos pesos superponemos la multiplicación matricial entre la feature y su importancia sobre la imagen original (para visualizarla)
+
+```python
+# primero creamos el modelo. Despues elegimos las capas que queremos usar
+print(model.layers[-3].name)
+
+# creamos el modelo pero usando como salida las capas anteriores
+cam_model  = Model(inputs=model.input,outputs=(model.layers[-3].output,model.layers[-1].output))
+cam_model.summary()
+
+# Hacemos las predicciones
+features,results = cam_model.predict(X_test)
+```
+
+Generalmente, en estos modelos es mejor usar una GAP (Global Average Pooling Layer), mejor que una MaxPool, para que elimine menos pixels.
+
+  You will need the weights from the Global Average Pooling layer (GAP) to calculate the activations of each feature given a particular class.
+  - Note that you'll get the weights from the dense layer that follows the global average pooling layer.
+    - The last conv2D layer has (h,w,depth) of (3 x 3 x 128), so there are 128 features.
+    - The global average pooling layer collapses the h,w,f (3 x 3 x 128) into a dense layer of 128 neurons (1 neuron per feature).
+    - The activations from the global average pooling layer get passed to the last dense layer.
+    - The last dense layer assigns weights to each of those 128 features (for each of the 10 classes),
+    - So the weights of the last dense layer (which immmediately follows the global average pooling layer) are referred to in this context as the "weights of the global average pooling layer".
+
+  For each of the 10 classes, there are 128 features, so there are 128 feature weights, one weight per feature.
+
+```python
+# these are the weights going into the softmax layer
+last_dense_layer = model.layers[-1]
+
+# get the weights list.  index 0 contains the weights, index 1 contains the biases
+gap_weights_l = last_dense_layer.get_weights()
+
+print("gap_weights_l index 0 contains weights ", gap_weights_l[0].shape)
+print("gap_weights_l index 1 contains biases ", gap_weights_l[1].shape)
+
+# shows the number of features per class, and the total number of classes
+# Store the weights
+gap_weights = gap_weights_l[0]
+
+print(f"There are {gap_weights.shape[0]} feature weights and {gap_weights.shape[1]} classes.")
+```
+
+A la hora de superponer la imagen, tenemos que hacer que coincida el tamaño original con el mapa de activación:
+
+```python
+# Get the features for the image at index 0
+idx = 0
+features_for_img = features[idx,:,:,:]
+print(f"The features for image index {idx} has shape (height, width, num of feature channels) : ", features_for_img.shape)
+
+features_for_img_scaled = sp.ndimage.zoom(features_for_img, (28/3, 28/3,1), order=2)
+# Check the shape after scaling up to 28 by 28 (still 128 feature channels)
+print("features_for_img_scaled up to 28 by 28 height and width:", features_for_img_scaled.shape)
+```
+
+Para cada clase, ahora que coincide en tamaño, haremos la multiplicacion matricial (h x w x depth) x (num_weights per class, o lo que es lo mismo, depth) --> (h x w):
+
+```python
+# Select the weights that are used for a specific class (0...9)
+class_id = 0
+# take the dot product between the scaled image features and the weights for 
+gap_weights_for_one_class = gap_weights[:,class_id]
+
+print("features_for_img_scaled has shape ", features_for_img_scaled.shape)
+print("gap_weights_for_one_class has shape ", gap_weights_for_one_class.shape)
+# take the dot product between the scaled features and the weights for one class
+cam = np.dot(features_for_img_scaled, gap_weights_for_one_class)
+
+print("class activation map shape ", cam.shape)
+```
+
+En resumen, para calcular CAMS podemos hacerlo así:
+
+```python
+def show_cam(image_index):
+  '''displays the class activation map of a particular image'''
+
+  # takes the features of the chosen image
+  features_for_img = features[image_index,:,:,:]
+
+  # get the class with the highest output probability
+  prediction = np.argmax(results[image_index])
+
+  # get the gap weights at the predicted class
+  class_activation_weights = gap_weights[:,prediction]
+
+  # upsample the features to the image's original size (28 x 28)
+  class_activation_features = sp.ndimage.zoom(features_for_img, (28/3, 28/3, 1), order=2)
+
+  # compute the intensity of each feature in the CAM
+  cam_output  = np.dot(class_activation_features,class_activation_weights)
+  
+  print('Predicted Class = ' +str(prediction)+ ', Probability = ' + str(results[image_index][prediction]))
+  
+  # show the upsampled image
+  plt.imshow(np.squeeze(X_test[image_index],-1), alpha=0.5)
+  
+  # strongly classified (95% probability) images will be in green, else red
+  if results[image_index][prediction]>0.95:
+    cmap_str = 'Greens'
+  else:
+    cmap_str = 'Reds'
+
+  # overlay the cam output
+  plt.imshow(cam_output, cmap=cmap_str, alpha=0.5)
+
+  # display the image
+  plt.show()
+
+def show_maps(desired_class, num_maps):
+    '''
+    goes through the first 10,000 test images and generates CAMs 
+    for the first `num_maps`(int) of the `desired_class`(int)
+    '''
+
+    counter = 0
+
+    if desired_class < 10:
+        print("please choose a class less than 10")
+
+    # go through the first 10000 images
+    for i in range(0,10000):
+        # break if we already displayed the specified number of maps
+        if counter == num_maps:
+            break
+
+        # images that match the class will be shown
+        if np.argmax(results[i]) == desired_class:
+            counter += 1
+            show_cam(i)
+```
+
+
+### Saliency Maps
+
+A diferencia de las CAMs, actuan a nivel de pixel, enfatizando los pixels que más ayudan (los de más peso) a la clasificación de la imagen. Se basa en calcular como cambian los gradientes del loss cuando cambiamos los pixeles de entrada. Para ello:
+
+* Primero se calculan los gradientes del loss con respecto a los pixeles originales (de la imagen de entrada).
+
+```python
+# Siberian Husky's class ID in ImageNet
+class_index = 251   
+
+# If you downloaded the cat, use this line instead
+#class_index = 282   # Tabby Cat in ImageNet
+
+# number of classes in the model's training data
+num_classes = 1001
+
+# convert to one hot representation to match our softmax activation in the model definition
+expected_output = tf.one_hot([class_index] * image.shape[0], num_classes)
+
+with tf.GradientTape() as tape:
+    # cast image to float
+    inputs = tf.cast(image, tf.float32)
+
+    # watch the input pixels
+    tape.watch(inputs)
+
+    # generate the predictions
+    predictions = model(inputs)
+
+    # get the loss
+    loss = tf.keras.losses.categorical_crossentropy(
+        expected_output, predictions
+    )
+
+# get the gradient with respect to the inputs
+gradients = tape.gradient(loss, inputs)
+```
+
+* Despues se preprocesan los gradientes para poder usarlos para general los saliency maps (y superponerlos en la imagen).
+
+```python
+# reduce the RGB image to grayscale
+grayscale_tensor = tf.reduce_sum(tf.abs(gradients), axis=-1)
+
+# normalize the pixel values to be in the range [0, 255].
+# the max value in the grayscale tensor will be pushed to 255.
+# the min value will be pushed to 0.
+normalized_tensor = tf.cast(
+    255
+    * (grayscale_tensor - tf.reduce_min(grayscale_tensor))
+    / (tf.reduce_max(grayscale_tensor) - tf.reduce_min(grayscale_tensor)),
+    tf.uint8,
+)
+
+# remove the channel dimension to make the tensor a 2d tensor
+normalized_tensor = tf.squeeze(normalized_tensor) # es como quitar el axis -1
+```
+
+* Ahora superponemos la imagen original al tensor que hemos obtenido, para ver donde se fija el modelo:
+
+```python
+gradient_color = cv2.applyColorMap(normalized_tensor.numpy(), cv2.COLORMAP_HOT)
+gradient_color = gradient_color / 255.0
+super_imposed = cv2.addWeighted(img, 0.5, gradient_color, 0.5, 0.0)
+
+plt.figure(figsize=(8, 8))
+plt.imshow(super_imposed)
+plt.axis('off')
+plt.show()
+```
+
+### GradCAM
+
+El [GradCam](https://arxiv.org/pdf/1610.02391.pdf) una combinacion de CAMs y saliency: usa mapas y gradientes para calcular la región de interés para la predicción.
+NOTA: En el curso [AI for Medical Treatment](https://www.coursera.org/learn/ai-for-medical-treatment) tenemos varias cosas interesantes como [Interpreting CNN models](https://www.coursera.org/learn/ai-for-medical-treatment/lecture/Us3AO/interpreting-cnn-models), [Localization Maps](https://www.coursera.org/learn/ai-for-medical-treatment/lecture/qoD4p/localization-maps) y [Heat Maps](https://www.coursera.org/learn/ai-for-medical-treatment/lecture/mofKv/heat-maps)
+
+* Primero tomamos 
 
 
