@@ -1673,6 +1673,8 @@ Las más arquitecturas basicas son FCN (Fully Convolutional Neural Networks) =/=
 
 Otras que podemos ver son SegNet (una arquitectura que es SIMETRICA de tamaño en los dos lados), así como UNet (que también es simétrica, pero que usa connections entre las dos partes para mejorar la segmentacion) y Mask-RCNN (que se usa tanto para segmentar como para clasificar).
 
+![](assets/tf-adv-c3-1.jpg)
+
 Dentro de las FCN hay muchos tipos:
 
 * FCN32 solo hace 5 pooling layers (2x2 with stride 2) por lo que necesita luego un upsampling de x32 (2^5)
@@ -1817,6 +1819,9 @@ Es una FCN pero en que existen _skip-connections_ entre el encoder y el decoder:
 * __Bottleneck__: es una capa 2conv pero sin Maxpool asociada
 * Decoder: tenemos conjuntos de DeConv + Concatenacion con la salida del mismo nivel del encoder (si era 512, se concatenan y la salida es 1024). 
   * Despues 2Conv. A la salida final, se aplican N filtros 1x1 en Conv2D para obtener N salidas de cada pixel.
+
+![](assets/tf-adv-c3-2.jpg)
+
 
 Por tanto, aquí es importante:
 
