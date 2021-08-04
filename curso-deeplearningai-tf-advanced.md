@@ -1829,12 +1829,65 @@ Por tanto, aquí es importante:
 * Aplicar a la salida una conv2d con N (=num_classes) filtros de 1x1
 
 
-## Instance Segmentation
+### Instance Segmentation
 
 No solo se generan mapas de segmentacion, sino que obtenemos boxes de cada objeto segmentado. El más importante es Mask R-CNN, pero no se enseña en este curso porque es muy complejo.
 
+NOTE: implementation is difficult. For tf1, the most important implementation was [Matterport](https://github.com/matterport/Mask_RCNN). It has been tried to update to tf2 by [aktwelve](https://github.com/akTwelve); but also there are pretrained and custom maskrcnn models in tensorflow hub/object detection api.. A tutorial can be found [here](https://www.immersivelimit.com/tutorials/mask-rcnn-for-windows-10-tensorflow-2-cuda-101).
 
-# COURSE 4: INTERPRETABILITY
+
+## EXTRA
+
+### Labeling formats
+
+Hay distintos formatos de etiquetado de archivos (VOC pascal, COCO, CVAT...), cada uno con sus características y no todos son compatibles entre sí.
+
+Here is a [summary](https://towardsdatascience.com/coco-data-format-for-object-detection-a4c5eaf518c5) of the **COCO annotation type**:
+
+* It's a json with several categories. Needs separate JSON for train and test.
+  * Info: info of the dataset [year, version, description, url...]
+  * Licenses: licenses for the images used. [for each image, [id, name, url]]
+  * categories: must be unique and can belong to super-categories [id (int), name, supercategory (str)]
+  * images: list of the images of the dataset, with ids (must be unique): [id, width, height, file_name (relative, not absolute)]...
+  * annotations: all annotations for all images (must include the id of the image they belong and an unique id of each annot)
+    * if iscrowd = 0, only 1 object; if =1, more than 1 object IN THE SAME BOUNDING BOX.
+    * RLE (run length encoding): compression method that replaces repeating values by the number of times they repeat. It saves memory.
+    * [segmentation (x, y for the vertices), area (pixel value area of the bbox), bbox (xtop left, ytop left, width, height in COCO, or xbottom-right, ybottom-right in VOC)]
+* There's a COCO guide for using FiftyOne in [here](https://towardsdatascience.com/how-to-work-with-object-detection-datasets-in-coco-format-9bf4fb5848a4).
+* Another [good guide about COCO](https://www.immersivelimit.com/tutorials/create-coco-annotations-from-scratch)
+
+This is the basic structure, but there are also differences for each of the [annotation types](https://cocodataset.org/#format-data):
+
+* Object detection (segmentacion de toda la vida)
+* Keypoint detection: además de la segmentación, puntos 'clave' de interés y conexiones dentro de esos puntos (actualmente solo presentes categoria 'person' y pueden referirse a partes del cuerpo: ojos, rodilla...). En vez de (x, y) como los pixeles de segmentacion, son (x,y,v) donde v es visibilidad del keypoint (visible =2)
+* Stuff segmentation: same as object detection (which already includes annotations for segmentation), except that iscrowd is always 0
+* Panoptic segmentation: instance segmentation instead of object segmentation
+* Image captioning: annotation includes a 'caption' which is a string defining the image
+* DensePose: annotations for body parts.
+
+And the **Pascal VOC (Visual Object Classes)**:
+
+* It's a XML, not a json
+* It's created for EACH image in the dataset
+* The bbox are different (xbottom right, ybottom right instead of width, height)
+* Normally it has two folders: Annotations (when there's a xml for each image) and ImageSets (when there are common annotations for whole images; eg: Image Classes)
+* Also some different things:
+  * Difficult indicate if images are difficult
+  * Occluded is when the entire object is not present (is just the partial instance, an animal for example)
+
+The **CVAT (computer vision annotation tool)** can convert to any format, but also has its [own format](https://openvinotoolkit.github.io/cvat/docs/manual/advanced/xml_format/#annotation):
+* It's also XML, but just one for the hole image set
+
+
+### Segmentation tools
+
+* Fiftyone: used by COCO dataset
+* LabelMe
+* CVAT: needs server
+* For jupyter: jupyter-innotater, 
+
+
+## WEEK 4: INTERPRETABILITY
 
 Nos sirve para ser consciente de en qué se fijan las CNN para tomar sus decisiones.
 
@@ -1847,6 +1900,7 @@ Son mapas de activación que superponemos a la imagen para ver en qué se ha cen
 * Usamos este modelo para hacer las predicciones. 
 * Se calculan los 'pesos' que cada feature tiene en la decisión global
 * Con estos pesos superponemos la multiplicación matricial entre la feature y su importancia sobre la imagen original (para visualizarla)
+* Generalmente, en estos modelos es mejor usar una GAP (Global Average Pooling Layer), mejor que una MaxPool, para que elimine menos pixels.
 
 ```python
 # primero creamos el modelo. Despues elegimos las capas que queremos usar
@@ -1856,11 +1910,69 @@ print(model.layers[-3].name)
 cam_model  = Model(inputs=model.input,outputs=(model.layers[-3].output,model.layers[-1].output))
 cam_model.summary()
 
-# Hacemos las predicciones
-features,results = cam_model.predict(X_test)
+# Hacemos las predicciones (obtendremos por un lado las caracteristicas, que vienen de la conv, y los resultados, de la ultima dense)
+features, results = cam_model.predict(X_test)
+
+# Creamos la funcion para las CAMs
+def show_cam(image_value, features, results):
+  '''
+  Displays the class activation map of an image
+
+  Args:
+    image_value (tensor) -- preprocessed input image with size 300 x 300
+    features (array) -- features of the image, shape (1, 37, 37, 128)
+    results (array) -- output of the sigmoid layer
+  '''
+
+  # there is only one image in the batch so we index at `0`
+  features_for_img = features[0]
+  prediction = results[0]
+
+  # there is only one unit in the output so we get the weights connected to it
+  class_activation_weights = gap_weights[:,0] # GAP = global average pooling
+
+  # upsample to the image size
+  class_activation_features = sp.ndimage.zoom(features_for_img, (300/37, 300/37, 1), order=2)
+  
+  # compute the intensity of each feature in the CAM
+  cam_output  = np.dot(class_activation_features,class_activation_weights)
+
+  # visualize the results
+  print(f'sigmoid output: {results}')
+  print(f"prediction: {'dog' if round(results[0][0]) else 'cat'}")
+  plt.figure(figsize=(8,8))
+  plt.imshow(cam_output, cmap='jet', alpha=0.5)
+  plt.imshow(tf.squeeze(image_value), alpha=0.5)
+  plt.show()
+
+# Pasamos cada imagen por el modelo y la predecimos
+# utility function to preprocess an image and show the CAM
+def convert_and_classify(image):
+
+  # load the image
+  img = cv2.imread(image)
+
+  # preprocess the image before feeding it to the model
+  img = cv2.resize(img, (300,300)) / 255.0
+
+  # add a batch dimension because the model expects it
+  tensor_image = np.expand_dims(img, axis=0)
+
+  # get the features and prediction
+  features,results = cam_model.predict(tensor_image)
+  
+  # generate the CAM
+  show_cam(tensor_image, features, results)
+
 ```
 
+#### CAMs explained
+
 Generalmente, en estos modelos es mejor usar una GAP (Global Average Pooling Layer), mejor que una MaxPool, para que elimine menos pixels.
+
+* Lo que hace es dejar solo un pixel por cada canal (Ej: pasa de 3 x 3 x 128 a 1x1x128 == 128)
+* Este GAP pasa a la ultima dense, que tendrá por tanto 128 pesos y bias (solo nos interesan los pesos), estos son los GAP weights que son los que usaremos.
+* Convertimos el tamaño de la imagen (sacada de la activation == features) para que coincida con la original, 
 
   You will need the weights from the Global Average Pooling layer (GAP) to calculate the activations of each feature given a particular class.
   - Note that you'll get the weights from the dense layer that follows the global average pooling layer.
@@ -1982,7 +2094,7 @@ def show_maps(desired_class, num_maps):
 
 ### Saliency Maps
 
-A diferencia de las CAMs, actuan a nivel de pixel, enfatizando los pixels que más ayudan (los de más peso) a la clasificación de la imagen. Se basa en calcular como cambian los gradientes del loss cuando cambiamos los pixeles de entrada. Para ello:
+A diferencia de las CAMs, actuan a nivel de pixel, enfatizando los pixels que más ayudan (los de más impacto) a la clasificación de la imagen. Se basa en calcular como cambian los gradientes del loss cuando cambiamos los pixeles de entrada. Para ello:
 
 * Primero se calculan los gradientes del loss con respecto a los pixeles originales (de la imagen de entrada).
 
@@ -1990,8 +2102,6 @@ A diferencia de las CAMs, actuan a nivel de pixel, enfatizando los pixels que m�
 # Siberian Husky's class ID in ImageNet
 class_index = 251   
 
-# If you downloaded the cat, use this line instead
-#class_index = 282   # Tabby Cat in ImageNet
 
 # number of classes in the model's training data
 num_classes = 1001
@@ -2021,7 +2131,7 @@ gradients = tape.gradient(loss, inputs)
 * Despues se preprocesan los gradientes para poder usarlos para general los saliency maps (y superponerlos en la imagen).
 
 ```python
-# reduce the RGB image to grayscale
+# reduce the RGB image to grayscale (para combinar todos los filtros en un solo filtro)
 grayscale_tensor = tf.reduce_sum(tf.abs(gradients), axis=-1)
 
 # normalize the pixel values to be in the range [0, 255].
@@ -2056,6 +2166,569 @@ plt.show()
 El [GradCam](https://arxiv.org/pdf/1610.02391.pdf) una combinacion de CAMs y saliency: usa mapas y gradientes para calcular la región de interés para la predicción.
 NOTA: En el curso [AI for Medical Treatment](https://www.coursera.org/learn/ai-for-medical-treatment) tenemos varias cosas interesantes como [Interpreting CNN models](https://www.coursera.org/learn/ai-for-medical-treatment/lecture/Us3AO/interpreting-cnn-models), [Localization Maps](https://www.coursera.org/learn/ai-for-medical-treatment/lecture/qoD4p/localization-maps) y [Heat Maps](https://www.coursera.org/learn/ai-for-medical-treatment/lecture/mofKv/heat-maps)
 
-* Primero tomamos 
+Es gradient-weighted class-activation maps: usa gradientes en lugar de usar global average pooling (GAP) para ponderar las activaciones
 
+1. Elegir las capas que queremos visualizar, y crar un nuevo modelo con esas capas como output:
+
+```python
+# select all the layers for which you want to visualize the outputs and store it in a list
+outputs = [layer.output for layer in model.layers[1:18]]
+
+# Define a new model that generates the above output
+vis_model = Model(model.input, outputs)
+
+# store the layer names we are interested in
+layer_names = []
+for layer in outputs:
+    layer_names.append(layer.name.split("/")[0])
+
+    
+print("Layers that will be used for visualization: ")
+print(layer_names)
+```
+
+2. Usamos la funcion auxiliar que genera el mapa de las gradient-weighted features
+
+```python
+def get_CAM(processed_image, actual_label, layer_name='block5_conv3'):
+    model_grad = Model([model.inputs], 
+                       [model.get_layer(layer_name).output, model.output])
+    
+    with tf.GradientTape() as tape:
+        conv_output_values, predictions = model_grad(processed_image)
+
+        # watch the conv_output_values
+        tape.watch(conv_output_values)
+
+        ## Use binary cross entropy loss
+        ## actual_label is 0 if cat, 1 if dog
+        # get prediction probability of dog
+        # If model does well, 
+        # pred_prob should be close to 0 if cat, close to 1 if dog
+        pred_prob = predictions[:,1] 
+        
+        # make sure actual_label is a float, like the rest of the loss calculation
+        actual_label = tf.cast(actual_label, dtype=tf.float32)
+        
+        # add a tiny value to avoid log of 0
+        smoothing = 0.00001 
+        
+        # Calculate loss as binary cross entropy
+        loss = -1 * (actual_label * tf.math.log(pred_prob + smoothing) + (1 - actual_label) * tf.math.log(1 - pred_prob + smoothing))
+        print(f"binary loss: {loss}")
+    
+    # get the gradient of the loss with respect to the outputs of the last conv layer
+    grads_values = tape.gradient(loss, conv_output_values)
+    grads_values = K.mean(grads_values, axis=(0,1,2))
+    
+    conv_output_values = np.squeeze(conv_output_values.numpy())
+    grads_values = grads_values.numpy()
+    
+    # weight the convolution outputs with the computed gradients
+    for i in range(512): 
+        conv_output_values[:,:,i] *= grads_values[i]
+    heatmap = np.mean(conv_output_values, axis=-1)
+    
+    heatmap = np.maximum(heatmap, 0)
+    heatmap /= heatmap.max()
+    
+    del model_grad, conv_output_values, grads_values, loss
+   
+    return heatmap
+```
+
+3. Tenemos tambien una funcion de visualizacion:
+
+```python
+def show_sample(idx=None):
+    
+    # if image index is specified, get that image
+    if idx:
+        for img, label in test_batches.take(idx):
+            sample_image = img[0]
+            sample_label = label[0]
+    # otherwise if idx is not specified, get a random image
+    else:
+        for img, label in test_batches.shuffle(1000).take(1):
+            sample_image = img[0]
+            sample_label = label[0]
+    
+    sample_image_processed = np.expand_dims(sample_image, axis=0)
+    
+    activations = vis_model.predict(sample_image_processed)
+    
+    pred_label = np.argmax(model.predict(sample_image_processed), axis=-1)[0]
+    
+    sample_activation = activations[0][0,:,:,16]
+    
+    sample_activation-=sample_activation.mean()
+    sample_activation/=sample_activation.std()
+    
+    sample_activation *=255
+    sample_activation = np.clip(sample_activation, 0, 255).astype(np.uint8)
+    
+    heatmap = get_CAM(sample_image_processed, sample_label)
+    heatmap = cv2.resize(heatmap, (sample_image.shape[0], sample_image.shape[1]))
+    heatmap = heatmap *255
+    heatmap = np.clip(heatmap, 0, 255).astype(np.uint8)
+    heatmap = cv2.applyColorMap(heatmap, cv2.COLORMAP_HOT)
+    converted_img = sample_image.numpy()
+    super_imposed_image = cv2.addWeighted(converted_img, 0.8, heatmap.astype('float32'), 2e-3, 0.0)
+
+    f,ax = plt.subplots(2,2, figsize=(15,8))
+
+    ax[0,0].imshow(sample_image)
+    ax[0,0].set_title(f"True label: {sample_label} \n Predicted label: {pred_label}")
+    ax[0,0].axis('off')
+    
+    ax[0,1].imshow(sample_activation)
+    ax[0,1].set_title("Random feature map")
+    ax[0,1].axis('off')
+    
+    ax[1,0].imshow(heatmap)
+    ax[1,0].set_title("Class Activation Map")
+    ax[1,0].axis('off')
+    
+    ax[1,1].imshow(super_imposed_image)
+    ax[1,1].set_title("Activation map superimposed")
+    ax[1,1].axis('off')
+    plt.tight_layout()
+    plt.show()
+  
+    return activations
+
+# Ahora lo ejecutamos para  mostrar una imagen
+# Choose an image index to show, or leave it as None to get a random image
+activations = show_sample(idx=4)
+```
+
+4. Podemos visualizar activaciones de capas intermedias
+
+```python
+def visualize_intermediate_activations(layer_names, activations):
+    assert len(layer_names)==len(activations), "Make sure layers and activation values match"
+    images_per_row=16
+    
+    for layer_name, layer_activation in zip(layer_names, activations):
+        nb_features = layer_activation.shape[-1]
+        size= layer_activation.shape[1]
+
+        nb_cols = nb_features // images_per_row
+        grid = np.zeros((size*nb_cols, size*images_per_row))
+
+        for col in range(nb_cols):
+            for row in range(images_per_row):
+                feature_map = layer_activation[0,:,:,col*images_per_row + row]
+                feature_map -= feature_map.mean()
+                feature_map /= feature_map.std()
+                feature_map *=255
+                feature_map = np.clip(feature_map, 0, 255).astype(np.uint8)
+
+                grid[col*size:(col+1)*size, row*size:(row+1)*size] = feature_map
+
+        scale = 1./size
+        plt.figure(figsize=(scale*grid.shape[1], scale*grid.shape[0]))
+        plt.title(layer_name)
+        plt.grid(False)
+        plt.axis('off')
+        plt.imshow(grid, aspect='auto', cmap='viridis')
+    plt.show()
+```
+
+
+### ZFNet
+
+Es una variante de AlexNet que usa tecnicas de visualizacion para mejorar el modelo original. 
+Visualiza todas las capas (no solo las ultimas conv) para entender como funcionan los modelos y como mejorarlos.
+
+El principio básico es hacer 'deconvolucion' de las convoluciones, que nos da una 'reconstruccion' de la entrada original.
+
+# COURSE 4: GENERATIVE DEEP LEARNING WITH TENSORFLOW
+
+## WEEK 1: STYLE TRANSFER
+
+Style transfer consiste en transferir el estilo de una imagen a otra, que mantiene su contenido. Hay varias formas de hacerlo: 
+
+* supervised learning (poco usado): necesita MUCHAS parejas de original y estilizada, cosa que no es posible.
+* neural style transfer (el más usado): necesita un modelo preentrenado que EXTRAE el estilo de la imagen 1 y el contenido de la imagen 2, y genera una imagen que mezcla el estilo y el contenido de ambas. El objetivo es, en un loop, minimizar el loss.
+* fast neural style transfer (nuevo y más rápido).
+
+### NEURAL STYLE TRANSFER
+
+Lo que haremos será EXTRAER las features de las dos imagenes (CONTENT y STYLE image) con un modelo preentrenado (ej VGG19 --> NO se entrena, solo extrae) , para generar una imagen (GENERATED IMAGE): el objetivo es reducir el TOTAL LOSS (suma del content loss y style loss). 
+AL inicio, el content loss será muy bajo (puesto que la imagen generada es muy similar a la inicial), pero conforme se apliquen transferencias de estilo, este loss subirá, pero bajará el style loss (y el loss total).
+
+* En el caso concreto de VGG la distribución de pixels no es 0...1 sino -1...1, por tanto hay que preprocesar primero las imágenes
+* Como sabemos, las CNN extraen en las primeras capas las low-level features, y en las ultimas, las high-level features. En este caso, las primeras capas se utilizarán para extraer el estilo, y las ultimas, para el contenido.
+
+```python
+# style layers of interest
+style_layers = ['block1_conv1', 
+                'block2_conv1', 
+                'block3_conv1', 
+                'block4_conv1', 
+                'block5_conv1'] 
+
+# choose the content layer and put in a list
+content_layers = ['block5_conv2'] 
+
+# combine the two lists (put the style layers before the content layers)
+output_layers = style_layers + content_layers 
+
+# declare auxiliary variables holding the number of style and content layers
+NUM_CONTENT_LAYERS = len(content_layers)
+NUM_STYLE_LAYERS = len(style_layers)
+```
+
+A la hora de crear los losses, el L_total es la suma del L_content y L_style. Además, se usan los parametros alfa y beta para modelar cuánto queremos transferir de estilo
+
+AÑADIR IMAGEN DE TOTAL LOSS
+
+La formula para implementar los losses es compleja de entender, pero básicamente hay que saber que el L_content se refiere a F (generated image) y P (content image), de cada uno de los outputs de la content layer.
+En el L_style lo que se utiliza es la Gram Matrix de cada una de las style layers de la style y la generated image (NO de la content layer).
+Por tanto hay que aplicar estos losses a cada una de las salidas que nos interesan, y sumarlos después.
+
+```python
+def get_content_loss(features, targets):
+  """Expects two images of dimension h, w, c
+  
+  Args:
+    features: tensor with shape: (height, width, channels)
+    targets: tensor with shape: (height, width, channels)
+  
+  Returns:
+    content loss (scalar)
+  """
+  # get the sum of the squared error multiplied by a scaling factor
+  content_loss = 0.5 * tf.reduce_sum(tf.square(features - targets))
+    
+  return content_loss
+
+def get_style_loss(features, targets):
+  """Expects two images of dimension h, w, c
+  
+  Args:
+    features: tensor with shape: (height, width, channels)
+    targets: tensor with shape: (height, width, channels)
+
+  Returns:
+    style loss (scalar)
+  """
+  # get the average of the squared errors
+  style_loss = tf.reduce_mean(tf.square(features - targets))
+    
+  return style_loss
+```
+
+Use `tf.linalg.einsum` to calculate the gram matrix for an input tensor.
+- In addition, calculate the scaling factor `num_locations` and divide the gram matrix calculation by `num_locations`.
+
+$$ \text{num locations} = height \times width $$
+
+```python
+def gram_matrix(input_tensor):
+  """ Calculates the gram matrix and divides by the number of locations
+  Args:
+    input_tensor: tensor of shape (batch, height, width, channels)
+    
+  Returns:
+    scaled_gram: gram matrix divided by the number of locations
+  """
+
+  # calculate the gram matrix of the input tensor
+  gram = tf.linalg.einsum('bijc,bijd->bcd', input_tensor, input_tensor) 
+
+  # get the height and width of the input tensor
+  input_shape = tf.shape(input_tensor) 
+  height = input_shape[1] 
+  width = input_shape[2] 
+
+  # get the number of locations (height times width), and cast it as a tf.float32
+  num_locations = tf.cast(height * width, tf.float32)
+
+  # scale the gram matrix by dividing by the number of locations
+  scaled_gram = gram / num_locations
+    
+  return scaled_gram
+
+```
+
+Ahora aplicamos los losses a cada una de las salidas: de la style image (no lo aplicamos a la content) y de la content (no lo aplicamos a la style)
+
+```python
+def get_style_image_features(image):  
+  """ Get the style image features
+  
+  Args:
+    image: an input image
+    
+  Returns:
+    gram_style_features: the style features as gram matrices
+  """
+  # preprocess the image using the given preprocessing function
+  preprocessed_style_image = preprocess_image(image) 
+
+  # get the outputs from the custom vgg model that you created using vgg_model()
+  outputs = vgg(preprocessed_style_image) 
+
+  # Get just the style feature layers (exclude the content layer)
+  style_outputs = outputs[:NUM_STYLE_LAYERS] 
+
+  # for each style layer, calculate the gram matrix for that layer and store these results in a list
+  gram_style_features = [gram_matrix(style_layer) for style_layer in style_outputs] 
+
+  return gram_style_features
+
+def get_content_image_features(image):
+  """ Get the content image features
+  
+  Args:
+    image: an input image
+    
+  Returns:
+    content_outputs: the content features of the image
+  """
+  # preprocess the image
+  preprocessed_content_image = preprocess_image(image)
+    
+  # get the outputs from the vgg model
+  outputs = vgg(preprocessed_content_image) 
+
+  # get the content layers of the outputs
+  content_outputs = outputs[NUM_STYLE_LAYERS:] 
+  
+  # FIJATE QUE ESTO ES DISTINTO, porque como solo cogemos la ultima capa pues todas las anteriores serán de estilo
+  # ADEMÁS AQUI NO SE CALCULA LA GRAM MATRIX DE LA SALIDA, SINO QUE SE USA LA SALIDA EN SÍ MISMA.
+
+
+  # return the content layer outputs of the content image
+  return content_outputs
+
+```
+
+Ahora que tenemos las formulas para los losses de cada salida, tan solo hay que aplicar una formula para calcular el loss conjunto, que es el que se aplicará al optimizador.
+
+```python
+def get_style_content_loss(style_targets, style_outputs, content_targets, 
+                           content_outputs, style_weight, content_weight):
+  """ Combine the style and content loss
+  
+  Args:
+    style_targets: style features of the style image
+    style_outputs: style features of the generated image
+    content_targets: content features of the content image
+    content_outputs: content features of the generated image
+    style_weight: weight given to the style loss
+    content_weight: weight given to the content loss
+
+  Returns:
+    total_loss: the combined style and content loss
+
+  """
+    
+  # sum of the style losses
+  style_loss = tf.add_n([ get_style_loss(style_output, style_target)
+                           for style_output, style_target in zip(style_outputs, style_targets)])
+                           ## add_n suma los elementos element-wise
+  
+  # Sum up the content losses
+  content_loss = tf.add_n([get_content_loss(content_output, content_target)
+                           for content_output, content_target in zip(content_outputs, content_targets)])
+
+  # scale the style loss by multiplying by the style weight and dividing by the number of style layers
+  style_loss = style_loss * style_weight / NUM_STYLE_LAYERS 
+
+  # scale the content loss by multiplying by the content weight and dividing by the number of content layers
+  content_loss = content_loss * content_weight / NUM_CONTENT_LAYERS 
+    
+  # sum up the style and content losses
+  total_loss = style_loss + content_loss 
+
+  return total_loss
+```
+
+
+
+Teniendo este loss, tan solo hay que aplicar este loss a un optimizador y hacer un custom training loop.
+
+```python
+def calculate_gradients(image, style_targets, content_targets, 
+                        style_weight, content_weight):
+  """ Calculate the gradients of the loss with respect to the generated image
+  Args:
+    image: generated image
+    style_targets: style features of the style image
+    content_targets: content features of the content image
+    style_weight: weight given to the style loss
+    content_weight: weight given to the content loss
+  
+  Returns:
+    gradients: gradients of the loss with respect to the input image
+  """
+  with tf.GradientTape() as tape:
+      
+    # get the style image features
+    style_features = get_style_image_features(image) 
+      
+    # get the content image features
+    content_features = get_content_image_features(image) 
+      
+    # get the style and content loss
+    loss = get_style_content_loss(style_targets, style_features, content_targets, 
+                                  content_features, style_weight, content_weight) 
+
+  # calculate gradients of loss with respect to the image
+  gradients = tape.gradient(loss, image) 
+
+  return gradients
+
+def update_image_with_style(image, style_targets, content_targets, style_weight, 
+                            var_weight, content_weight, optimizer):
+  """
+  Args:
+    image: generated image
+    style_targets: style features of the style image
+    content_targets: content features of the content image
+    style_weight: weight given to the style loss
+    content_weight: weight given to the content loss
+    var_weight: weight given to the total variation loss
+    optimizer: optimizer for updating the input image
+  """
+
+  # calculate gradients using the function that you just defined.
+  gradients = calculate_gradients(image, style_targets, content_targets, 
+                                  style_weight, content_weight, var_weight) 
+
+  # apply the gradients to the given image
+  optimizer.apply_gradients([(gradients, image)]) 
+
+  # clip the image using the utility clip_image_values() function
+  image.assign(clip_image_values(image, min_value=0.0, max_value=255.0))
+```
+
+Hemos de tener en cuenta que en estas dos funciones le debemos pasar style_targets y cntent_targets, que son las caracteristicas de la imagen original (sacadas de la CNN) que las usaremos para entrenar (ya que dentro de estas funciones se calcularán las caracteristicas de la imagen obtenida, style_outputs y content_outputs).
+
+El training loop completo será:
+
+```python
+def fit_style_transfer(style_image, content_image, style_weight=1e-2, content_weight=1e-4, 
+                       var_weight=0, optimizer='adam', epochs=1, steps_per_epoch=1):
+  """ Performs neural style transfer.
+  Args:
+    style_image: image to get style features from
+    content_image: image to stylize 
+    style_targets: style features of the style image
+    content_targets: content features of the content image
+    style_weight: weight given to the style loss
+    content_weight: weight given to the content loss
+    var_weight: weight given to the total variation loss
+    optimizer: optimizer for updating the input image
+    epochs: number of epochs
+    steps_per_epoch = steps per epoch
+  
+  Returns:
+    generated_image: generated image at final epoch
+    images: collection of generated images per epoch  
+  """
+
+  images = []
+  step = 0
+
+  # get the style image features 
+  style_targets = get_style_image_features(style_image)
+    
+  # get the content image features
+  content_targets = get_content_image_features(content_image)
+
+  # initialize the generated image for updates
+  generated_image = tf.cast(content_image, dtype=tf.float32)
+  generated_image = tf.Variable(generated_image) 
+  
+  # collect the image updates starting from the content image
+  images.append(content_image)
+  
+  # incrementally update the content image with the style features
+  for n in range(epochs):
+    for m in range(steps_per_epoch):
+      step += 1
+    
+      # Update the image with the style using the function that you defined
+      update_image_with_style(generated_image, style_targets, content_targets, 
+                              style_weight, content_weight, var_weight, optimizer) 
+    
+      print(".", end='')
+
+      if (m + 1) % 10 == 0:
+        images.append(generated_image)
+    
+    # display the current stylized image
+    clear_output(wait=True)
+    display_image = tensor_to_image(generated_image)
+    display_fn(display_image)
+
+    # append to the image collection for visualization later
+    images.append(generated_image)
+    print("Train step: {}".format(step))
+  
+  # convert to uint8 (expected dtype for images with pixels in the range [0,255])
+  generated_image = tf.cast(generated_image, dtype=tf.uint8)
+
+  return generated_image, images
+
+```
+
+Como vemos, aquí es donde extraemos las caracteristicas de las imagenes iniciales. Además, guardamos cada una de las imagenes que se crean en los training loops.
+
+
+Podemos usar otro loss distinto, el __total variation loss__ que aplica un filtro de suavizado de la imagen para disminuir el ruido (para dismiinuir los high-frequency artifacts).
+
+```python
+def calculate_gradients(image, style_targets, content_targets, 
+                        style_weight, content_weight, var_weight):
+  """ Calculate the gradients of the loss with respect to the generated image
+  Args:
+    image: generated image
+    style_targets: style features of the style image
+    content_targets: content features of the content image
+    style_weight: weight given to the style loss
+    content_weight: weight given to the content loss
+    var_weight: weight given to the total variation loss
+  
+  Returns:
+    gradients: gradients of the loss with respect to the input image
+  """
+  with tf.GradientTape() as tape:
+      
+    # get the style image features
+    style_features = get_style_image_features(image) 
+      
+    # get the content image features
+    content_features = get_content_image_features(image) 
+      
+    # get the style and content loss
+    loss = get_style_content_loss(style_targets, style_features, content_targets, 
+                                  content_features, style_weight, content_weight) 
+
+    # add the total variation loss
+    loss += var_weight*tf.image.total_variation(image)
+
+  # calculate gradients of loss with respect to the image
+  gradients = tape.gradient(loss, image) 
+
+  return gradients
+```
+
+
+### FAST NEURAL STYLE TRANSFER
+
+No vamos a aprender a implementarlo, tan solo a descargarlo de tf hub y usarlo desde internet.
+
+```python
+# stylize the image using the model you just downloaded
+stylized_image = hub_module(tf.image.convert_image_dtype(content_image, tf.float32), 
+                            tf.image.convert_image_dtype(style_image, tf.float32))[0]
+
+# convert the tensor to image
+tensor_to_image(stylized_image)
+```
 
