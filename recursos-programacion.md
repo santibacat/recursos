@@ -59,8 +59,11 @@ https://towardsdatascience.com/python-tools-for-a-beginner-data-scientist-39b3b9
 
 ## DATA SCIENCE
 
-Ejecutar ml y data science en el navegador
+* Ejecutar ml y data science en el navegador
 Streamlit
+
+* Data labeling:
+  * Label studio
 
 ## MACHINE LEARNING
 
