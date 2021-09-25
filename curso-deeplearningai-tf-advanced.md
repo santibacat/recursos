@@ -2343,6 +2343,9 @@ Visualiza todas las capas (no solo las ultimas conv) para entender como funciona
 
 El principio básico es hacer 'deconvolucion' de las convoluciones, que nos da una 'reconstruccion' de la entrada original.
 
+![](/assets/tf-adv-c3.jpg)
+
+
 # COURSE 4: GENERATIVE DEEP LEARNING WITH TENSORFLOW
 
 ## WEEK 1: STYLE TRANSFER
@@ -2382,7 +2385,10 @@ NUM_STYLE_LAYERS = len(style_layers)
 
 A la hora de crear los losses, el L_total es la suma del L_content y L_style. Además, se usan los parametros alfa y beta para modelar cuánto queremos transferir de estilo
 
-AÑADIR IMAGEN DE TOTAL LOSS
+![](/assets/tf-adv-c4-1.jpg)
+![](/assets/tf-adv-c4-2.jpg)
+![](/assets/tf-adv-c4-4.jpg)
+
 
 La formula para implementar los losses es compleja de entender, pero básicamente hay que saber que el L_content se refiere a F (generated image) y P (content image), de cada uno de los outputs de la content layer.
 En el L_style lo que se utiliza es la Gram Matrix de cada una de las style layers de la style y la generated image (NO de la content layer).
@@ -2420,10 +2426,12 @@ def get_style_loss(features, targets):
   return style_loss
 ```
 
+![](/assets/tf-adv-c4-3.jpg)
+
 Use `tf.linalg.einsum` to calculate the gram matrix for an input tensor.
 - In addition, calculate the scaling factor `num_locations` and divide the gram matrix calculation by `num_locations`.
-
 $$ \text{num locations} = height \times width $$
+
 
 ```python
 def gram_matrix(input_tensor):
@@ -2458,10 +2466,7 @@ Ahora aplicamos los losses a cada una de las salidas: de la style image (no lo a
 ```python
 def get_style_image_features(image):  
   """ Get the style image features
-  
-  Args:
-    image: an input image
-    
+
   Returns:
     gram_style_features: the style features as gram matrices
   """
@@ -2606,7 +2611,7 @@ def update_image_with_style(image, style_targets, content_targets, style_weight,
   image.assign(clip_image_values(image, min_value=0.0, max_value=255.0))
 ```
 
-Hemos de tener en cuenta que en estas dos funciones le debemos pasar style_targets y cntent_targets, que son las caracteristicas de la imagen original (sacadas de la CNN) que las usaremos para entrenar (ya que dentro de estas funciones se calcularán las caracteristicas de la imagen obtenida, style_outputs y content_outputs).
+Hemos de tener en cuenta que en estas dos funciones le debemos pasar style_targets y content_targets, que son las caracteristicas de la imagen original (sacadas de la CNN) que las usaremos para entrenar (ya que dentro de estas funciones se calcularán las caracteristicas de la imagen obtenida, style_outputs y content_outputs).
 
 El training loop completo será:
 
@@ -2732,3 +2737,134 @@ stylized_image = hub_module(tf.image.convert_image_dtype(content_image, tf.float
 tensor_to_image(stylized_image)
 ```
 
+
+## WEEK 4: GANs
+
+### GANs
+
+Generative Adversarial Networks (2014, Ian Goodfellow; check [DLai specialization](https://www.deeplearning.ai/program/generative-adversarial-networks-gans-specialization/)]):
+
+* From random noise, a __GENERATOR__ generates fake data (fake image)
+* The fake data is combined with real data, and a __DISCRIMINATOR__ learns to detect which is which.
+* The interesting point is that the _generator never sees real data__
+
+The training is done in 2 phases:
+
++ _Phase 1_: just train the __discriminator__ (at first, using random noise as fake data)
++ _Phase 2_: just train the __generator__, but _keeping the discriminator weights frozen_
+
+Things that normally work in GANs:
+
+* Using __SELU__ as activation instead of RELU, because we don't need to remove noise.
+  * Except in last layer, we use _sigmoid_ because we want pixel intensities between 0-1 before reshape.
+* Generator input shape doesn't matter much, it's just a random noise vector
+* Generator output is the shape of the image we want (and the same as discriminator input)
+* We will use __binary_crossentropy__ as the loss in both models.
+* Normally, we will create a model that combines both (`tf.keras.models.Sequential([generator, discriminator])`)
+* The training loop is special (can't use `.fit`):
+  * Primero creamos ruido (generalmente de dimensiones (batch_size, input_dimensions))
+  * Pasamos ese ruido al generador, que nos creará imagenes del batch_size requerido
+  * Unimos estas fake images con las real images (concat) y creamos las etiquetas (0 = fake, 1 = real)
+  * In the __1st phase__, we keep discriminator weights as trainable, and train it using mixed images and labels
+  * Then, for the __2nd phase__, we keep discriminator weights frozen; and we train the whole GAN with just FAKE images, but labeling them as if they were REAL (=1).
+
+
+```python
+def train_gan(gan, dataset, random_normal_dimensions, n_epochs=50):
+    """ Defines the two-phase training loop of the GAN
+    Args:
+      gan -- the GAN model which has the generator and discriminator
+      dataset -- the training set of real images
+      random_normal_dimensions -- dimensionality of the input to the generator
+      n_epochs -- number of epochs
+    """
+
+    # get the two sub networks from the GAN model
+    generator, discriminator = gan.layers
+
+    # start loop
+    for epoch in range(n_epochs):
+        print("Epoch {}/{}".format(epoch + 1, n_epochs))       
+        for real_images in dataset:
+            # infer batch size from the training batch
+            batch_size = real_images.shape[0]
+
+            # Train the discriminator - PHASE 1
+            # Create the noise
+            noise = tf.random.normal(shape=[batch_size, random_normal_dimensions])
+            
+            # Use the noise to generate fake images
+            fake_images = generator(noise)
+            
+            # Create a list by concatenating the fake images with the real ones
+            mixed_images = tf.concat([fake_images, real_images], axis=0)
+            
+            # Create the labels for the discriminator
+            # 0 for the fake images
+            # 1 for the real images
+            discriminator_labels = tf.constant([[0.]] * batch_size + [[1.]] * batch_size)
+            
+            # Ensure that the discriminator is trainable
+            discriminator.trainable = True
+            
+            # Use train_on_batch to train the discriminator with the mixed images and the discriminator labels
+            discriminator.train_on_batch(mixed_images, discriminator_labels)
+            
+            # Train the generator - PHASE 2
+            # create a batch of noise input to feed to the GAN
+            noise = tf.random.normal(shape=[batch_size, random_normal_dimensions])
+
+            # label all generated images to be "real"
+            generator_labels = tf.constant([[1.]] * batch_size)
+
+            # Freeze the discriminator
+            discriminator.trainable = False
+
+            # Train the GAN on the noise with the labels all set to be true
+            gan.train_on_batch(noise, generator_labels)
+
+        # plot the fake images used to train the discriminator
+        plot_multiple_images(fake_images, 8)                     
+        plt.show()      
+```
+
+
+
+One of the main problems of basic GANs if that they suffer __Mode collapse__, which means that the generator starts outputing images just from classes where it's easy to fake the discriminator, avoiding other classes (not representative of real data).
+
+### DCGAN
+
+Instead of using dense layers, uses CNNs in both generator and discriminator. But it has some tricks:
+
+In the generator:
+
+* Instead of using pooling layers, it uses __Conv2DTranspose__ (to reconstruct from filters)
+* 
+* It uses __BatchNormalization__ should be used in all generator outputs, except the last one
+* Activation must be __SELU__ for all layers, except from the __last layer__, which must be __tanh__
+
+In the discriminator:
+
+* Instead of using pooling layers, it uses __strides = 2__
+* Activation must be __LeakyRELU__ for all layers, except from the __last layer__, which must be __sigmoid__ (as it's binary classification)
+  * LeakyRELU is similar to RELU but multiplies by a small positive number if it's negative to avoid losing weights.
+
+Also, we __AVOID using dense layers__ in both the discriminator and the generator.
+
+## Face Generator
+
+Normally they require deeper models, that usually follow the same structure:
+
+__For the generator__
+Conv2DTranspose > BatchNorm > Activation (ReLu)
+Eg: if we start by 1x1 > 4x4 > 8x8 > 16x16 > 32x32 > 64x64
+
+* Normally we avoid using bias in the Conv2DTranspose (`use_bias = False`), and we divide #filters by half every Conv2DTranspose (512, 256...) 
+* In the first Conv2DTranspose we may use strides = 1 and padding = 'valid'; for the rest, strides = 2 and padding = 'same'.
+
+__For the discriminator__
+
+This is more like a common CNN but using _strides = 2_,  _LeakyRELU_ as activation function and _BatchNorm_ between layers.
+
+* The only special thing is that, as you __can't use dense layers__, you need a __Conv2D 1x1x1__ to make the final output for the binary classification.
+* Another thing to try is using [LayerNormalization](https://arxiv.org/abs/1607.06450) instead of BatchNormalization.
