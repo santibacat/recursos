@@ -2738,6 +2738,323 @@ tensor_to_image(stylized_image)
 ```
 
 
+## WEEK 2: AUTOENCODERS
+
+[Autoencoders](http://www.cs.us.es/~fsancho/?e=232) are networks that try to learn a dense representation of input data without supervision (it compresses input data without losing too much information). Used for:
+
+* Learn the representation of the images
+* Dimensinality reduction and visualization
+* Generate new data that resembles input data
+
+Instead of (x, y), here we use x as input and output (as we want to reconstruct the input data itself).
+```model.fit(x_train, x_train)```
+
+That's achieved using DOWN layers, then a __BOTTLENECK__ which is the layer that learns the representation of the data, and then UP layers that try to reconstruct the original input.
+
+
+Many times we will like to keep both the decoder output and the encoder output (to visualize both), so we have to create two models:
+```python
+def simple_autoencoder(inputs):
+  '''Builds the encoder and decoder using Dense layers.'''
+  encoder = tf.keras.layers.Dense(units=32, activation='relu')(inputs)
+  decoder = tf.keras.layers.Dense(units=784, activation='sigmoid')(encoder)
+  
+  return encoder, decoder
+
+# set the input shape
+inputs =  tf.keras.layers.Input(shape=(784,))
+
+# get the encoder and decoder output
+encoder_output, decoder_output = simple_autoencoder(inputs)
+
+# setup the encoder because you will visualize its output later
+encoder_model = tf.keras.Model(inputs=inputs, outputs=encoder_output)
+
+# setup the autoencoder
+autoencoder_model = tf.keras.Model(inputs=inputs, outputs=decoder_output)
+```
+
+For images, we normally use `binary_crossentropy` as it's a binary classification between 0 (black pixel) and 1 (white). And also we use `sigmoid` as the activation function for the last layer (as seen above).
+
+```python
+autoencoder_model.compile(
+    optimizer=tf.keras.optimizers.Adam(), 
+    loss='binary_crossentropy')
+```
+
+We may want to plot/visualize the results at the same time. We could use an arbitrary function like this:
+
+```python
+def display_one_row(disp_images, offset, shape=(28, 28)):
+  '''Display sample outputs in one row.'''
+  for idx, test_image in enumerate(disp_images):
+    plt.subplot(3, 10, offset + idx + 1)
+    plt.xticks([])
+    plt.yticks([])
+    test_image = np.reshape(test_image, shape)
+    plt.imshow(test_image, cmap='gray')
+
+
+def display_results(disp_input_images, disp_encoded, disp_predicted, enc_shape=(8,4)):
+  '''Displays the input, encoded, and decoded output values.'''
+  plt.figure(figsize=(15, 5))
+  display_one_row(disp_input_images, 0, shape=(28,28,))
+  display_one_row(disp_encoded, 10, shape=enc_shape)
+  display_one_row(disp_predicted, 20, shape=(28,28,))
+```
+
+
+### Deep autoencoders
+
+Normally we call them:
+
+* Deep or Stack autoencoders: if they have multiple dense layers
+* Convolutional Autoencoders: uses Conv2D and Maxpool2D for generating images, but use upsampling for increasing the size (`Upsampling2D` instead of `Maxpool2D` after the Conv2D)
+
+To visualize the intermediate visualization of the bottleneck, we could create another output just for visualization:
+
+```python
+bottleneck = Conv2D(256, (3,3), 'relu', padding = 'same')(inputs)
+encoder_visualization = Conv2D(1, (3,3), 'sigmoid', padding = 'same')(bottleneck)
+...
+encoder_model = tf.keras.Model(inputs = inputs, outputs = encoder_visualization)
+```
+
+Also We can add noise to the images and try to reconstruct the original image (see notebook). This code creates a noisy image as x (using the original image as y).
+
+```python
+def map_image_with_noise(image, label):
+  '''Normalizes the images and generates noisy inputs.'''
+  image = tf.cast(image, dtype=tf.float32)
+  image = image / 255.0
+  
+  noise_factor = 0.5
+  factor = noise_factor * tf.random.normal(shape=image.shape)
+  image_noisy = image + factor
+  image_noisy = tf.clip_by_value(image_noisy, 0.0, 1.0)
+ 
+  return image_noisy, image
+```
+
+
+
+## WEEK 3: VAE (VARIATIONAL AUTOENCODERS)
+
+Instead of reconstructing the input data, we could use autoencoders to create entirely new data: the bottleneck becomes what's called __LATENT REPRESENTATION__, because it holds the representation of the data from where to reconstruct.
+
+For this, instead of using the _output_ from the decoder, we use _two outputs_: one using the mean, and one using the std; to both of them, we apply __noise__ in a normal distribution (by multiplying noise * std and adding the mean)
+
+That gaussian noise is what you will then need to create a new example from the latent representation (as stated in the course _"the model mixes a random sample and combines it with the outputs of the encoder "_).
+
+INCLUIR LA FOTO DE STD DEV CON LOS BLOQUEES
+
+### Encoder:
+
+There are several differences with autoencoders:
+
+* We will use `BatchNormalization` layers after the Conv2D
+* We need two outputs, one for mu (mean) and one for sigma (std)
+  * Both will be `Dense(1)` as they are just numbers, whose parameters will be learnt by the network
+* We also need the shape from the last conv-batchnorm block (to hold it for the future).
+
+*Note:* You might encounter issues with using batch normalization with smaller batches, and sometimes the advice is given to avoid using batch normalization when training VAEs in particular. Feel free to experiment with adding or removing it from this notebook to explore the effects.
+
+```python
+def encoder_layers(inputs, latent_dim):
+  """Defines the encoder's layers.
+  Args:
+    inputs -- batch from the dataset
+    latent_dim -- dimensionality of the latent space
+
+  Returns:
+    mu -- learned mean
+    sigma -- learned standard deviation
+    batch_2.shape -- shape of the features before flattening
+  """
+
+  # add the Conv2D layers followed by BatchNormalization
+  x = tf.keras.layers.Conv2D(filters=32, kernel_size=3, strides=2, padding="same", activation='relu', name="encode_conv1")(inputs)
+  x = tf.keras.layers.BatchNormalization()(x)
+  x = tf.keras.layers.Conv2D(filters=64, kernel_size=3, strides=2, padding='same', activation='relu', name="encode_conv2")(x)
+
+  # assign to a different variable so you can extract the shape later
+  batch_2 = tf.keras.layers.BatchNormalization()(x)
+
+  # flatten the features and feed into the Dense network
+  x = tf.keras.layers.Flatten(name="encode_flatten")(batch_2)
+
+  # we arbitrarily used 20 units here but feel free to change and see what results you get
+  x = tf.keras.layers.Dense(20, activation='relu', name="encode_dense")(x)
+  x = tf.keras.layers.BatchNormalization()(x)
+
+  # add output Dense networks for mu and sigma, units equal to the declared latent_dim.
+  mu = tf.keras.layers.Dense(latent_dim, name='latent_mu')(x)
+  sigma = tf.keras.layers.Dense(latent_dim, name ='latent_sigma')(x)
+
+  return mu, sigma, batch_2.shape
+```
+
+### Sampling layer
+
+We will use the mean and std from the outputs to create a gaussian (normal) distribution from the probability features learnt. We should create a custom layer for this.
+
+$$z = \mu + e^{0.5\sigma} * \epsilon  $$
+
+```python
+class Sampling(tf.keras.layers.Layer):
+  def call(self, inputs):
+    mu, sigma = inputs
+
+    # get the size and dimensions of the batch
+    batch = tf.shape(mu)[0]
+    dim = tf.shape(mu)[1]
+
+    # generate a random tensor
+    epsilon = tf.keras.backend.random_normal(shape=(batch, dim))
+
+    # combine the inputs and noise
+    return mu + tf.exp(0.5 * sigma) * epsilon
+```
+
+When we call this layer, we need to unpack inputs as a tuple:
+
+```z = Sampling()((mu, sigma))```
+
+
+### Decoder
+
+The features of the decoder:
+
+* First, they need a `Dense(units)` where units is the shape from the last conv (eg: 7*7*64).
+* Then we need a `BatchNormalization` and a `Reshape` to return to a 3d image
+* Instead of conv2d+upsampling2d, we'll use `Conv2DTanspose` followed by `BatchNormalization` all the time. The last will have just 1 filter.
+
+In all Conv2D and Conv2DTranspose, strides = 2 to avoid use of Maxpool layers.
+
+```python
+def decoder_layers(inputs, conv_shape):
+  """Defines the decoder layers.
+  Args:
+    inputs -- output of the encoder 
+    conv_shape -- shape of the features before flattening
+
+  Returns:
+    tensor containing the decoded output
+  """
+
+  # feed to a Dense network with units computed from the conv_shape dimensions
+  units = conv_shape[1] * conv_shape[2] * conv_shape[3]
+  x = tf.keras.layers.Dense(units, activation = 'relu', name="decode_dense1")(inputs)
+  x = tf.keras.layers.BatchNormalization()(x)
+  
+  # reshape output using the conv_shape dimensions
+  x = tf.keras.layers.Reshape((conv_shape[1], conv_shape[2], conv_shape[3]), name="decode_reshape")(x)
+
+  # upsample the features back to the original dimensions
+  x = tf.keras.layers.Conv2DTranspose(filters=64, kernel_size=3, strides=2, padding='same', activation='relu', name="decode_conv2d_2")(x)
+  x = tf.keras.layers.BatchNormalization()(x)
+  x = tf.keras.layers.Conv2DTranspose(filters=32, kernel_size=3, strides=2, padding='same', activation='relu', name="decode_conv2d_3")(x)
+  x = tf.keras.layers.BatchNormalization()(x)
+  x = tf.keras.layers.Conv2DTranspose(filters=1, kernel_size=3, strides=1, padding='same', activation='sigmoid', name="decode_final")(x)
+  
+  return x
+```
+
+The size of the last filter (1) corresponds to grayscale images. For rgb images use 3.
+
+
+### Loss function
+
+We will use two losses: a normal loss (binary crossentropy loss), as defined earlier, because pixel values range 0-1
+And also we'll use a regularization loss for the autoencoder, that normally is KLloss (Kullback Leibler divergence loss), that instead of y_true/y_pred, uses mu and sigma to define the loss.
+
+Because it's an strange way (without y_true-y_pred), we need to add it to the model using `model.add_loss(kl_loss)`, and we'll need a custom training loop.
+
+```python
+def kl_reconstruction_loss(inputs, outputs, mu, sigma):
+  """ Computes the Kullback-Leibler Divergence (KLD)
+  Args:
+    inputs -- batch from the dataset
+    outputs -- output of the Sampling layer
+    mu -- mean
+    sigma -- standard deviation
+
+  Returns:
+    KLD loss
+  """
+  kl_loss = 1 + sigma - tf.square(mu) - tf.math.exp(sigma)
+  kl_loss = tf.reduce_mean(kl_loss) * -0.5
+
+  return kl_loss
+```
+
+Now we can create the whole model:
+
+```python
+def vae_model(encoder, decoder, input_shape):
+  inputs = tf.keras.layers.Input(shape=input_shape)
+
+  # get mu, sigma, and z from the encoder output
+  mu, sigma, z = encoder(inputs)
+  
+  # get reconstructed output from the decoder
+  reconstructed = decoder(z)
+
+  # define the inputs and outputs of the VAE
+  model = tf.keras.Model(inputs=inputs, outputs=reconstructed)
+
+  # add the KL loss
+  loss = kl_reconstruction_loss(inputs, z, mu, sigma)
+  model.add_loss(loss)
+
+  return model
+```
+
+But we need to define a custom training loop:
+
+```python
+# generate random vector as test input to the decoder
+random_vector_for_generation = tf.random.normal(shape=[16, LATENT_DIM])
+
+for epoch in range(epochs):
+  print('Start of epoch %d' % (epoch,))
+
+  # iterate over the batches of the dataset.
+  for step, x_batch_train in enumerate(train_dataset):
+    with tf.GradientTape() as tape:
+
+      # feed a batch to the VAE model
+      reconstructed = vae(x_batch_train)
+
+      # compute reconstruction loss
+      flattened_inputs = tf.reshape(x_batch_train, shape=[-1])
+      flattened_outputs = tf.reshape(reconstructed, shape=[-1])
+      loss = bce_loss(flattened_inputs, flattened_outputs) * 784
+      
+      # add KLD regularization loss
+      loss += sum(vae.losses)  
+
+    # get the gradients and update the weights
+    grads = tape.gradient(loss, vae.trainable_weights)
+    optimizer.apply_gradients(zip(grads, vae.trainable_weights))
+
+    # compute the loss metric
+    loss_metric(loss)
+
+    # display outputs every 100 steps
+    if step % 100 == 0:
+      display.clear_output(wait=False)    
+      generate_and_save_images(decoder, epoch, step, random_vector_for_generation)
+      print('Epoch: %s step: %s mean loss = %s' % (epoch, step, loss_metric.result().numpy()))
+```
+
+### Convolutional Autoencoders
+
+GO TO THE GOOGLE COLAB TO BUILD IT
+
+
+
+
 ## WEEK 4: GANs
 
 ### GANs
