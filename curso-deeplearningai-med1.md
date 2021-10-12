@@ -744,6 +744,151 @@ La formula es la misma pero con distinto principio como ya hemos visto.
 
 
 
+# COURSE 3: MEDICAL TREATMENT
+
+## WEEK 1: MEASURING RISK AND TREATMENT EFFECT
+
+### RISK: AR & ARR
+
+En esta semana veremos tecnicas para predecir el efecto de un tratamiento en un paciente, como de efectivo es.
+
+Para ello, el paradigma siempre es un ensayo clinico:
+
+* Un grupo de pacientes (casos) recibe el tratamiento
+* Un grupo no recibe el tratamiento (recibe el tto estandar o placebo).
+
+Tras ello, en ambos grupos medimos el % de pacientes con un evento concreto, que sería el RIESGO ABSOLUTO (AR, absolute risk) de ese evento.
+Con estos riesgos absolutos podemos calcular la REDUCCION ABSOLUTA DEL RIESGO (ARR, absolute risk reduction), que es la resta entre los riesgos absolutos de ambos eventos.
+
+Ej: un tto tiene un 5% de infartos y otro un 2% (0.05 y 0.02 de RA). El RAR del nuevo tratamiento será 0.03.
+
+Pero hemos tener en cuenta una cosa MUY IMPORTANTE: la DISTRIBUCIÓN de pacientes (selection-bias), ya que los pacientes de ambas ramas deben ser similares (no puede tener un grupo pacientes jovenes, delgados... y otro ancianos y obesos).
+
+Por ello los pacientes deben ser asignados ALEATORIAMENTE, para que sea un ENSAYO CLÍNICO RANDOMIZADO.
+
+
+Generalmente, además de ver el efecto (ARR), hemos de ver si ese efecto es estadisticamente significativo (__p-value__), que nos indica la posibilidad de obtener estos resultados por azar, sin que el efdcto estuviera presente.
+Este p-value está muy relacionado con el NUMERO DE PACIENTES que participan en el ensayo, ya que a más pacientes, mayor significación estadística.
+
+Podemos calcular el NUMERO NECESARIO A TRATAR de pacientes (NNT), que es (1/ARR), y nos da el numero de pacientes que necesita recibir el tratamiento para beneficiar a uno de ellos (ej: cuantos pacientes habría que tratar con el nuevo tratamiento para evitar el infarto de uno de ellos).
+
+### CAUSAL INFERENCE: ATE (Average Treatment Effect)
+
+Sirve para determinar mediante ML que pacientes se beneficiarán más de un tratamiento (a aquellos a los que más le reducirá el efecto adverso).
+
+Ej: con el tratamiento > no infarto; sin el tratamiento > infarto
+
+Pero tambien puede ocurrir que algunos pacientes tengan un mal outcome (ej: con el tratamiento > infarto y sin el tratamiento > no infarto >> HARM).
+
+Todo esto lo podemos representar con un __modelo causal de Neuman-Rubin__. Representamos:
+
+* yi(1) = el paciente recibe el tratamiento
+* yi(0) = el paciente no recibe el tratamiento
+* 1 = tiene el evento adverso (ej: infarto)
+* 0 = no tiene el evento adverso
+
+Con ello creamos una tabla para cada tratamiento, y luego una tabla con la diferencia entre un tratamiento y otro.
+Si tenemos varios pacientes, podemos crear la media para estos pacientes para cada fila:
+
+* Ej: de 5 pacientes con el tratamiento, un media de 40% tienen evento adverso, y de 5 pacientes sin tratamiento, una media del 60% tiene el evento adverso. Por tanto, la diferencia neta sería del -20%, que es el AVERAGE TREATMENT EFFECT (efecto medio del tratamiento).
+  
+
+Pero el __PROBLEMA FUNDAMENTAL de la inferencia causal__ corresponde a que, para un evento adverso:
+
+* Si el suceso ocurre, es un evento observado/factual
+* Si el suceso no ocurre, se le considera un evento NO OBSERVADO/CONTRAFACTUAL (no se sabe realmente que pasó).
+
+Por tanto, representaremos si el paciente fue tratado con Wi, y con Yi(1) el evento adverso si recibió el tratamiento, y con Yi(0), si no lo recibió (y no sabremos que hubiera pasado si el tratamiento hubiera sido el opuesto: ?)
+
+Por tanto para cada paciente no podemos calcular yi(1) - yi(0) como antes. Ahora, para estimar el ATE (Average treatment effect) si no sabemos las diferencias de resultado para el mismo paciente?
+
+Pues lo podemos inferir SOLO SI SE TRATA DE UN ENSAYO CLINICO RANDOMIZADO. Aqui lo que hacemos será agrupar a los pacientes que tomaron el tratamiento todos juntos (y hacemos la media de eventos adversos), y lo mismo para los que no tomaron el tratamiento. Ahí ya podemos hacer lo mismo que antes, la diferencia entre el efecto de los que reciben el tratamiento y los que no.
+
+Ahí obtenemos el ATE (average traatment effect). Ej: -0.19. Este número está muy relacionado con el ARR (average relative risk), ya que es el opuesto: Si ATE = -0.19, ARR = 0.19 (aumenta el riesgo con el tratamiento).
+
+### CATE (Conditional ATE)
+
+¿COMO CONSEGUIR UNA ESTIMACIÓN MÁS INDIVIDUALIZADA DEL ATE?
+Usando el CATE (Condicional ATE), que simplemente es, en ensayos clinicos randomizados, seleccionar pacientes de cada rama que cumplan una determinada condición (ej: edad 56 años), y calcular su ATE igual (con la diferencia).
+
+El problema es CUANDO HAY POCOS PACIENTES, ya que puede ser que no seamos capaces de calcularlo. Más aún cuando no usamos solo una condición, sino que usamos varias (edad, tensión arterial...).
+
+Una posible solución sería CALCULAR LA RELACIÓN entre distintas variables (edad, tensión...), calculando un nuevo valor (mu1 y mu0, uno para cada grupo de tratamiento), y así usarlo para calcular el ATE. El del grupo tratamiento será el _treatment response function_ y el del grupo control será _control response function_.
+
+Estas funciones se calcularán mediante __BASE LEARNERS__, que son modelos (decision trees, linear models...) que reciben como inputs las variables que queremos combinar (edad, tensión...) y el outcome del evento adverso, y así estimaos el efecto de tratamiento (ATE) para cada grupo de pacientes.
+Por lo que a la hora de la verdad son modelos pronosticos.
+
+Cuando calculamos un arbol de decisión para cada grupo de tratamiento (con los ATE como resultado de cada rama), estamos usando el _two-tree method_ o __T-Learner__.
+
+En cambio, podemos usar un solo modelo para ambos grupos (en el que incluimos el tipo de tratamiento como input): este se llama _single-tree method_ o __S-Learner__.
+
+El problema que tiene el S-Learner es que puede ocurrir que se deje fuera la variable de tratamiento al crear el arbol de decisión, y por tanto no distinguirá entre el efecto de tratamiento entre ambos grupos a la hora de calcular el ATE.
+
+T-Learner es mejor para esto, su mayor problema es que, al usar la mitad de los datos para cada modelo, puede ser que los modelos creados no sean capaces de captar todas las relaciones entre las caracteristicas de entrada (edad, tensión....) por tener menos datos.
+
+Al calcular este ATE individualizado estamos calculando el ITE (individual treatment efect).
+
+
+### ITE: INDIVIDUAL TREATMENT EFFECT
+
+A la hora de evaluar estos modelos, tenemos un problema: tenemos un paciente con unas caracteristicas (ej: edad 56, TA 130) con un ITE estimado de -0.33.
+
+Pero cómo podemos evaluar si ese ITE es real, si al paciente no lo podemos tener en las dos ramas a la vez? (no podemos darle el tratamiento y no darselo). Tan solo tendremos un outcome real, pero no conoceremos el otro.
+
+Para ello, una forma de hacerlo es INFERIR el resultado que tendría bajo la otra rama, buscando un paciente similar en la otra rama. Para ello hay dos estrategias:
+
+* Coger un paciente de la otra rama con caracteristicas similares (ej: edad 54, TA 125).
+* Coger un paciente de la otra rama con un ITE similar (ej: -0.34)
+
+A estos dos pacientes se les llama __MATCHED PAIR__, y en ellos tendremos tambien un ITE estimado (la media de ambos ITE), y un ITE real (observado).
+
+* Si ese ITE es negativo (-1): BENEFICIO OBSERVADO (observed benefit)
+* Si ese ITE es positivo (1): DAÑO OBSERVADO (observed harm)
+* Si el ITE es cero (0): SIN EFECTO (observed no effect).
+
+Solo pueden tomar estos tres valores (1, 0, -1) ya que comparamos solo parejas de pacientes.
+
+Este calculo nos sirve para saber si el beneficio predicho se corresponde con el beneficio observado.
+
+### C-FOR-BENEFIT (C-INDEX)
+
+Teniendo en cuenta el resultado OBSERVADO (outcome) y el ESTIMADO (estimate), y tomando parejas de matched pairs (no parejas de individuos), tendremos dos posibilidades:
+
+* CONCORDANT PAIR: lo que cuadra: cuando la pareja con mayor valor estimado es la que tiene mayor valor observado (la pareja que más se iba a beneficiar del tratamiento es la que realmente tiene mejor outcome, y la que predecia daño realmente tiene más daño).
+* NON CONCORDANT PAIR: al reves: la que tenia mejor estimación que le iba a ir bien el tratamiento (mejor estimade) resulta tener peor resultado (outcome).
+* RISK TIE: cuando dos parejas tienen la misma estimacion (estimate) pero resultados opuestos, lo que nos impide comparar el efecto del tratamiento.
+* TIE IN OUTCOME: cuando tienen el mismo outcome, pero distinta estimación, no los podemos comparar ya que no podemos decir cual tiene peor score.
+
+Solo podemos comparar pares que tengan DISTINTOS OUTCOMES, y estos pares se llaman PERMISSIBLE PAIRS (todas las que tienen distintos outcomes entre si).
+
+Para calcular el C-INDEX:
+
+```python
+c_index = concordant_pairs + (0.5 * risk_ties) / permissible_pairs
+```
+
+Generalmente, para calcularlo se hace un __match by rank__: se ordenan a los dos grupos de tratamiento por ITE (de negativo a positivo), y se matchean uno a uno para crear pares. Y despues se calcula el C-for-Benefit.
+
+¿Que significa el C-index?
+Lo que calcula es que, dadas dos parejas al azar (A y B) con diferentes outcomes, cual es la probabilidad de que el par con mayor ITE (estimacion de mayor efecto con el tratamiento), realmente sea el par con mayor outcome (mayor efecto de tratamiento).
+Por ej, un C-for-Benefitt de 0.6 quiere decir que la probabilidad del modelo de identificar correctamente la pareja de pacientes con mayor respuesta al tratamiento es del 60%.
+
+
+## WEEK 2: NLP
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
