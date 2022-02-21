@@ -128,8 +128,102 @@ __CODE__ (algorithm - model): when you have an architecture that performs well, 
     * Somethimes this is not enough!! Low average valid error is not enough, because it may not still be successfull for real-world deployment.
         * Disproportionately important examples --> examples that are not common but are very important that we do fine in the real-world (eg: navigational querys in a web search, such as 'google' or 'youtube')
         * Performance on key slices of the dataset --> eg: make sure our models does not discriminate (ej: by gender, ethnics, location... or, in a recommender system, by retailer, product categories...)
+        * Rare classes (skew data distribution) --> when we have very little samples of some class, it may be problematic not only for training, but because we may believe the metrics from the test set and they may not be true do to small numper of samples. Eg: hernia in ChexNet.
+    * Even for the test set, we can have a model that does not work in real-world (maybe other clinics, other center...). We need to take that into account.
 
 3. DO well on business metrics - project goals
+
+
+### STEPS TO CREATE A MODEL
+
+#### 1. STABLISH A BASELINE
+
+The first thing we need to do is to stablish a baseline, normally compared to __human-level performance (HLP)__, to know how good machine can do and how much room for improvement we have.
+
+    > Eg: we may see that metrics for a ml baseline for speech recognition in low bandwith are 70% and it seems low, but if human-level performance is 70% too (because bad conditions, doesn't hear well...) maybe we should focus on other task that has more difference between ml and human-level.
+
+* For _unstructured data_ such as images, audio, text... we can use HLP as a baseline.
+
+* For _structured data_ such as tabular data... humans are very bad so we DONT USE HLP as a baseline, we need others.
+
+Ways to stablish a baseline:
+
+* Human-level performance
+* Literature search for state-of-the-art / open source
+* Quick and dirty implementations (with current models easily implemented)
+* If you already have a ML model running, you can use the performance of the older system as baseline.
+
+it indicated what MIGHT be possible to do. And in some cases (HLP) it also give a sense of inductible error-Bayes error.
+
+#### 2. TIPS FOR GETTING STARTED WITH A MODEL
+
+ML is an iterative process (start model + hyperparameters + data > training > error analysis). So, to start:
+
+* __How do I start on modelling__:
+    * Seek for literature search (courses, blogs, open-source projects), but normally not better to use the latest fancy model, but one that may work fine and is easily implemented.
+    * It's better to have good data (a reasonable algorithm with good data >> great algorithm with bad data)
+    
+* __Should deployment constraints be taken into accound when picking the model? It depends__:
+    * Yes, if the baseline is already stablished and the goal is to deploy (you already know the project is feasable)
+    * No, if the purpose is to stablish a baseline or know if a project is possible (you don't know yet if you can make the project work), and it's worth trying.
+
+* __Run sanity-checks for code and algorithm__:
+    * Try to overfit a small training dataset before training on a larger model (even better to use just 1 training example: you need to check that you can overfit). That may help you to detect problems with model, preprocessing...
+
+
+### ERROR ANALYSIS
+
+Normally, at first the ML algorithms not work, so you need to do error analysis to see the best spent of your time to fix it.
+
+The best way to initiate is __error tagging__: you make an spreadsheet with a sample of errors from the test set and make labels of why the cause of the error is (bad labelling, background noise, blurry...). This is an iterative process so you may add  new labels over time-over the analysis and recheck already checked items.
+
+__Useful metrics for each tag:__
+
+* What fraction of error has that tag?
+* From that tag, what fraction is missclassified?
+
+In the previous step we saw that we should look at the gap between ML-HLP to prioritize our work. But now, with error analysis, we must take into account other aspects for EACH category:
+
+* How much room for improvement there is
+* How frequently that category appears
+* How easy is to improve accuracy in that category
+* How important is to improve in that category
+
+Because you may see that ML-HLP gap is high, but you don't have much data from that category, so it might be worth to work on something else.
+
+When you __decide a specific category to improve__, you may try some tricks to improve that category:
+
+* Collect more data (so you don't collect all more data but only the categories needed)
+* Use data augmentation to get more data
+* Improve label accuracy/data quality
+
+
+One thing difficult to fix are __skewed datasets__, where categories have very imbalanced data (99% no defect-disease, 1% only defect-disease):
+
+* Accuracy is no useful
+* You need _confusion matrix_ (actual label vs predicted label), so you can get metrics like _precision_ and _recall_ (along with TN, TP, FN, FP). We combine both metrics in _F1 score_.
+    * Precision =  TP / real positives (TP + FP)
+    * Recall =  TP / detected positives (TP + FN)
+    * F1-score = 2 / (1/P + 1/R)
+* Another useful thing from F1 score is that it can be used as _Multi-class metrics_ (you get an evaluation metric for each class and you can also prioritize where to work on).
+
+
+### PERFORMANCE AUDITING
+
+When we are in the loop (model + hyperparameters + data > training > error analysis), eventually (usually at the end) we come up with auditing performance.
+
+* Brainstorm the ways the system might go wrong
+    * Bad performance on subsets of data (ethnics, gender, different devices, prevalence of rude transcriptions...)
+    * How common are certain errors (FP; FN...)
+    * Performance on rare classes
+* Establish metrics to assess performance against these issues (on appropriate slices of data, not all)
+    * Eg: mean accuracy for different genders, accents, devices...
+    * Eg: check prevalence of offensive words in the output
+* Get business/product owner buy-in (to geet help to understand the problem)
+
+After that, you find that you need to fix a specific type of data, so you will have to focus on it performing data iteration (data-centric approach).
+
+### DATA ITERATION
 
 
 
