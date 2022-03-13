@@ -41,7 +41,17 @@ ir a una linea concreta: `ctrl+g`
 
 Ponerte encima de la `variable + F2`
 
+### Extensiones interesantes
 
+* Prettier: formats code before saving
+* Better comments: change colors for comments to have differents types
+* Cascadia code: font very nice for coding
+* Polacode: create nice images from code snippets
+* Bracket pair colorizer: colorea los () [] para que cuadren por colores
+* Import Cost: te dice lo que computacionalmente cuestan los imports
+* Markdown PDF: convierte md ta pdf
+* Live share: permite crear una sesion de codigo colaborativa con alguien (como si fuera en la nube)
+* Github: permite una mayor integracion con github
 
 
 ### Código expansible
@@ -49,6 +59,25 @@ Ponerte encima de la `variable + F2`
 Para poder colapsar código: `cmd+K y cmd+0`
 
 ### Debug
+
+- En la pestaña debug, le damos al play de la izquierda para empezar debug.
+- Ponemos breakpoints con el punto rojo a la izquierda del codigo.
+- Dandole a 'step over' nos movemos por el codigo linea a linea
+- Cuando los breakpoints saltan, podemos:
+  - Visualizar variables (arriba)
+  - Visualizar una variable concreta (watch), incluso haciendo operaciones con ella (ej: variable.shape)
+    - La podemos añadir con el boton derecho 'Debug Add to watch'
+
+
+Dentro de los breakpoints, podemos establecer:
+- Expression: que solo pare si se cumple una expresion (ej: variable > 7)
+- Hit count: que solo pare si pasa un numero de veces por ese punto (ej: para usarlo en bucles)
+- Log message: no para la ejecucion pero muestra un mensaje en la debug console
+
+Hay dos tipos de excepciones:
+* Raised exceptions: las que nosotros mostramos cuando algo falla en el codigo
+* Uncaught exceptions: las que no están contempladas en el codigo
+
 
 #### Formateo
 
@@ -113,3 +142,10 @@ En debug console podemos meter código
 
 ## git
 `cmd+k cmd+D` ver diff
+
+### Sincronizar preferencias
+
+Darle a settings sync: on, y sincroniza con tu cuenta github toda tu configuracion.
+Además podemos ver las máquinas que están sincronizadas.
+
+ 
