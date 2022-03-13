@@ -2846,7 +2846,7 @@ For this, instead of using the _output_ from the decoder, we use _two outputs_: 
 
 That gaussian noise is what you will then need to create a new example from the latent representation (as stated in the course _"the model mixes a random sample and combines it with the outputs of the encoder "_).
 
-INCLUIR LA FOTO DE STD DEV CON LOS BLOQUEES
+![](assets/tf-adv-c4-5.png)
 
 ### Encoder:
 
